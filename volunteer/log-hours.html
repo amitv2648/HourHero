@@ -1,13 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HourHero — Log Hours</title>
-  <link rel="stylesheet" href="../css/main.css" />
-  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
   <style>
     body { background: var(--color-gray-100); }
+
+    /* Mode toggle */
+    .mode-toggle {
+      display: flex;
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      padding: 4px;
+      margin-bottom: var(--space-4);
+      gap: 4px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 0.6rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-500);
+      border-radius: var(--radius-md);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      text-align: center;
+    }
+
+    .mode-btn.active {
+      background: var(--color-primary);
+      color: #fff;
+    }
+
+    /* Standard form card */
+    .form-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin-bottom: var(--space-4);
+    }
 
     .time-row {
       display: grid;
@@ -26,15 +65,8 @@
       text-align: center;
     }
 
-    .submit-card {
-      background: var(--color-white);
-      border: 1px solid var(--color-gray-200);
-      border-radius: var(--radius-lg);
-      padding: var(--space-5);
-      margin-bottom: var(--space-5);
-    }
-
-    .log-list-card {
+    /* Submission history */
+    .log-card {
       background: var(--color-white);
       border: 1px solid var(--color-gray-200);
       border-radius: var(--radius-lg);
@@ -42,14 +74,12 @@
       margin-bottom: var(--space-4);
     }
 
-    .log-list-header {
+    .log-card-hdr {
       padding: var(--space-4) var(--space-5) var(--space-3);
       border-bottom: 1px solid var(--color-gray-100);
     }
 
-    .log-list-body {
-      padding: 0 var(--space-5);
-    }
+    .log-card-body { padding: 0 var(--space-5); }
 
     .rejection-note {
       font-size: 0.775rem;
@@ -58,19 +88,201 @@
       font-style: italic;
     }
 
+    /* ===== COMPLEX / AI CHATBOT MODE ===== */
+    .chat-container {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      height: 520px;
+      margin-bottom: var(--space-4);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-gray-100);
+      background: var(--color-gray-50);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .chat-header-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-success);
+      flex-shrink: 0;
+    }
+
+    .chat-header-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+    }
+
+    .chat-header-sub {
+      font-size: 0.775rem;
+      color: var(--color-gray-500);
+      margin-left: auto;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .msg {
+      display: flex;
+      gap: var(--space-2);
+      max-width: 88%;
+    }
+
+    .msg.bot { align-self: flex-start; }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .msg.bot .msg-avatar { background: var(--color-primary-light); color: var(--color-primary); }
+    .msg.user .msg-avatar { background: var(--color-gray-200); color: var(--color-gray-600); }
+
+    .msg-bubble {
+      padding: 0.6rem 0.875rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .msg.bot .msg-bubble {
+      background: var(--color-gray-100);
+      color: var(--color-gray-900);
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg.user .msg-bubble {
+      background: var(--color-primary);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* Confirmation card inside chat */
+    .confirm-card {
+      background: var(--color-white);
+      border: 1.5px solid var(--color-primary-mid);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-top: var(--space-2);
+      font-size: 0.85rem;
+    }
+
+    .confirm-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--color-gray-100);
+      font-size: 0.83rem;
+    }
+
+    .confirm-row:last-child { border-bottom: none; }
+
+    .confirm-row-label { color: var(--color-gray-500); font-weight: 600; }
+    .confirm-row-val { color: var(--color-gray-900); font-weight: 600; text-align: right; max-width: 60%; }
+
+    .confirm-actions {
+      display: flex;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+    }
+
+    .chat-input-row {
+      border-top: 1px solid var(--color-gray-200);
+      padding: var(--space-3) var(--space-4);
+      display: flex;
+      gap: var(--space-2);
+      background: var(--color-white);
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 0.6rem 0.875rem;
+      font-size: 0.9rem;
+      border: 1.5px solid var(--color-gray-200);
+      border-radius: var(--radius-full);
+      outline: none;
+      transition: border-color .15s;
+      background: var(--color-gray-50);
+    }
+
+    .chat-input:focus { border-color: var(--color-primary); background: var(--color-white); }
+
+    .chat-send {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+
+    .chat-send:hover { background: var(--color-primary-dark); }
+    .chat-send:disabled { background: var(--color-gray-300); cursor: not-allowed; }
+
+    .chat-send svg {
+      width: 16px;
+      height: 16px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     @keyframes shimmer {
-      0%   { background-position: -400px 0; }
-      100% { background-position:  400px 0; }
+      0%   { background-position:-400px 0; }
+      100% { background-position: 400px 0; }
     }
     .skeleton {
-      background: linear-gradient(90deg,
-        var(--color-gray-100) 25%,
-        var(--color-gray-200) 50%,
-        var(--color-gray-100) 75%);
+      background: linear-gradient(90deg, var(--color-gray-100) 25%,
+        var(--color-gray-200) 50%, var(--color-gray-100) 75%);
       background-size: 800px 100%;
       animation: shimmer 1.4s infinite linear;
       border-radius: var(--radius-sm);
     }
+
+    /* Typing indicator */
+    @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+    .typing-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-gray-400);
+      margin: 0 2px;
+      animation: blink 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
   </style>
 </head>
 <body>
@@ -90,98 +302,112 @@
         <p class="page-header-sub">Submit your volunteer time for approval</p>
       </div>
 
-      <!-- Submission form -->
-      <div class="submit-card">
-
-        <div id="form-message"></div>
-
-        <div class="form-group">
-          <label class="form-label" for="sel-opp">Opportunity</label>
-          <select class="form-select" id="sel-opp" onchange="onOppChange()">
-            <option value="">— Select an opportunity —</option>
-          </select>
-          <div class="form-hint">
-            Only opportunities you have joined appear here.
-            <a href="opportunities.html">Browse more</a>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="sel-date">Date of service</label>
-          <input class="form-input" type="date" id="sel-date" />
-        </div>
-
-        <div class="time-row">
-          <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label" for="sel-start">Start time</label>
-            <input class="form-input" type="time" id="sel-start"
-                   oninput="calcHours()" />
-          </div>
-          <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label" for="sel-end">End time</label>
-            <input class="form-input" type="time" id="sel-end"
-                   oninput="calcHours()" />
-          </div>
-          <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label">Hours</label>
-            <div class="hours-display" id="hours-display">0.0 h</div>
-          </div>
-        </div>
-
-        <div class="form-group" style="margin-top:var(--space-4);">
-          <label class="form-label" for="sel-desc">
-            Description
-            <span class="form-label-optional">(optional)</span>
-          </label>
-          <textarea class="form-textarea" id="sel-desc"
-                    placeholder="Brief description of what you did..."
-                    rows="3"></textarea>
-        </div>
-
-        <button class="btn btn-primary btn-full" id="btn-submit"
-                onclick="handleSubmit()">
-          Submit for approval
+      <!-- Mode toggle -->
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-standard" onclick="setMode('standard')">
+          Standard entry
         </button>
-
+        <button class="mode-btn" id="btn-complex" onclick="setMode('complex')">
+          Complex entry (AI)
+        </button>
       </div>
 
 
-      <!-- Submission history tabs -->
-      <div class="log-list-card">
-        <div class="log-list-header">
-          <div class="section-heading" style="margin-bottom:var(--space-3);">
-            My submissions
-          </div>
-          <div class="tabs" style="margin-bottom:0; border-bottom:none;">
-            <button class="tab-btn active" onclick="switchLogTab('pending',this)">
-              Pending
-            </button>
-            <button class="tab-btn" onclick="switchLogTab('approved',this)">
-              Approved
-            </button>
-            <button class="tab-btn" onclick="switchLogTab('rejected',this)">
-              Rejected
-            </button>
-          </div>
-        </div>
+      <!-- ============ STANDARD MODE ============ -->
+      <div id="standard-mode">
 
-        <div class="log-list-body">
-          <div id="tab-pending"  class="tab-panel active">
-            <div id="list-pending">
-              <div class="list-item skeleton-row">
-                <div class="skeleton" style="width:100%;height:13px;margin:12px 0 6px;"></div>
-                <div class="skeleton" style="width:60%;height:11px;margin-bottom:12px;"></div>
-              </div>
+        <div class="form-card">
+          <div id="form-msg"></div>
+
+          <div class="form-group">
+            <label class="form-label" for="sel-opp">Opportunity</label>
+            <select class="form-select" id="sel-opp">
+              <option value="">— Select an opportunity —</option>
+            </select>
+            <div class="form-hint">
+              Only joined opportunities appear here.
+              <a href="opportunities.html">Browse more</a>
             </div>
           </div>
-          <div id="tab-approved" class="tab-panel">
-            <div id="list-approved"></div>
+
+          <div class="form-group">
+            <label class="form-label" for="sel-date">Date of service</label>
+            <input class="form-input" type="date" id="sel-date"/>
           </div>
-          <div id="tab-rejected" class="tab-panel">
-            <div id="list-rejected"></div>
+
+          <div class="time-row">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="sel-start">Start</label>
+              <input class="form-input" type="time" id="sel-start" oninput="calcHours()"/>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="sel-end">End</label>
+              <input class="form-input" type="time" id="sel-end" oninput="calcHours()"/>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Hours</label>
+              <div class="hours-display" id="hours-display">0.0 h</div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:var(--space-4);">
+            <label class="form-label" for="sel-desc">
+              Description <span class="form-label-optional">(optional)</span>
+            </label>
+            <textarea class="form-textarea" id="sel-desc"
+                      placeholder="Brief description of what you did..." rows="3"></textarea>
+          </div>
+
+          <button class="btn btn-primary btn-full" id="btn-submit" onclick="handleSubmit()">
+            Submit for approval
+          </button>
+        </div>
+
+        <!-- Submission history -->
+        <div class="log-card">
+          <div class="log-card-hdr">
+            <div class="section-heading" style="margin-bottom:var(--space-3);">My submissions</div>
+            <div class="tabs" style="margin-bottom:0;border-bottom:none;">
+              <button class="tab-btn active" onclick="switchTab('pending',this)">Pending</button>
+              <button class="tab-btn" onclick="switchTab('approved',this)">Approved</button>
+              <button class="tab-btn" onclick="switchTab('rejected',this)">Rejected</button>
+            </div>
+          </div>
+          <div class="log-card-body">
+            <div id="tab-pending"  class="tab-panel active"><div id="list-pending"></div></div>
+            <div id="tab-approved" class="tab-panel"><div id="list-approved"></div></div>
+            <div id="tab-rejected" class="tab-panel"><div id="list-rejected"></div></div>
           </div>
         </div>
+
       </div>
+
+
+      <!-- ============ COMPLEX (AI CHATBOT) MODE ============ -->
+      <div id="complex-mode" style="display:none;">
+
+        <div class="chat-container">
+          <div class="chat-header">
+            <div class="chat-header-dot"></div>
+            <div class="chat-header-title">HourHero Assistant</div>
+            <div class="chat-header-sub">Understands natural language</div>
+          </div>
+          <div class="chat-messages" id="chat-messages"></div>
+          <div class="chat-input-row">
+            <input class="chat-input" type="text" id="chat-input"
+                   placeholder="Describe your volunteering..."
+                   onkeydown="if(event.key==='Enter') sendChat()"/>
+            <button class="chat-send" id="chat-send-btn" onclick="sendChat()">
+              <svg viewBox="0 0 24 24">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
 
     </div>
   </main>
@@ -193,361 +419,729 @@
         <rect x="14" y="3" width="7" height="7" rx="1"/>
         <rect x="3" y="14" width="7" height="7" rx="1"/>
         <rect x="14" y="14" width="7" height="7" rx="1"/>
-      </svg>
-      <span>Home</span>
+      </svg><span>Home</span>
     </a>
     <a href="log-hours.html" class="bottom-nav-item active">
       <svg class="bottom-nav-icon" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10"/>
         <polyline points="12 6 12 12 16 14"/>
-      </svg>
-      <span>Log</span>
+      </svg><span>Log</span>
     </a>
     <a href="opportunities.html" class="bottom-nav-item">
       <svg class="bottom-nav-icon" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="8"/>
         <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <span>Explore</span>
+      </svg><span>Explore</span>
+    </a>
+    <a href="badges.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="6"/>
+        <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+      </svg><span>Badges</span>
     </a>
     <a href="settings.html" class="bottom-nav-item">
       <svg class="bottom-nav-icon" viewBox="0 0 24 24">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
         <circle cx="12" cy="7" r="4"/>
-      </svg>
-      <span>Profile</span>
+      </svg><span>Profile</span>
     </a>
   </nav>
-
+  <script src="../js/theme.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/router.js"></script>
-
   <script>
-
     HH.Router.protect("volunteer");
 
-    // Caches loaded from Firebase — used for form + duplicate check
-    var _uid         = null;
-    var _joinedOpps  = {};   // { opp_id: { title, org_id, org_name } }
+    var _uid        = null;
+    var _joinedOpps = {};    // { opp_id: { title, org_id, org_name } }
 
-    HH.Router.onReady(function (uid) {
+    HH.Router.onReady(function(uid) {
       _uid = uid;
       setDefaultDate();
       loadAvatar(uid);
-      loadJoinedOpportunities(uid);
+      loadJoinedOpps(uid);
       listenSubmissions(uid);
+      initChat();
     });
 
 
-    // ---- Set today as the default date ----
+    // ==================================================
+    // MODE TOGGLE
+    // ==================================================
+    function setMode(mode) {
+      var isStandard = mode === "standard";
+      document.getElementById("standard-mode").style.display = isStandard ? "block" : "none";
+      document.getElementById("complex-mode").style.display  = isStandard ? "none"  : "block";
+      document.getElementById("btn-standard").classList.toggle("active",  isStandard);
+      document.getElementById("btn-complex").classList.toggle("active", !isStandard);
+    }
+
+
+    // ==================================================
+    // STANDARD MODE HELPERS
+    // ==================================================
     function setDefaultDate() {
       var today = new Date().toISOString().split("T")[0];
       document.getElementById("sel-date").value = today;
       document.getElementById("sel-date").max   = today;
     }
 
-
-    // ---- Load avatar initials ----
     function loadAvatar(uid) {
-      HH.db.ref("users/" + uid + "/name").once("value").then(function (s) {
-        var name = s.val() || "HH";
-        document.getElementById("nav-avatar").textContent = initials(name);
+      HH.db.ref("users/" + uid + "/name").once("value").then(function(s) {
+        document.getElementById("nav-avatar").textContent = ini(s.val() || "HH");
       });
     }
 
-
-    // ---- Populate opportunity dropdown ----
-    function loadJoinedOpportunities(uid) {
+    // FIX: use Promise.all so all opportunities load reliably
+    function loadJoinedOpps(uid) {
       HH.db.ref("users/" + uid + "/joined_opportunities")
         .once("value")
-        .then(function (snap) {
-          if (!snap.exists()) return;
-          var ids = Object.keys(snap.val() || {});
+        .then(function(snap) {
+          if (!snap.exists() || !snap.val()) return [];
+          var ids = Object.keys(snap.val());
+          return Promise.all(ids.map(function(id) {
+            return HH.db.ref("opportunities/" + id).once("value");
+          }));
+        })
+        .then(function(snaps) {
+          if (!snaps || !snaps.length) return;
           var sel = document.getElementById("sel-opp");
-
-          ids.forEach(function (id) {
-            HH.db.ref("opportunities/" + id).once("value").then(function (os) {
-              if (!os.exists()) return;
-              var o = os.val();
-              _joinedOpps[id] = {
-                title:    o.title   || "Untitled",
-                org_id:   o.org_id  || "",
-                org_name: o.org_name|| ""
-              };
-              var opt = document.createElement("option");
-              opt.value       = id;
-              opt.textContent = o.title + (o.org_name ? " — " + o.org_name : "");
-              sel.appendChild(opt);
-            });
+          snaps.forEach(function(os) {
+            if (!os || !os.exists()) return;
+            var o   = os.val();
+            var id  = os.key;
+            _joinedOpps[id] = {
+              title:    o.title    || "Untitled",
+              org_id:   o.org_id   || "",
+              org_name: o.org_name || ""
+            };
+            var opt       = document.createElement("option");
+            opt.value     = id;
+            opt.textContent = o.title + (o.org_name ? " — " + o.org_name : "");
+            sel.appendChild(opt);
           });
         });
     }
 
-
-    // ---- Auto-fill org when opp changes ----
-    function onOppChange() { /* extend later if needed */ }
-
-
-    // ---- Calculate hours from start/end time ----
     function calcHours() {
       var s = document.getElementById("sel-start").value;
       var e = document.getElementById("sel-end").value;
-      var display = document.getElementById("hours-display");
-
-      if (!s || !e) { display.textContent = "0.0 h"; return; }
-
-      var start = timeToMinutes(s);
-      var end   = timeToMinutes(e);
-      var diff  = end - start;
-
-      if (diff <= 0) { display.textContent = "—"; return; }
-
-      display.textContent = (diff / 60).toFixed(1) + " h";
+      var d = document.getElementById("hours-display");
+      if (!s || !e) { d.textContent = "0.0 h"; return; }
+      var diff = toMin(e) - toMin(s);
+      if (diff <= 0) { d.textContent = "—"; return; }
+      d.textContent = (diff / 60).toFixed(1) + " h";
     }
 
-    function timeToMinutes(t) {
+    function toMin(t) {
       var p = t.split(":");
       return parseInt(p[0]) * 60 + parseInt(p[1]);
     }
 
-
-    // ---- Tab switcher ----
-    function switchLogTab(tab, btn) {
-      ["pending","approved","rejected"].forEach(function (t) {
+    function switchTab(tab, btn) {
+      ["pending","approved","rejected"].forEach(function(t) {
         document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       });
-      document.querySelectorAll(".tab-btn").forEach(function (b) {
+      document.querySelectorAll(".tab-btn").forEach(function(b) {
         b.classList.toggle("active", b === btn);
       });
     }
 
-
-    // ---- Real-time listener for this user's submissions ----
     function listenSubmissions(uid) {
-      HH.db.ref("submissions")
-        .orderByChild("volunteer_id")
-        .equalTo(uid)
-        .on("value", function (snap) {
+      HH.db.ref("submissions").orderByChild("volunteer_id").equalTo(uid)
+        .on("value", function(snap) {
           var buckets = { pending: [], approved: [], rejected: [] };
-
-          snap.forEach(function (c) {
+          snap.forEach(function(c) {
             var s = c.val();
-            var status = s.status || "pending";
-            if (buckets[status]) buckets[status].push(s);
+            if (buckets[s.status]) buckets[s.status].push(s);
           });
-
-          Object.keys(buckets).forEach(function (status) {
-            buckets[status].sort(function (a, b) {
-              return (b.submitted_at || 0) - (a.submitted_at || 0);
-            });
-            renderLogList(status, buckets[status]);
+          Object.keys(buckets).forEach(function(status) {
+            buckets[status].sort(function(a,b){ return (b.submitted_at||0)-(a.submitted_at||0); });
+            renderLogs(status, buckets[status]);
           });
         });
     }
 
-
-    function renderLogList(status, items) {
-      var container = document.getElementById("list-" + status);
-      if (!container) return;
-
+    function renderLogs(status, items) {
+      var c = document.getElementById("list-" + status);
+      if (!c) return;
       if (!items.length) {
-        container.innerHTML =
-          '<div class="empty-state" style="padding:1.5rem 0;">' +
-            '<p style="font-size:0.875rem;color:var(--color-gray-400);">' +
-              'No ' + status + ' submissions.' +
-            '</p>' +
-          '</div>';
+        c.innerHTML = '<div class="empty-state" style="padding:1.5rem 0;">' +
+          '<p style="font-size:0.875rem;color:var(--color-gray-400);">No ' + status + ' submissions.</p></div>';
         return;
       }
-
       var html = "";
-      items.forEach(function (s) {
-        var badgeClass = "badge-" + status;
-        var dateStr = s.date
-          ? new Date(s.date).toLocaleDateString("en-US",
-              { month: "short", day: "numeric", year: "numeric" })
-          : "";
-        var rejection = (status === "rejected" && s.rejection_note)
-          ? '<div class="rejection-note">Reason: ' + escHtml(s.rejection_note) + '</div>'
-          : "";
-
+      items.forEach(function(s) {
+        var ds = s.date ? new Date(s.date).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "";
+        var rn = status === "rejected" && s.rejection_note
+          ? '<div class="rejection-note">Reason: ' + esc(s.rejection_note) + '</div>' : "";
         html +=
           '<div class="list-item">' +
-            '<div class="list-item-icon">' +
-              '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/>' +
-              '<polyline points="12 6 12 12 16 14"/></svg>' +
-            '</div>' +
+            '<div class="list-item-icon"><svg viewBox="0 0 24 24">' +
+            '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>' +
             '<div class="list-item-main">' +
-              '<div class="list-item-title">' +
-                escHtml(s.opportunity_title || "Volunteer hours") +
-              '</div>' +
-              '<div class="list-item-sub">' +
-                escHtml(s.org_name || "") +
-                (dateStr ? " &middot; " + dateStr : "") +
-              '</div>' +
-              rejection +
+              '<div class="list-item-title">' + esc(s.opportunity_title||"Volunteer hours") + '</div>' +
+              '<div class="list-item-sub">' + esc(s.org_name||"") + (ds?" &middot; "+ds:"") + '</div>' +
+              rn +
             '</div>' +
             '<div class="list-item-end">' +
-              '<div class="list-item-hours">' + (s.hours || 0) + 'h</div>' +
-              '<div class="badge ' + badgeClass + '" style="margin-top:4px;">' +
-                status.charAt(0).toUpperCase() + status.slice(1) +
+              '<div class="list-item-hours">' + (s.hours||0) + 'h</div>' +
+              '<div class="badge badge-' + status + '" style="margin-top:4px;">' +
+                status.charAt(0).toUpperCase()+status.slice(1) +
               '</div>' +
             '</div>' +
           '</div>';
       });
-
-      container.innerHTML = html;
+      c.innerHTML = html;
     }
 
-
-    // ---- Submit handler ----
     function handleSubmit() {
-      var oppId  = document.getElementById("sel-opp").value;
-      var date   = document.getElementById("sel-date").value;
-      var start  = document.getElementById("sel-start").value;
-      var end    = document.getElementById("sel-end").value;
-      var desc   = document.getElementById("sel-desc").value.trim();
-      var msgEl  = document.getElementById("form-message");
+      var oppId = document.getElementById("sel-opp").value;
+      var date  = document.getElementById("sel-date").value;
+      var start = document.getElementById("sel-start").value;
+      var end   = document.getElementById("sel-end").value;
+      var desc  = document.getElementById("sel-desc").value.trim();
 
-      // Clear previous message
-      msgEl.innerHTML = "";
+      clearFormMsg();
 
-      // Validation
-      if (!oppId) {
-        return showFormMsg("error", "Please select an opportunity.");
-      }
-      if (!date) {
-        return showFormMsg("error", "Please select a date.");
-      }
-      if (new Date(date) > new Date()) {
-        return showFormMsg("error", "Date cannot be in the future.");
-      }
-      if (!start || !end) {
-        return showFormMsg("error", "Please enter both start and end times.");
-      }
-      var startMin = timeToMinutes(start);
-      var endMin   = timeToMinutes(end);
-      if (endMin <= startMin) {
-        return showFormMsg("error", "End time must be after start time.");
-      }
-      var hours = (endMin - startMin) / 60;
-      if (hours < 0.25) {
-        return showFormMsg("error", "Minimum submission is 15 minutes (0.25 h).");
-      }
-      if (hours > 12) {
-        return showFormMsg("error", "Maximum submission is 12 hours per entry.");
-      }
+      if (!oppId)  return showFormMsg("error","Please select an opportunity.");
+      if (!date)   return showFormMsg("error","Please select a date.");
+      if (new Date(date) > new Date()) return showFormMsg("error","Date cannot be in the future.");
+      if (!start || !end) return showFormMsg("error","Please enter start and end times.");
+      var diff = toMin(end) - toMin(start);
+      if (diff <= 0) return showFormMsg("error","End time must be after start time.");
+      var hours = diff / 60;
+      if (hours < 0.25) return showFormMsg("error","Minimum entry is 15 minutes.");
+      if (hours > 12)   return showFormMsg("error","Maximum entry is 12 hours.");
 
-      var opp  = _joinedOpps[oppId] || {};
-      var btn  = document.getElementById("btn-submit");
-      btn.disabled   = true;
-      btn.textContent = "Submitting...";
+      var opp = _joinedOpps[oppId] || {};
+      var btn = document.getElementById("btn-submit");
+      btn.disabled = true; btn.textContent = "Submitting...";
 
-      // Check for duplicate (same opp + same date + status pending/approved)
-      HH.db.ref("submissions")
-        .orderByChild("volunteer_id")
-        .equalTo(_uid)
-        .once("value")
-        .then(function (snap) {
-          var duplicate = false;
-          snap.forEach(function (c) {
+      // Duplicate check
+      HH.db.ref("submissions").orderByChild("volunteer_id").equalTo(_uid)
+        .once("value").then(function(snap) {
+          var dup = false;
+          snap.forEach(function(c) {
             var s = c.val();
-            if (s.opportunity_id === oppId &&
-                s.date           === date  &&
-                (s.status === "pending" || s.status === "approved")) {
-              duplicate = true;
-            }
+            if (s.opportunity_id === oppId && s.date === date &&
+                (s.status === "pending" || s.status === "approved")) dup = true;
           });
 
-          if (duplicate) {
-            btn.disabled    = false;
-            btn.textContent = "Submit for approval";
-            return showFormMsg("error",
-              "You already have a pending or approved entry for this opportunity on this date.");
+          if (dup) {
+            btn.disabled = false; btn.textContent = "Submit for approval";
+            return showFormMsg("error","You already have an entry for this opportunity on this date.");
           }
 
-          // Write the submission
           var key    = HH.db.ref("submissions").push().key;
           var record = {
-            submission_id:     key,
-            volunteer_id:      _uid,
-            opportunity_id:    oppId,
-            opportunity_title: opp.title    || "",
-            org_id:            opp.org_id   || "",
-            org_name:          opp.org_name || "",
-            date:              date,
-            start_time:        start,
-            end_time:          end,
-            hours:             parseFloat(hours.toFixed(2)),
-            description:       desc,
-            status:            "pending",
-            submitted_at:      HH.TIMESTAMP
+            submission_id: key, volunteer_id: _uid,
+            opportunity_id: oppId, opportunity_title: opp.title||"",
+            org_id: opp.org_id||"", org_name: opp.org_name||"",
+            date: date, start_time: start, end_time: end,
+            hours: parseFloat(hours.toFixed(2)),
+            description: desc, status: "pending",
+            submitted_at: HH.TIMESTAMP
           };
 
-          // Also increment the user's pending_count
-          return HH.db.ref("users/" + _uid + "/pending_count")
-            .once("value")
-            .then(function (pc) {
-              var updates = {};
-              updates["submissions/" + key]               = record;
-              updates["users/" + _uid + "/pending_count"] =
-                (pc.val() || 0) + 1;
-              return HH.db.ref().update(updates);
+          return HH.db.ref("users/" + _uid + "/pending_count").once("value")
+            .then(function(pc) {
+              var u = {};
+              u["submissions/" + key]               = record;
+              u["users/" + _uid + "/pending_count"] = (pc.val()||0) + 1;
+              return HH.db.ref().update(u);
             });
         })
-        .then(function () {
-          if (!btn.disabled) return; // duplicate path already returned
-          btn.disabled    = false;
-          btn.textContent = "Submit for approval";
-          showFormMsg("success", "Submitted! Waiting for the organization to review.");
-          // Reset form fields but keep opp + date selected for convenience
-          document.getElementById("sel-start").value  = "";
-          document.getElementById("sel-end").value    = "";
-          document.getElementById("sel-desc").value   = "";
+        .then(function() {
+          if (!btn.disabled) return;
+          btn.disabled = false; btn.textContent = "Submit for approval";
+          showFormMsg("success","Submitted! Waiting for the organization to review.");
+          document.getElementById("sel-start").value = "";
+          document.getElementById("sel-end").value   = "";
+          document.getElementById("sel-desc").value  = "";
           document.getElementById("hours-display").textContent = "0.0 h";
         })
-        .catch(function (err) {
-          btn.disabled    = false;
-          btn.textContent = "Submit for approval";
-          showFormMsg("error", "Submit failed: " + err.message);
+        .catch(function(err) {
+          btn.disabled = false; btn.textContent = "Submit for approval";
+          showFormMsg("error","Submit failed: " + err.message);
         });
     }
 
-
     function showFormMsg(type, text) {
-      var el = document.getElementById("form-message");
-      var bg = type === "error"
-        ? "var(--color-danger-light)"   : "var(--color-success-light)";
-      var co = type === "error"
-        ? "var(--color-danger-text)"    : "var(--color-success-text)";
-      var bd = type === "error"
-        ? "var(--color-danger-border)"  : "var(--color-success-border)";
-      el.innerHTML =
-        '<div style="background:' + bg + ';color:' + co +
-        ';border:1px solid ' + bd +
-        ';border-radius:var(--radius-md);padding:0.7rem 0.9rem;' +
-        'font-size:0.875rem;font-weight:500;margin-bottom:1rem;">' +
-          escHtml(text) +
+      var bg = type==="error" ? "var(--color-danger-light)"   : "var(--color-success-light)";
+      var co = type==="error" ? "var(--color-danger-text)"    : "var(--color-success-text)";
+      var bd = type==="error" ? "var(--color-danger-border)"  : "var(--color-success-border)";
+      document.getElementById("form-msg").innerHTML =
+        '<div style="background:'+bg+';color:'+co+';border:1px solid '+bd+
+        ';border-radius:var(--radius-md);padding:.7rem .9rem;font-size:.875rem;font-weight:500;margin-bottom:1rem;">' +
+        esc(text) + '</div>';
+    }
+
+    function clearFormMsg() { document.getElementById("form-msg").innerHTML = ""; }
+
+
+    // ==================================================
+    // COMPLEX (AI CHATBOT) MODE
+    // ==================================================
+    // This is a smart rule-based assistant that guides the user
+    // through logging hours using natural language. It parses
+    // dates, times and hours without needing an external API,
+    // so it works 100% locally without any API key.
+    // ==================================================
+
+    var chatState = {
+      step: "greeting",   // greeting | org | date | hours | description | confirm | done
+      oppId:    null,
+      oppTitle: null,
+      orgId:    null,
+      orgName:  null,
+      dates:    [],
+      totalHours: 0,
+      description: null
+    };
+
+    var _userAvatar = "ME";
+
+    function initChat() {
+      HH.db.ref("users/" + _uid + "/name").once("value").then(function(s) {
+        _userAvatar = ini(s.val() || "ME");
+      });
+
+      setTimeout(function() {
+        botMsg("Hi! I'm your volunteer logging assistant. I'll help you log your hours in a few quick steps.\n\nWhich organization or opportunity were you volunteering with?");
+        chatState.step = "org";
+      }, 400);
+    }
+
+    function sendChat() {
+      var input = document.getElementById("chat-input");
+      var text  = input.value.trim();
+      if (!text) return;
+
+      input.value = "";
+      addMsg("user", text);
+
+      document.getElementById("chat-send-btn").disabled = true;
+      showTyping();
+
+      setTimeout(function() {
+        removeTyping();
+        document.getElementById("chat-send-btn").disabled = false;
+        processInput(text);
+      }, 600 + Math.random() * 400);
+    }
+
+    function processInput(text) {
+      var lower = text.toLowerCase();
+
+      // Off-topic detection (questions not related to volunteering)
+      var offTopic = isOffTopic(lower, chatState.step);
+      if (offTopic) {
+        botMsg("That's a bit outside my area as a logging assistant, but happy to help briefly! " +
+          offTopic + "\n\nNow, let's get back to logging — " + stepPrompt(chatState.step));
+        return;
+      }
+
+      switch (chatState.step) {
+        case "org":        handleOrg(text); break;
+        case "date":       handleDate(text); break;
+        case "hours":      handleHours(text); break;
+        case "description":handleDescription(text); break;
+        case "confirm":    handleConfirm(lower); break;
+      }
+    }
+
+    // ---- Step handlers ----
+
+    function handleOrg(text) {
+      var oppIds = Object.keys(_joinedOpps);
+      if (!oppIds.length) {
+        botMsg("I don't see any joined opportunities on your account yet. Please join one from the Explore page first, then come back to log your hours.");
+        return;
+      }
+
+      // Try to find a match in joined opportunities
+      var lower  = text.toLowerCase();
+      var best   = null;
+      var bestScore = 0;
+
+      oppIds.forEach(function(id) {
+        var o     = _joinedOpps[id];
+        var title = (o.title + " " + o.org_name).toLowerCase();
+        var words = lower.split(/\s+/);
+        var score = 0;
+        words.forEach(function(w) { if (w.length > 2 && title.indexOf(w) !== -1) score++; });
+        if (score > bestScore) { bestScore = score; best = id; }
+      });
+
+      if (best && bestScore > 0) {
+        var o = _joinedOpps[best];
+        chatState.oppId    = best;
+        chatState.oppTitle = o.title;
+        chatState.orgId    = o.org_id;
+        chatState.orgName  = o.org_name;
+        chatState.step     = "date";
+        botMsg('Got it — "' + o.title + '" with ' + (o.org_name || "your organization") +
+          '.\n\nWhat date(s) did you volunteer? You can give me a single date, multiple dates, or a range (e.g. "Jan 5", "1/5 and 1/6", "Jan 3-5").');
+      } else {
+        // Show list of joined opportunities
+        var list = oppIds.map(function(id, i) {
+          return (i+1) + ". " + _joinedOpps[id].title + " — " + (_joinedOpps[id].org_name||"");
+        }).join("\n");
+        botMsg("I couldn't find a match. Here are your joined opportunities:\n\n" + list + "\n\nWhich one applies?");
+      }
+    }
+
+    function handleDate(text) {
+      var dates = parseDates(text);
+      if (!dates.length) {
+        botMsg("I couldn't pick out a date from that. Could you try a format like \"January 15\", \"1/15/2025\", or \"today\"?");
+        return;
+      }
+
+      chatState.dates = dates;
+      chatState.step  = "hours";
+
+      var dStr = dates.map(function(d) {
+        return new Date(d + "T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+      }).join(", ");
+
+      botMsg("Perfect — " + (dates.length > 1 ? "dates: " : "date: ") + dStr + ".\n\n" +
+        "How many hours did you volunteer? You can give me a start and end time (e.g. \"9am to 1pm\"), total hours (e.g. \"3.5 hours\"), or separate hours per day if multiple dates.");
+    }
+
+    function handleHours(text) {
+      var hours = parseHours(text);
+      if (!hours || hours <= 0) {
+        botMsg("I couldn't figure out the hours from that. Try something like \"3 hours\", \"9am to 1pm\", or \"2.5 hours per day\".");
+        return;
+      }
+
+      // If multiple dates and hours mentioned per day, multiply
+      if (chatState.dates.length > 1 && /per day|each day|daily/i.test(text)) {
+        hours = hours * chatState.dates.length;
+      }
+
+      // Cap reasonably
+      if (hours > chatState.dates.length * 12) {
+        botMsg("That seems like a lot of hours. Did you mean " + (chatState.dates.length > 1 ? hours / chatState.dates.length + " hours per day?" : "something less?") + " Please clarify.");
+        return;
+      }
+
+      chatState.totalHours = Math.round(hours * 4) / 4; // round to nearest 0.25
+      chatState.step       = "description";
+
+      botMsg("Great — " + chatState.totalHours + " hour" + (chatState.totalHours !== 1 ? "s" : "") + " total.\n\nCan you briefly describe what you did? (1–2 sentences, so the organization knows what you worked on)");
+    }
+
+    function handleDescription(text) {
+      if (text.length < 5) {
+        botMsg("Can you give me a little more detail? Even a short sentence helps the organization understand what you did.");
+        return;
+      }
+
+      chatState.description = text;
+      chatState.step        = "confirm";
+
+      var dStr = chatState.dates.map(function(d) {
+        return new Date(d + "T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+      }).join(", ");
+
+      var mainDate = chatState.dates[chatState.dates.length - 1];
+
+      // Show confirmation card
+      var cardHTML =
+        '<div class="confirm-card">' +
+          '<div style="font-size:0.85rem;font-weight:700;color:var(--color-gray-900);margin-bottom:8px;">Review your entry</div>' +
+          row("Opportunity", esc(chatState.oppTitle||"")) +
+          row("Organization", esc(chatState.orgName||"")) +
+          row("Date(s)", esc(dStr)) +
+          row("Total hours", chatState.totalHours + "h") +
+          row("Description", esc(chatState.description)) +
+          '<div class="confirm-actions">' +
+            '<button class="btn btn-sm btn-success" onclick="confirmSubmit()">Confirm &amp; submit</button>' +
+            '<button class="btn btn-sm btn-secondary" onclick="cancelConfirm()">Edit</button>' +
+          '</div>' +
         '</div>';
+
+      addBotHTML("Does everything look right?" , cardHTML);
     }
 
-    function initials(name) {
-      var p = name.trim().split(" ");
-      return p.length === 1
-        ? p[0].charAt(0).toUpperCase()
-        : (p[0].charAt(0) + p[1].charAt(0)).toUpperCase();
+    function handleConfirm(lower) {
+      if (/yes|confirm|submit|looks good|correct|right/i.test(lower)) {
+        confirmSubmit();
+      } else if (/no|edit|change|wrong/i.test(lower)) {
+        cancelConfirm();
+      } else {
+        botMsg('Just say "confirm" to submit, or "edit" to start over.');
+      }
     }
 
-    function escHtml(s) {
-      return String(s)
-        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    // ---- Submit from chatbot ----
+    function confirmSubmit() {
+      if (!chatState.oppId || !chatState.dates.length || !chatState.totalHours) {
+        botMsg("Something is missing. Let me start over — which opportunity were you volunteering with?");
+        chatState.step = "org";
+        return;
+      }
+
+      var mainDate = chatState.dates[chatState.dates.length - 1];
+
+      var key    = HH.db.ref("submissions").push().key;
+      var record = {
+        submission_id:     key,
+        volunteer_id:      _uid,
+        opportunity_id:    chatState.oppId,
+        opportunity_title: chatState.oppTitle || "",
+        org_id:            chatState.orgId    || "",
+        org_name:          chatState.orgName  || "",
+        date:              mainDate,
+        dates_covered:     chatState.dates.join(", "),
+        hours:             chatState.totalHours,
+        description:       chatState.description,
+        status:            "pending",
+        submitted_at:      HH.TIMESTAMP
+      };
+
+      // Disable confirm button
+      var btns = document.querySelectorAll(".confirm-actions button");
+      btns.forEach(function(b) { b.disabled = true; });
+
+      HH.db.ref().update({ ["submissions/" + key]: record })
+        .then(function() {
+          chatState.step = "done";
+          botMsg("Your hours have been submitted for approval! You can track the status on the Standard tab.\n\nWant to log more hours? Just refresh the page.");
+          // Reset state for next entry
+          chatState = { step: "org", oppId: null, oppTitle: null, orgId: null, orgName: null, dates: [], totalHours: 0, description: null };
+        })
+        .catch(function(err) {
+          btns.forEach(function(b) { b.disabled = false; });
+          botMsg("Something went wrong submitting: " + err.message + ". Please try again.");
+        });
     }
 
+    function cancelConfirm() {
+      chatState = { step: "org", oppId: null, oppTitle: null, orgId: null, orgName: null, dates: [], totalHours: 0, description: null };
+      botMsg("No problem — let's start over. Which opportunity were you volunteering with?");
+    }
+
+
+    // ---- Chat UI helpers ----
+
+    function addMsg(role, text) {
+      var msgs = document.getElementById("chat-messages");
+      var isBot = role === "bot";
+      var lines = text.split("\n").map(function(l) {
+        return l ? '<span>' + esc(l) + '</span>' : '<br/>';
+      }).join("");
+
+      var html =
+        '<div class="msg ' + role + '">' +
+          '<div class="msg-avatar">' + (isBot ? "AI" : _userAvatar) + '</div>' +
+          '<div class="msg-bubble">' + lines + '</div>' +
+        '</div>';
+
+      msgs.insertAdjacentHTML("beforeend", html);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function addBotHTML(text, extraHTML) {
+      var msgs = document.getElementById("chat-messages");
+      var lines = text.split("\n").map(function(l) {
+        return l ? '<span>' + esc(l) + '</span>' : '<br/>';
+      }).join("");
+
+      var html =
+        '<div class="msg bot">' +
+          '<div class="msg-avatar">AI</div>' +
+          '<div>' +
+            '<div class="msg-bubble">' + lines + '</div>' +
+            extraHTML +
+          '</div>' +
+        '</div>';
+
+      msgs.insertAdjacentHTML("beforeend", html);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function botMsg(text) { addMsg("bot", text); }
+
+    function showTyping() {
+      var msgs = document.getElementById("chat-messages");
+      msgs.insertAdjacentHTML("beforeend",
+        '<div class="msg bot" id="typing-indicator">' +
+          '<div class="msg-avatar">AI</div>' +
+          '<div class="msg-bubble" style="padding:0.5rem 0.875rem;">' +
+            '<span class="typing-dot"></span>' +
+            '<span class="typing-dot"></span>' +
+            '<span class="typing-dot"></span>' +
+          '</div>' +
+        '</div>');
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function removeTyping() {
+      var el = document.getElementById("typing-indicator");
+      if (el) el.remove();
+    }
+
+    function row(label, val) {
+      return '<div class="confirm-row">' +
+        '<span class="confirm-row-label">' + label + '</span>' +
+        '<span class="confirm-row-val">' + val + '</span>' +
+      '</div>';
+    }
+
+    function stepPrompt(step) {
+      var prompts = {
+        org:         "which opportunity were you volunteering with?",
+        date:        "what date(s) did you volunteer?",
+        hours:       "how many hours did you volunteer?",
+        description: "can you describe what you did in 1–2 sentences?",
+        confirm:     "does the entry look correct?"
+      };
+      return prompts[step] || "shall we continue logging your hours?";
+    }
+
+
+    // ---- Parsers ----
+
+    function parseDates(text) {
+      var dates = [];
+      var now   = new Date();
+      var year  = now.getFullYear();
+
+      // today / yesterday / tomorrow
+      var rel = { today: 0, yesterday: -1, tomorrow: 1 };
+      Object.keys(rel).forEach(function(k) {
+        if (text.toLowerCase().indexOf(k) !== -1) {
+          var d = new Date(now);
+          d.setDate(d.getDate() + rel[k]);
+          dates.push(toYMD(d));
+        }
+      });
+
+      if (dates.length) return dates;
+
+      // MM/DD/YYYY or MM/DD/YY or MM/DD
+      var slashRe = /\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/g;
+      var m;
+      while ((m = slashRe.exec(text)) !== null) {
+        var mo = parseInt(m[1]), da = parseInt(m[2]);
+        var yr = m[3] ? (m[3].length === 2 ? 2000+parseInt(m[3]) : parseInt(m[3])) : year;
+        if (mo >= 1 && mo <= 12 && da >= 1 && da <= 31) {
+          dates.push(yr + "-" + pad(mo) + "-" + pad(da));
+        }
+      }
+
+      if (dates.length) return unique(dates);
+
+      // Month name day [year]
+      var months = ["january","february","march","april","may","june",
+                    "july","august","september","october","november","december"];
+      var abbr   = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+
+      months.forEach(function(mon, mi) {
+        var rx = new RegExp("\\b(" + mon + "|" + abbr[mi] + "\\.?)\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:[,\\s]+(\\d{4}))?\\b", "gi");
+        while ((m = rx.exec(text)) !== null) {
+          var da = parseInt(m[2]);
+          var yr = m[3] ? parseInt(m[3]) : year;
+          if (da >= 1 && da <= 31) dates.push(yr + "-" + pad(mi+1) + "-" + pad(da));
+        }
+      });
+
+      // Date range: "Jan 3-5" or "Jan 3 to 5"
+      var rangeRe = /\b(\w+ \d{1,2})\s*(?:-|to)\s*(\d{1,2})\b/gi;
+      while ((m = rangeRe.exec(text)) !== null) {
+        var startDates = parseDates(m[1]);
+        if (startDates.length) {
+          var base    = new Date(startDates[0] + "T12:00:00");
+          var endDay  = parseInt(m[2]);
+          var startDay = base.getDate();
+          for (var d = startDay; d <= endDay; d++) {
+            var nd = new Date(base.getFullYear(), base.getMonth(), d);
+            dates.push(toYMD(nd));
+          }
+        }
+      }
+
+      return unique(dates);
+    }
+
+    function parseHours(text) {
+      // "X to Y" time range
+      var timeRe = /\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*(?:to|-)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i;
+      var m = timeRe.exec(text);
+      if (m) {
+        var h1 = parseInt(m[1]), m1 = parseInt(m[2]||0), p1 = (m[3]||"").toLowerCase();
+        var h2 = parseInt(m[4]), m2 = parseInt(m[5]||0), p2 = (m[6]||"").toLowerCase();
+        if (p1 === "pm" && h1 < 12) h1 += 12;
+        if (p1 === "am" && h1 === 12) h1 = 0;
+        if (p2 === "pm" && h2 < 12) h2 += 12;
+        if (p2 === "am" && h2 === 12) h2 = 0;
+        var diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+        if (diff > 0) return diff / 60;
+      }
+
+      // "X.Y hours" / "X hours" / "X hr"
+      var numRe = /(\d+(?:\.\d+)?)\s*(?:hours?|hrs?|h\b)/i;
+      m = numRe.exec(text);
+      if (m) return parseFloat(m[1]);
+
+      // Fraction: "half an hour" = 0.5
+      if (/half\s+an?\s+hour/i.test(text)) return 0.5;
+      if (/quarter\s+(?:of\s+an?\s+)?hour/i.test(text)) return 0.25;
+
+      // Plain number as last resort
+      m = /\b(\d+(?:\.\d+)?)\b/.exec(text);
+      if (m) return parseFloat(m[1]);
+
+      return null;
+    }
+
+    function isOffTopic(lower, step) {
+      // Detect obvious off-topic patterns and return a brief response string
+      if (/what(?:'s| is) the weather|weather (?:like|today|forecast)/i.test(lower)) {
+        return "I can't check the weather, but you can look it up on your weather app!";
+      }
+      if (/(?:who|what) is|tell me about|explain|how do(?:es)?(?! volunteering)/i.test(lower) &&
+          !/volunteer|org|hour|time|date|log|submit/i.test(lower)) {
+        return "That's a general knowledge question — I'd recommend searching online for the best answer.";
+      }
+      if (/joke|funny|game/i.test(lower)) {
+        return "I'm just a logging assistant, so jokes are a bit out of scope for me!";
+      }
+      return null;
+    }
+
+
+    // ---- Utilities ----
+    function toYMD(d) {
+      return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+    }
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function unique(arr) {
+      var seen = {};
+      return arr.filter(function(x) {
+        if (seen[x]) return false;
+        seen[x] = true; return true;
+      });
+    }
+
+    function ini(n) {
+      var p = (n||"HH").trim().split(" ");
+      return p.length===1 ? p[0][0].toUpperCase() : (p[0][0]+p[1][0]).toUpperCase();
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
   </script>
 </body>
 </html>

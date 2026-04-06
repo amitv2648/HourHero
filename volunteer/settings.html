@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HourHero — Settings</title>
-  <link rel="stylesheet" href="../css/main.css" />
-  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
   <style>
-    body { background: var(--color-gray-100); }
+    body { background: var(--bg-page); }
 
     .profile-header {
-      background: var(--color-white);
-      border: 1px solid var(--color-gray-200);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
       padding: var(--space-5);
       display: flex;
@@ -21,160 +21,185 @@
     }
 
     .profile-avatar {
-      width: 64px;
-      height: 64px;
+      width: 64px; height: 64px;
       border-radius: 50%;
       background: var(--color-primary-light);
       color: var(--color-primary);
-      font-size: 1.3rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 1.3rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
 
-    .profile-name {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--color-gray-900);
-    }
-
-    .profile-email {
-      font-size: 0.85rem;
-      color: var(--color-gray-500);
-      margin-top: 2px;
-    }
+    .profile-name  { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+    .profile-email { font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px; }
 
     .profile-role-badge {
-      display: inline-flex;
-      align-items: center;
+      display: inline-flex; align-items: center;
       background: var(--color-primary-light);
       color: var(--color-primary);
-      font-size: 0.72rem;
-      font-weight: 700;
+      font-size: 0.72rem; font-weight: 700;
       padding: 2px 10px;
       border-radius: var(--radius-full);
       margin-top: var(--space-2);
     }
 
     .settings-section {
-      background: var(--color-white);
-      border: 1px solid var(--color-gray-200);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-4);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .settings-section-title {
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      padding: var(--space-3) var(--space-5);
+      background: var(--color-gray-50);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .settings-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--border-color);
+      gap: var(--space-3);
+    }
+    .settings-row:last-child { border-bottom: none; }
+
+    .settings-row-label { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .settings-row-sub   { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+
+    .inline-edit {
+      display: none;
+      padding: var(--space-4) var(--space-5);
+      border-top: 1px solid var(--border-color);
+      background: var(--color-gray-50);
+    }
+    .inline-edit.open { display: block; }
+
+    /* Danger zone card */
+    .danger-section {
+      background: var(--bg-card);
+      border: 1px solid var(--color-danger-border);
       border-radius: var(--radius-lg);
       overflow: hidden;
       margin-bottom: var(--space-4);
     }
 
-    .settings-section-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--color-gray-500);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
+    .danger-section-title {
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--color-danger-text);
+      text-transform: uppercase; letter-spacing: 0.6px;
       padding: var(--space-3) var(--space-5);
-      background: var(--color-gray-50);
-      border-bottom: 1px solid var(--color-gray-100);
+      background: var(--color-danger-light);
+      border-bottom: 1px solid var(--color-danger-border);
     }
 
-    .settings-row {
-      display: flex;
-      align-items: center;
+    .danger-row {
+      display: flex; align-items: center;
       justify-content: space-between;
       padding: var(--space-4) var(--space-5);
-      border-bottom: 1px solid var(--color-gray-100);
       gap: var(--space-3);
     }
 
-    .settings-row:last-child {
-      border-bottom: none;
-    }
+    .danger-row-label { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .danger-row-sub   { font-size: 0.8rem;  color: var(--text-secondary); margin-top: 2px; }
 
-    .settings-row-label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--color-gray-900);
-    }
-
-    .settings-row-sub {
-      font-size: 0.8rem;
-      color: var(--color-gray-500);
-      margin-top: 2px;
-    }
-
-    /* Toggle switch */
-    .toggle-wrap {
-      position: relative;
-      width: 44px;
-      height: 24px;
-      flex-shrink: 0;
-    }
-
-    .toggle-wrap input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-      position: absolute;
-    }
-
-    .toggle-track {
-      position: absolute;
-      inset: 0;
-      background: var(--color-gray-300);
-      border-radius: var(--radius-full);
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .toggle-thumb {
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 18px;
-      height: 18px;
-      background: #ffffff;
-      border-radius: 50%;
-      transition: transform 0.2s;
-      pointer-events: none;
-    }
-
-    .toggle-wrap input:checked ~ .toggle-track {
-      background: var(--color-primary);
-    }
-
-    .toggle-wrap input:checked ~ .toggle-track .toggle-thumb {
-      transform: translateX(20px);
-    }
-
-    /* Inline edit form */
-    .inline-edit {
+    /* Delete confirm panel */
+    .delete-confirm {
       display: none;
       padding: var(--space-4) var(--space-5);
-      border-top: 1px solid var(--color-gray-100);
-      background: var(--color-gray-50);
+      border-top: 1px solid var(--color-danger-border);
+      background: var(--color-danger-light);
+    }
+    .delete-confirm.open { display: block; }
+
+    .delete-warning {
+      font-size: 0.85rem;
+      color: var(--color-danger-text);
+      font-weight: 600;
+      margin-bottom: var(--space-3);
+      line-height: 1.5;
     }
 
-    .inline-edit.open {
+    .delete-checklist {
+      margin-bottom: var(--space-4);
+    }
+
+    .delete-check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      font-size: 0.82rem;
+      color: var(--color-danger-text);
+      margin-bottom: var(--space-2);
+    }
+
+    .delete-check-item::before {
+      content: "✕";
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .delete-confirm-input-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--color-danger-text);
+      margin-bottom: var(--space-2);
       display: block;
     }
 
+    .delete-actions {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+
+    .btn-delete-final {
+      background: var(--color-danger);
+      color: #fff;
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-delete-final:hover:not(:disabled)    { background: #991B1B; }
+    .btn-delete-final:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Logout button */
     .logout-btn {
       width: 100%;
       padding: var(--space-4);
-      background: none;
-      border: none;
+      background: var(--color-danger-light);
+      border: 1px solid var(--color-danger-border);
       color: var(--color-danger-text);
-      font-size: 0.95rem;
-      font-weight: 700;
+      font-size: 0.95rem; font-weight: 700;
       cursor: pointer;
       border-radius: var(--radius-lg);
-      border: 1px solid var(--color-danger-border);
-      background: var(--color-danger-light);
       transition: background 0.15s;
     }
+    .logout-btn:hover { background: #fecaca; }
 
-    .logout-btn:hover {
-      background: #fecaca;
+    /* Spinner for delete button */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .del-spinner {
+      width: 15px; height: 15px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
     }
   </style>
 </head>
@@ -189,7 +214,7 @@
   <main class="page-with-nav">
     <div class="page-content">
 
-      <!-- Profile header card -->
+      <!-- Profile header -->
       <div class="profile-header">
         <div class="profile-avatar" id="profile-avatar">HH</div>
         <div>
@@ -201,7 +226,25 @@
 
       <div id="settings-message" style="margin-bottom:var(--space-3);"></div>
 
-      <!-- Account section -->
+
+      <!-- ======== APPEARANCE ======== -->
+      <div class="settings-section">
+        <div class="settings-section-title">Appearance</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Dark mode</div>
+            <div class="settings-row-sub" id="theme-status">Follows system setting</div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="toggle-dark"
+                   onchange="toggleDark(this.checked)"/>
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          </label>
+        </div>
+      </div>
+
+
+      <!-- ======== ACCOUNT ======== -->
       <div class="settings-section">
         <div class="settings-section-title">Account</div>
 
@@ -217,11 +260,10 @@
           <div class="form-group">
             <label class="form-label" for="input-name">New name</label>
             <input class="form-input" type="text" id="input-name"
-                   placeholder="Your full name" />
+                   placeholder="Your full name"/>
           </div>
           <div style="display:flex;gap:var(--space-3);">
-            <button class="btn btn-primary btn-sm"
-                    onclick="saveName()">Save</button>
+            <button class="btn btn-primary btn-sm" onclick="saveName()">Save</button>
             <button class="btn btn-secondary btn-sm"
                     onclick="toggleEdit('name')">Cancel</button>
           </div>
@@ -239,18 +281,17 @@
           <div class="form-group">
             <label class="form-label" for="input-email">New email</label>
             <input class="form-input" type="email" id="input-email"
-                   placeholder="you@example.com" />
+                   placeholder="you@example.com"/>
           </div>
           <div class="form-group">
             <label class="form-label" for="input-email-pass">
-              Confirm with password
+              Confirm with current password
             </label>
             <input class="form-input" type="password" id="input-email-pass"
-                   placeholder="Your current password" />
+                   placeholder="Your current password"/>
           </div>
           <div style="display:flex;gap:var(--space-3);">
-            <button class="btn btn-primary btn-sm"
-                    onclick="saveEmail()">Save</button>
+            <button class="btn btn-primary btn-sm" onclick="saveEmail()">Save</button>
             <button class="btn btn-secondary btn-sm"
                     onclick="toggleEdit('email')">Cancel</button>
           </div>
@@ -261,14 +302,13 @@
             <div class="settings-row-label">Password</div>
             <div class="settings-row-sub">Send a reset link to your email</div>
           </div>
-          <button class="btn btn-sm btn-outline"
-                  onclick="sendReset()">Reset</button>
+          <button class="btn btn-sm btn-outline" onclick="sendReset()">Reset</button>
         </div>
 
       </div>
 
 
-      <!-- Notifications section -->
+      <!-- ======== NOTIFICATIONS ======== -->
       <div class="settings-section">
         <div class="settings-section-title">Notifications</div>
 
@@ -281,33 +321,27 @@
           </div>
           <label class="toggle-wrap">
             <input type="checkbox" id="toggle-push" checked
-                   onchange="saveNotifPrefs()" />
-            <div class="toggle-track">
-              <div class="toggle-thumb"></div>
-            </div>
+                   onchange="saveNotifPrefs()"/>
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
           </label>
         </div>
 
         <div class="settings-row">
           <div>
             <div class="settings-row-label">Email summaries</div>
-            <div class="settings-row-sub">
-              Weekly email with your hour totals
-            </div>
+            <div class="settings-row-sub">Weekly email with your hour totals</div>
           </div>
           <label class="toggle-wrap">
             <input type="checkbox" id="toggle-email"
-                   onchange="saveNotifPrefs()" />
-            <div class="toggle-track">
-              <div class="toggle-thumb"></div>
-            </div>
+                   onchange="saveNotifPrefs()"/>
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
           </label>
         </div>
 
       </div>
 
 
-      <!-- App section -->
+      <!-- ======== APP ======== -->
       <div class="settings-section">
         <div class="settings-section-title">App</div>
 
@@ -336,12 +370,77 @@
       </div>
 
 
-      <!-- Logout -->
-      <button class="logout-btn" onclick="HH.Router.signOutAndRedirect()">
+      <!-- ======== DANGER ZONE ======== -->
+      <div class="danger-section">
+        <div class="danger-section-title">Danger zone</div>
+
+        <div class="danger-row">
+          <div>
+            <div class="danger-row-label">Delete account</div>
+            <div class="danger-row-sub">
+              Permanently delete your account and all your data
+            </div>
+          </div>
+          <button class="btn btn-sm btn-danger"
+                  onclick="showDeleteConfirm()">Delete</button>
+        </div>
+
+        <!-- Confirmation panel — hidden until the delete button is clicked -->
+        <div class="delete-confirm" id="delete-confirm">
+
+          <div class="delete-warning">
+            This action is permanent and cannot be undone.
+          </div>
+
+          <div class="delete-checklist">
+            <div class="delete-check-item">
+              Your account and login credentials will be removed
+            </div>
+            <div class="delete-check-item">
+              All your submitted hour logs will be deleted
+            </div>
+            <div class="delete-check-item">
+              Your total hours and points will be wiped from the leaderboard
+            </div>
+            <div class="delete-check-item">
+              You will be removed from all joined opportunities
+            </div>
+          </div>
+
+          <label class="delete-confirm-input-label" for="delete-password">
+            Enter your password to confirm
+          </label>
+          <input class="form-input" type="password" id="delete-password"
+                 placeholder="Your current password"
+                 style="border-color: var(--color-danger-border);
+                        margin-bottom: var(--space-2);"/>
+
+          <div id="delete-error"
+               style="font-size:0.82rem;color:var(--color-danger-text);
+                      min-height:18px;margin-bottom:var(--space-2);"></div>
+
+          <div class="delete-actions">
+            <button class="btn-delete-final" id="btn-delete-final"
+                    onclick="confirmDelete()">
+              Yes, permanently delete my account
+            </button>
+            <button class="btn btn-secondary btn-sm"
+                    onclick="hideDeleteConfirm()">
+              Cancel
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- Sign out -->
+      <button class="logout-btn"
+              onclick="HH.Router.signOutAndRedirect()">
         Sign out
       </button>
 
-      <div style="height:var(--space-6);"></div>
+      <div style="height:var(--space-8);"></div>
 
     </div>
   </main>
@@ -353,32 +452,35 @@
         <rect x="14" y="3" width="7" height="7" rx="1"/>
         <rect x="3" y="14" width="7" height="7" rx="1"/>
         <rect x="14" y="14" width="7" height="7" rx="1"/>
-      </svg>
-      <span>Home</span>
+      </svg><span>Home</span>
     </a>
     <a href="log-hours.html" class="bottom-nav-item">
       <svg class="bottom-nav-icon" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10"/>
         <polyline points="12 6 12 12 16 14"/>
-      </svg>
-      <span>Log</span>
+      </svg><span>Log</span>
     </a>
     <a href="opportunities.html" class="bottom-nav-item">
       <svg class="bottom-nav-icon" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="8"/>
         <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <span>Explore</span>
+      </svg><span>Explore</span>
+    </a>
+    <a href="badges.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="6"/>
+        <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+      </svg><span>Badges</span>
     </a>
     <a href="settings.html" class="bottom-nav-item active">
       <svg class="bottom-nav-icon" viewBox="0 0 24 24">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
         <circle cx="12" cy="7" r="4"/>
-      </svg>
-      <span>Profile</span>
+      </svg><span>Profile</span>
     </a>
   </nav>
 
+  <script src="../js/theme.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -393,22 +495,25 @@
     var _uid     = null;
     var _profile = {};
 
-    HH.Router.onReady(function (uid) {
+    HH.Router.onReady(function(uid) {
       _uid = uid;
       loadProfile(uid);
+      initThemeToggle();
     });
 
 
+    // ============================================================
+    // LOAD PROFILE
+    // ============================================================
     function loadProfile(uid) {
-      HH.db.ref("users/" + uid).once("value").then(function (snap) {
+      HH.db.ref("users/" + uid).once("value").then(function(snap) {
         if (!snap.exists()) return;
         _profile = snap.val();
 
         var name  = _profile.name  || "";
         var email = _profile.email || "";
-        var ini   = initials(name || "HH");
 
-        document.getElementById("profile-avatar").textContent = ini;
+        document.getElementById("profile-avatar").textContent = ini(name || "HH");
         document.getElementById("profile-name").textContent   = name;
         document.getElementById("profile-email").textContent  = email;
         document.getElementById("row-name-value").textContent = name;
@@ -416,38 +521,61 @@
         document.getElementById("input-name").value           = name;
         document.getElementById("input-email").value          = email;
 
-        // Notification prefs
         var prefs = (_profile.preferences || {}).notifications || {};
-        document.getElementById("toggle-push").checked  =
-          prefs.push !== false;
-        document.getElementById("toggle-email").checked =
-          prefs.email_summary === true;
+        document.getElementById("toggle-push").checked  = prefs.push !== false;
+        document.getElementById("toggle-email").checked = prefs.email_summary === true;
       });
     }
 
 
-    function toggleEdit(section) {
-      var el = document.getElementById("edit-" + section);
-      el.classList.toggle("open");
+    // ============================================================
+    // THEME TOGGLE
+    // ============================================================
+    function initThemeToggle() {
+      var isDark = HH.Theme.isDark();
+      document.getElementById("toggle-dark").checked = isDark;
+      document.getElementById("theme-status").textContent =
+        isDark ? "Dark mode on" : "Light mode on";
+    }
+
+    function toggleDark(checked) {
+      HH.Theme.set(checked ? "dark" : "light");
+      document.getElementById("theme-status").textContent =
+        checked ? "Dark mode on" : "Light mode on";
     }
 
 
+    // ============================================================
+    // INLINE EDIT TOGGLE
+    // ============================================================
+    function toggleEdit(section) {
+      document.getElementById("edit-" + section).classList.toggle("open");
+    }
+
+
+    // ============================================================
+    // SAVE NAME
+    // ============================================================
     function saveName() {
       var val = document.getElementById("input-name").value.trim();
       if (!val) return showMsg("error", "Name cannot be empty.");
 
       HH.db.ref("users/" + _uid + "/name").set(val)
-        .then(function () {
-          document.getElementById("profile-name").textContent  = val;
+        .then(function() {
+          _profile.name = val;
+          document.getElementById("profile-name").textContent   = val;
           document.getElementById("row-name-value").textContent = val;
-          document.getElementById("profile-avatar").textContent = initials(val);
+          document.getElementById("profile-avatar").textContent = ini(val);
           toggleEdit("name");
           showMsg("success", "Name updated.");
         })
-        .catch(function (e) { showMsg("error", e.message); });
+        .catch(function(e) { showMsg("error", e.message); });
     }
 
 
+    // ============================================================
+    // SAVE EMAIL
+    // ============================================================
     function saveEmail() {
       var newEmail = document.getElementById("input-email").value.trim();
       var pass     = document.getElementById("input-email-pass").value;
@@ -455,82 +583,120 @@
       if (!newEmail) return showMsg("error", "Please enter a new email.");
       if (!pass)     return showMsg("error", "Please enter your password to confirm.");
 
-      // Re-authenticate then update
       var credential = firebase.auth.EmailAuthProvider
         .credential(_profile.email, pass);
 
       HH.auth.currentUser.reauthenticateWithCredential(credential)
-        .then(function () {
-          return HH.auth.currentUser.updateEmail(newEmail);
-        })
-        .then(function () {
-          return HH.db.ref("users/" + _uid + "/email").set(newEmail);
-        })
-        .then(function () {
+        .then(function() { return HH.auth.currentUser.updateEmail(newEmail); })
+        .then(function() { return HH.db.ref("users/" + _uid + "/email").set(newEmail); })
+        .then(function() {
           _profile.email = newEmail;
-          document.getElementById("profile-email").textContent   = newEmail;
-          document.getElementById("row-email-value").textContent = newEmail;
+          document.getElementById("profile-email").textContent    = newEmail;
+          document.getElementById("row-email-value").textContent  = newEmail;
           toggleEdit("email");
           showMsg("success", "Email updated.");
         })
-        .catch(function (e) {
-          var msg = e.code === "auth/wrong-password"
-            ? "Incorrect password."
-            : e.message;
-          showMsg("error", msg);
+        .catch(function(e) {
+          showMsg("error", e.code === "auth/wrong-password"
+            ? "Incorrect password." : e.message);
         });
     }
 
 
+    // ============================================================
+    // PASSWORD RESET
+    // ============================================================
     function sendReset() {
       HH.sendPasswordReset(_profile.email)
-        .then(function () {
+        .then(function() {
           showMsg("success", "Password reset email sent to " + _profile.email);
         })
-        .catch(function (e) { showMsg("error", e.message); });
+        .catch(function(e) { showMsg("error", e.message); });
     }
 
 
+    // ============================================================
+    // NOTIFICATION PREFS
+    // ============================================================
     function saveNotifPrefs() {
-      var prefs = {
+      HH.db.ref("users/" + _uid + "/preferences/notifications").set({
         push:          document.getElementById("toggle-push").checked,
         email_summary: document.getElementById("toggle-email").checked
-      };
-      HH.db.ref("users/" + _uid + "/preferences/notifications").set(prefs);
+      });
     }
 
 
-    function showMsg(type, text) {
-      var el = document.getElementById("settings-message");
-      var bg = type === "error"
-        ? "var(--color-danger-light)"  : "var(--color-success-light)";
-      var co = type === "error"
-        ? "var(--color-danger-text)"   : "var(--color-success-text)";
-      var bd = type === "error"
-        ? "var(--color-danger-border)" : "var(--color-success-border)";
-      el.innerHTML =
-        '<div style="background:' + bg + ';color:' + co +
-        ';border:1px solid ' + bd +
-        ';border-radius:var(--radius-md);padding:0.7rem 0.9rem;' +
-        'font-size:0.875rem;font-weight:500;">' +
-          escHtml(text) +
-        '</div>';
-      setTimeout(function () { el.innerHTML = ""; }, 4000);
+    // ============================================================
+    // DELETE ACCOUNT
+    // ============================================================
+    function showDeleteConfirm() {
+      document.getElementById("delete-confirm").classList.add("open");
+      document.getElementById("delete-password").value = "";
+      document.getElementById("delete-error").textContent = "";
+      // Scroll so the panel is visible
+      document.getElementById("delete-confirm")
+        .scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    function initials(name) {
-      var p = name.trim().split(" ");
-      return p.length === 1
-        ? p[0].charAt(0).toUpperCase()
-        : (p[0].charAt(0) + p[1].charAt(0)).toUpperCase();
+    function hideDeleteConfirm() {
+      document.getElementById("delete-confirm").classList.remove("open");
+      document.getElementById("delete-password").value = "";
+      document.getElementById("delete-error").textContent = "";
     }
 
-    function escHtml(s) {
-      return String(s)
-        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-    }
+    function confirmDelete() {
+      var pass = document.getElementById("delete-password").value;
+      var errEl = document.getElementById("delete-error");
+      errEl.textContent = "";
 
-  </script>
-</body>
-</html>
+      if (!pass) {
+        errEl.textContent = "Please enter your password to confirm.";
+        return;
+      }
+
+      var btn = document.getElementById("btn-delete-final");
+      btn.disabled  = true;
+      btn.innerHTML = '<span class="del-spinner"></span> Deleting...';
+
+      var credential = firebase.auth.EmailAuthProvider
+        .credential(_profile.email, pass);
+
+      // Step 1 — re-authenticate to confirm identity
+      HH.auth.currentUser.reauthenticateWithCredential(credential)
+
+        // Step 2 — delete all user data from the database
+        .then(function() {
+          // Build a multi-path delete for everything belonging to this user
+          var wipes = {};
+          wipes["users/" + _uid] = null;
+
+          // Remove this user from every opportunity they joined
+          var joinedIds = Object.keys(
+            (_profile.joined_opportunities || {})
+          );
+          joinedIds.forEach(function(oppId) {
+            wipes["opportunities/" + oppId + "/participants/" + _uid] = null;
+          });
+
+          return HH.db.ref().update(wipes);
+        })
+
+        // Step 3 — delete all their submissions
+        .then(function() {
+          return HH.db.ref("submissions")
+            .orderByChild("volunteer_id")
+            .equalTo(_uid)
+            .once("value");
+        })
+        .then(function(snap) {
+          var submissionWipes = {};
+          snap.forEach(function(c) {
+            submissionWipes["submissions/" + c.key] = null;
+          });
+          if (Object.keys(submissionWipes).length > 0) {
+            return HH.db.ref().update(submissionWipes);
+          }
+        })
+
+        // Step 4 — clear the role cache so no stale data remains
+        .then(function() {

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HourHero — Manage Opportunities</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    body { background: var(--color-gray-100); }
+    .org-main { margin-left:220px; padding:var(--space-8); min-height:100vh; }
+    @media(max-width:640px){
+      .org-main { margin-left:0; padding:var(--space-4);
+                  padding-top:calc(var(--nav-height)+var(--space-4)); }
+    }
+    .manage-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .manage-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+    .manage-row:last-child { border-bottom: none; }
+    .manage-row-main { flex: 1; min-width: 0; }
+    .manage-row-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .manage-row-meta {
+      font-size: 0.78rem;
+      color: var(--color-gray-500);
+      margin-top: 2px;
+    }
+    .manage-row-actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-shrink: 0;
+    }
+    @keyframes shimmer {
+      0%   { background-position:-400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg,
+        var(--color-gray-100) 25%, var(--color-gray-200) 50%,
+        var(--color-gray-100) 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar (same structure, active item changed) -->
+  <aside class="org-sidebar">
+    <div class="org-sidebar-logo">HourHero</div>
+    <div class="org-sidebar-label">Main</div>
+    <nav class="org-sidebar-nav">
+      <a href="dashboard.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>Dashboard
+      </a>
+      <a href="submissions.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>Submissions
+      </a>
+    </nav>
+    <div class="org-sidebar-label">Opportunities</div>
+    <nav class="org-sidebar-nav">
+      <a href="create-opportunity.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>Create opportunity
+      </a>
+      <a href="manage-opportunities.html" class="org-nav-item active">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/>
+          <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>Manage opportunities
+      </a>
+      <a href="participants.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+        </svg>Participants
+      </a>
+    </nav>
+    <div class="org-sidebar-label" style="margin-top:auto;">Account</div>
+    <nav class="org-sidebar-nav">
+      <a href="settings.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+        </svg>Settings
+      </a>
+      <a href="#" class="org-nav-item"
+         onclick="HH.Router.signOutAndRedirect();return false;">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>Sign out
+      </a>
+    </nav>
+  </aside>
+
+  <main class="org-main">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;
+                margin-bottom:var(--space-6);flex-wrap:wrap;gap:var(--space-3);">
+      <div>
+        <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.4px;
+                   margin-bottom:4px;">Manage opportunities</h1>
+        <p style="font-size:0.875rem;color:var(--color-gray-500);">
+          Open, close, or delete your posted opportunities
+        </p>
+      </div>
+      <a href="create-opportunity.html" class="btn btn-primary">
+        + New opportunity
+      </a>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar" style="margin-bottom:var(--space-4);max-width:400px;">
+      <svg class="search-bar-icon" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="search-input" type="text" id="search-input"
+             placeholder="Search your opportunities..."
+             oninput="renderList()" />
+    </div>
+
+    <div id="manage-message" style="margin-bottom:var(--space-3);"></div>
+
+    <div class="manage-card" id="manage-list">
+      <!-- Skeleton -->
+      <div class="manage-row">
+        <div class="manage-row-main">
+          <div class="skeleton" style="width:55%;height:14px;margin-bottom:6px;"></div>
+          <div class="skeleton" style="width:35%;height:11px;"></div>
+        </div>
+      </div>
+      <div class="manage-row">
+        <div class="manage-row-main">
+          <div class="skeleton" style="width:65%;height:14px;margin-bottom:6px;"></div>
+          <div class="skeleton" style="width:40%;height:11px;"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <script src="../js/theme.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+
+  <script>
+
+    HH.Router.protect("org");
+
+    var _uid  = null;
+    var _opps = [];
+
+    HH.Router.onReady(function (uid) {
+      _uid = uid;
+      loadOpportunities(uid);
+    });
+
+
+    function loadOpportunities(uid) {
+      HH.db.ref("opportunities")
+        .orderByChild("org_id")
+        .equalTo(uid)
+        .on("value", function (snap) {
+          _opps = [];
+          snap.forEach(function (c) {
+            var o = c.val();
+            o._key = c.key;
+            _opps.push(o);
+          });
+          _opps.sort(function (a, b) {
+            return (b.created_at || 0) - (a.created_at || 0);
+          });
+          renderList();
+        });
+    }
+
+
+    function renderList() {
+      var q = document.getElementById("search-input").value.toLowerCase().trim();
+      var filtered = _opps.filter(function (o) {
+        return !q ||
+          (o.title || "").toLowerCase().indexOf(q) !== -1 ||
+          (o.category || "").toLowerCase().indexOf(q) !== -1;
+      });
+
+      var container = document.getElementById("manage-list");
+
+      if (!filtered.length) {
+        container.innerHTML =
+          '<div class="empty-state" style="padding:3rem;">' +
+            '<p style="font-size:0.875rem;color:var(--color-gray-400);">' +
+              (q ? "No results for that search." : "No opportunities yet.") +
+              ' <a href="create-opportunity.html">Create one</a>' +
+            '</p>' +
+          '</div>';
+        return;
+      }
+
+      var html = "";
+      filtered.forEach(function (o) {
+        var count  = o.participants
+          ? Object.keys(o.participants).length : 0;
+        var status = o.status === "open"
+          ? '<span class="badge badge-approved">Open</span>'
+          : '<span class="badge badge-rejected">Closed</span>';
+        var toggleLabel = o.status === "open" ? "Close" : "Reopen";
+        var dateStr = o.date
+          ? new Date(o.date).toLocaleDateString("en-US",
+              { month: "short", day: "numeric", year: "numeric" })
+          : "No date";
+
+        html +=
+          '<div class="manage-row">' +
+            '<div class="manage-row-main">' +
+              '<div class="manage-row-title">' +
+                escHtml(o.title || "Untitled") +
+              '</div>' +
+              '<div class="manage-row-meta">' +
+                status + ' &nbsp;&middot;&nbsp; ' +
+                escHtml(o.category || "Uncategorized") +
+                ' &middot; ' + dateStr +
+                ' &middot; ' + count + ' volunteer' +
+                (count !== 1 ? 's' : '') +
+              '</div>' +
+            '</div>' +
+            '<div class="manage-row-actions">' +
+              '<button class="btn btn-sm btn-outline"' +
+                ' onclick="toggleStatus(\'' + escHtml(o._key) + '\',\'' +
+                escHtml(o.status) + '\')">' +
+                toggleLabel +
+              '</button>' +
+              '<button class="btn btn-sm btn-danger"' +
+                ' onclick="deleteOpp(\'' + escHtml(o._key) + '\')">' +
+                'Delete' +
+              '</button>' +
+            '</div>' +
+          '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+
+    function toggleStatus(key, currentStatus) {
+      var newStatus = currentStatus === "open" ? "closed" : "open";
+      HH.db.ref("opportunities/" + key + "/status").set(newStatus)
+        .catch(function (e) {
+          showMsg("error", "Could not update status: " + e.message);
+        });
+    }
+
+
+    function deleteOpp(key) {
+      if (!confirm("Delete this opportunity? This cannot be undone.")) return;
+
+      var updates = {};
+      updates["opportunities/" + key]                              = null;
+      updates["organizations/" + _uid + "/opportunities/" + key]  = null;
+
+      HH.db.ref().update(updates)
+        .then(function () {
+          showMsg("success", "Opportunity deleted.");
+        })
+        .catch(function (e) {
+          showMsg("error", "Delete failed: " + e.message);
+        });
+    }
+
+
+    function showMsg(type, text) {
+      var el = document.getElementById("manage-message");
+      var co = type === "error"
+        ? "var(--color-danger-text)" : "var(--color-success-text)";
+      var bg = type === "error"
+        ? "var(--color-danger-light)" : "var(--color-success-light)";
+      var bd = type === "error"
+        ? "var(--color-danger-border)" : "var(--color-success-border)";
+      el.innerHTML =
+        '<div style="background:' + bg + ';color:' + co +
+        ';border:1px solid ' + bd +
+        ';border-radius:var(--radius-md);padding:0.7rem 0.9rem;' +
+        'font-size:0.875rem;font-weight:500;margin-bottom:1rem;">' +
+          escHtml(text) + '</div>';
+      setTimeout(function () { el.innerHTML = ""; }, 4000);
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+  </script>
+</body>
+</html>

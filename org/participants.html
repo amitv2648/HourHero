@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HourHero — Participants</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    body { background: var(--color-gray-100); }
+    .org-main { margin-left:220px; padding:var(--space-8); min-height:100vh; }
+    @media(max-width:640px){
+      .org-main { margin-left:0; padding:var(--space-4);
+                  padding-top:calc(var(--nav-height)+var(--space-4)); }
+    }
+    .participant-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .participant-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+    .participant-row:last-child { border-bottom: none; }
+    .p-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .p-main { flex: 1; min-width: 0; }
+    .p-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+    }
+    .p-meta {
+      font-size: 0.78rem;
+      color: var(--color-gray-500);
+      margin-top: 2px;
+    }
+    .p-hours {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--color-primary);
+      flex-shrink: 0;
+      text-align: right;
+    }
+    .p-hours-label {
+      font-size: 0.7rem;
+      color: var(--color-gray-400);
+    }
+    @keyframes shimmer {
+      0%   { background-position:-400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg,
+        var(--color-gray-100) 25%, var(--color-gray-200) 50%,
+        var(--color-gray-100) 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="org-sidebar">
+    <div class="org-sidebar-logo">HourHero</div>
+    <div class="org-sidebar-label">Main</div>
+    <nav class="org-sidebar-nav">
+      <a href="dashboard.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>Dashboard
+      </a>
+      <a href="submissions.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>Submissions
+      </a>
+    </nav>
+    <div class="org-sidebar-label">Opportunities</div>
+    <nav class="org-sidebar-nav">
+      <a href="create-opportunity.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>Create opportunity
+      </a>
+      <a href="manage-opportunities.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+        </svg>Manage opportunities
+      </a>
+      <a href="participants.html" class="org-nav-item active">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>Participants
+      </a>
+    </nav>
+    <div class="org-sidebar-label" style="margin-top:auto;">Account</div>
+    <nav class="org-sidebar-nav">
+      <a href="settings.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+        </svg>Settings
+      </a>
+      <a href="#" class="org-nav-item"
+         onclick="HH.Router.signOutAndRedirect();return false;">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>Sign out
+      </a>
+    </nav>
+  </aside>
+
+  <main class="org-main">
+
+    <div style="margin-bottom:var(--space-6);">
+      <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.4px;
+                 margin-bottom:4px;">Participants</h1>
+      <p style="font-size:0.875rem;color:var(--color-gray-500);">
+        All volunteers who have joined at least one of your opportunities
+      </p>
+    </div>
+
+    <!-- Filter by opportunity -->
+    <div style="margin-bottom:var(--space-4);display:flex;
+                gap:var(--space-3);align-items:center;flex-wrap:wrap;">
+      <div style="font-size:0.875rem;font-weight:600;
+                  color:var(--color-gray-700);">Filter by opportunity:</div>
+      <select class="form-select" id="opp-filter"
+              style="max-width:280px;"
+              onchange="renderParticipants()">
+        <option value="all">All opportunities</option>
+      </select>
+    </div>
+
+    <!-- Stats row -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);
+                gap:var(--space-3);margin-bottom:var(--space-5);">
+      <div class="stat-card">
+        <div class="stat-label">Total volunteers</div>
+        <div class="stat-value" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total hours approved</div>
+        <div class="stat-value" id="stat-hours">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Submissions</div>
+        <div class="stat-value" id="stat-subs">—</div>
+      </div>
+    </div>
+
+    <div class="participant-card" id="participant-list">
+      <div class="participant-row">
+        <div class="skeleton"
+             style="width:40px;height:40px;border-radius:50%;flex-shrink:0;"></div>
+        <div class="p-main">
+          <div class="skeleton" style="width:55%;height:13px;margin-bottom:6px;"></div>
+          <div class="skeleton" style="width:38%;height:11px;"></div>
+        </div>
+      </div>
+      <div class="participant-row">
+        <div class="skeleton"
+             style="width:40px;height:40px;border-radius:50%;flex-shrink:0;"></div>
+        <div class="p-main">
+          <div class="skeleton" style="width:60%;height:13px;margin-bottom:6px;"></div>
+          <div class="skeleton" style="width:40%;height:11px;"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <script src="../js/theme.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+
+  <script>
+
+    HH.Router.protect("org");
+
+    var _uid          = null;
+    var _submissions  = [];   // all submissions for this org
+    var _opps         = {};   // { opp_id: title }
+
+    HH.Router.onReady(function (uid) {
+      _uid = uid;
+      loadData(uid);
+    });
+
+
+    function loadData(uid) {
+      // Load all this org's opportunities for the filter dropdown
+      HH.db.ref("opportunities")
+        .orderByChild("org_id")
+        .equalTo(uid)
+        .once("value")
+        .then(function (snap) {
+          var sel = document.getElementById("opp-filter");
+          snap.forEach(function (c) {
+            _opps[c.key] = c.val().title || "Untitled";
+            var opt = document.createElement("option");
+            opt.value       = c.key;
+            opt.textContent = c.val().title || "Untitled";
+            sel.appendChild(opt);
+          });
+        });
+
+      // Load all submissions for this org (real-time)
+      HH.db.ref("submissions")
+        .orderByChild("org_id")
+        .equalTo(uid)
+        .on("value", function (snap) {
+          _submissions = [];
+          snap.forEach(function (c) {
+            _submissions.push(c.val());
+          });
+          renderParticipants();
+        });
+    }
+
+
+    function renderParticipants() {
+      var filter = document.getElementById("opp-filter").value;
+
+      var filtered = filter === "all"
+        ? _submissions
+        : _submissions.filter(function (s) {
+            return s.opportunity_id === filter;
+          });
+
+      // Group by volunteer_id
+      var byVol = {};
+      filtered.forEach(function (s) {
+        var vid = s.volunteer_id;
+        if (!byVol[vid]) {
+          byVol[vid] = {
+            name:          s.volunteer_name || "Unknown",
+            total_hours:   0,
+            approved_hours:0,
+            submission_count: 0,
+            opps:          {}
+          };
+        }
+        byVol[vid].submission_count++;
+        byVol[vid].opps[s.opportunity_id] = true;
+        if (s.status === "approved") {
+          byVol[vid].approved_hours += parseFloat(s.hours || 0);
+          byVol[vid].total_hours    += parseFloat(s.hours || 0);
+        }
+      });
+
+      var list = Object.values(byVol);
+      // Sort by approved hours descending
+      list.sort(function (a, b) {
+        return b.approved_hours - a.approved_hours;
+      });
+
+      // Update stats
+      var totalHours = list.reduce(function (acc, v) {
+        return acc + v.approved_hours;
+      }, 0);
+      var totalSubs  = filtered.length;
+
+      document.getElementById("stat-total").textContent = list.length;
+      document.getElementById("stat-hours").textContent =
+        totalHours.toFixed(1) + "h";
+      document.getElementById("stat-subs").textContent  = totalSubs;
+
+      var container = document.getElementById("participant-list");
+
+      if (!list.length) {
+        container.innerHTML =
+          '<div class="empty-state" style="padding:3rem;">' +
+            '<p style="font-size:0.875rem;color:var(--color-gray-400);">' +
+              'No participants yet for this opportunity.' +
+            '</p>' +
+          '</div>';
+        return;
+      }
+
+      var html = "";
+      list.forEach(function (v) {
+        var ini   = initials(v.name);
+        var oppCount = Object.keys(v.opps).length;
+
+        html +=
+          '<div class="participant-row">' +
+            '<div class="p-avatar">' + ini + '</div>' +
+            '<div class="p-main">' +
+              '<div class="p-name">' + escHtml(v.name) + '</div>' +
+              '<div class="p-meta">' +
+                v.submission_count + ' submission' +
+                (v.submission_count !== 1 ? 's' : '') +
+                ' &middot; ' + oppCount + ' opp' +
+                (oppCount !== 1 ? 's' : '') +
+              '</div>' +
+            '</div>' +
+            '<div class="p-hours">' +
+              v.approved_hours.toFixed(1) + 'h' +
+              '<div class="p-hours-label">approved</div>' +
+            '</div>' +
+          '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+
+    function initials(name) {
+      var p = (name || "?").trim().split(" ");
+      return p.length === 1
+        ? p[0].charAt(0).toUpperCase()
+        : (p[0].charAt(0) + p[1].charAt(0)).toUpperCase();
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+  </script>
+</body>
+</html>

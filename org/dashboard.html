@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HourHero — Organization Dashboard</title>
+  <meta name="theme-color" content="#4F46E5" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+
+  <style>
+    body {
+      background: var(--color-gray-100);
+    }
+
+    /* ---- Org page wrapper clears the sidebar ---- */
+    .org-main {
+      margin-left: 220px;
+      padding: var(--space-8);
+      min-height: 100vh;
+    }
+
+    @media (max-width: 640px) {
+      .org-main {
+        margin-left: 0;
+        padding: var(--space-4);
+        padding-top: calc(var(--nav-height) + var(--space-4));
+      }
+    }
+
+    /* ---- Page header row ---- */
+    .org-dashboard-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+      flex-wrap: wrap;
+    }
+
+    .org-dashboard-header-text h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--color-gray-900);
+      letter-spacing: -0.4px;
+      margin-bottom: var(--space-1);
+    }
+
+    .org-dashboard-header-text p {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+    }
+
+    /* ---- Stats row ---- */
+    .org-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    @media (max-width: 900px) {
+      .org-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .org-stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* Pending stat card gets a warning accent */
+    .stat-card-warning .stat-value {
+      color: var(--color-warning);
+    }
+
+    /* ---- Two-column content area ---- */
+    .org-content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-5);
+    }
+
+    @media (max-width: 860px) {
+      .org-content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ---- Section card ---- */
+    .section-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .section-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .section-card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+    }
+
+    .section-card-link {
+      font-size: 0.8rem;
+      color: var(--color-primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .section-card-link:hover {
+      text-decoration: underline;
+    }
+
+    .section-card-body {
+      padding: var(--space-2) var(--space-5);
+    }
+
+    /* ---- Submission review row ---- */
+    .sub-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .sub-row:last-child {
+      border-bottom: none;
+    }
+
+    .sub-row-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sub-row-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .sub-row-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sub-row-detail {
+      font-size: 0.775rem;
+      color: var(--color-gray-500);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sub-row-actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-shrink: 0;
+    }
+
+    /* ---- Opportunity summary row ---- */
+    .opp-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .opp-row:last-child {
+      border-bottom: none;
+    }
+
+    .opp-row-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 2px;
+    }
+
+    .opp-row-meta {
+      font-size: 0.775rem;
+      color: var(--color-gray-500);
+    }
+
+    /* ---- Welcome card for brand-new orgs ---- */
+    .welcome-card {
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      color: #ffffff;
+      margin-bottom: var(--space-6);
+    }
+
+    .welcome-card h2 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: var(--space-2);
+    }
+
+    .welcome-card p {
+      font-size: 0.875rem;
+      opacity: 0.85;
+      margin-bottom: var(--space-4);
+      max-width: 480px;
+    }
+
+    .welcome-card-actions {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .btn-white {
+      background: #ffffff;
+      color: var(--color-primary);
+      border: none;
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      transition: background var(--transition-normal);
+    }
+
+    .btn-white:hover {
+      background: #EEF2FF;
+      text-decoration: none;
+      color: var(--color-primary-dark);
+    }
+
+    .btn-white-outline {
+      background: transparent;
+      color: #ffffff;
+      border: 1.5px solid rgba(255,255,255,0.6);
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: border-color var(--transition-normal),
+                  background var(--transition-normal);
+    }
+
+    .btn-white-outline:hover {
+      border-color: #ffffff;
+      background: rgba(255,255,255,0.1);
+      text-decoration: none;
+      color: #ffffff;
+    }
+
+    /* ---- Skeleton loading ---- */
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position:  400px 0; }
+    }
+
+    .skeleton {
+      background: linear-gradient(
+        90deg,
+        var(--color-gray-100) 25%,
+        var(--color-gray-200) 50%,
+        var(--color-gray-100) 75%
+      );
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: var(--radius-sm);
+    }
+
+    .skeleton-text {
+      height: 13px;
+      margin-bottom: 6px;
+    }
+
+    /* ---- Mobile top nav for org (shows when sidebar is hidden) ---- */
+    .org-mobile-nav {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--nav-height);
+      background: var(--color-white);
+      border-bottom: 1px solid var(--color-gray-200);
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-4);
+      z-index: 500;
+    }
+
+    @media (max-width: 640px) {
+      .org-mobile-nav {
+        display: flex;
+      }
+    }
+
+    .org-mobile-nav-logo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--color-primary);
+      letter-spacing: -0.5px;
+    }
+
+    /* Hamburger → links to a simple mobile menu */
+    .org-mobile-menu-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: var(--space-2);
+      color: var(--color-gray-700);
+    }
+
+    /* ---- Mobile dropdown nav ---- */
+    .org-mobile-dropdown {
+      display: none;
+      position: fixed;
+      top: var(--nav-height);
+      left: 0;
+      right: 0;
+      background: var(--color-white);
+      border-bottom: 1px solid var(--color-gray-200);
+      z-index: 499;
+      padding: var(--space-3);
+    }
+
+    .org-mobile-dropdown.open {
+      display: block;
+    }
+
+    .org-mobile-dropdown a {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-gray-700);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+    }
+
+    .org-mobile-dropdown a:hover {
+      background: var(--color-gray-100);
+    }
+
+    .org-mobile-dropdown a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       SIDEBAR — visible on desktop
+  ============================================================ -->
+  <aside class="org-sidebar">
+    <div class="org-sidebar-logo">HourHero</div>
+
+    <div class="org-sidebar-label">Main</div>
+    <nav class="org-sidebar-nav">
+
+      <a href="dashboard.html" class="org-nav-item active">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <a href="submissions.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        Submissions
+        <!-- Pending badge — shows count when there are pending items -->
+        <span class="badge badge-pending" id="sidebar-pending-badge"
+              style="margin-left:auto; display:none;">0</span>
+      </a>
+
+    </nav>
+
+    <div class="org-sidebar-label">Opportunities</div>
+    <nav class="org-sidebar-nav">
+
+      <a href="create-opportunity.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        Create opportunity
+      </a>
+
+      <a href="manage-opportunities.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/>
+          <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+        Manage opportunities
+      </a>
+
+      <a href="participants.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Participants
+      </a>
+
+    </nav>
+
+    <div class="org-sidebar-label" style="margin-top:auto;">Account</div>
+    <nav class="org-sidebar-nav">
+
+      <a href="settings.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33
+                   1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33
+                   l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4
+                   h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06
+                   A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51
+                   a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9
+                   a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Settings
+      </a>
+
+      <a href="#" class="org-nav-item" onclick="HH.Router.signOutAndRedirect(); return false;">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sign out
+      </a>
+
+    </nav>
+  </aside>
+
+
+  <!-- ============================================================
+       MOBILE TOP NAV — replaces sidebar on small screens
+  ============================================================ -->
+  <nav class="org-mobile-nav">
+    <span class="org-mobile-nav-logo">HourHero</span>
+    <button class="org-mobile-menu-btn" onclick="toggleMobileMenu()" title="Menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </nav>
+
+  <div class="org-mobile-dropdown" id="org-mobile-dropdown">
+    <a href="dashboard.html" class="active">Dashboard</a>
+    <a href="submissions.html">Submissions</a>
+    <a href="create-opportunity.html">Create opportunity</a>
+    <a href="manage-opportunities.html">Manage opportunities</a>
+    <a href="participants.html">Participants</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" onclick="HH.Router.signOutAndRedirect(); return false;">Sign out</a>
+  </div>
+
+
+  <!-- ============================================================
+       MAIN PAGE CONTENT
+  ============================================================ -->
+  <main class="org-main">
+
+    <!-- Page header row -->
+    <div class="org-dashboard-header">
+      <div class="org-dashboard-header-text">
+        <h1 id="org-heading">Dashboard</h1>
+        <p id="org-subheading">Loading your organization overview...</p>
+      </div>
+      <a href="create-opportunity.html" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        New opportunity
+      </a>
+    </div>
+
+
+    <!-- Welcome card — only shown on first login before any opps -->
+    <div class="welcome-card hidden" id="welcome-card">
+      <h2 id="welcome-heading">Welcome to HourHero!</h2>
+      <p>
+        You're all set. Create your first volunteer opportunity so students
+        can find you and log hours against your organization.
+      </p>
+      <div class="welcome-card-actions">
+        <a href="create-opportunity.html" class="btn-white">
+          Create first opportunity
+        </a>
+        <a href="settings.html" class="btn-white-outline">
+          Complete your profile
+        </a>
+      </div>
+    </div>
+
+
+    <!-- Stats row -->
+    <div class="org-stats-grid">
+      <div class="stat-card stat-card-warning">
+        <div class="stat-label">Needs review</div>
+        <div class="stat-value" id="org-stat-pending">
+          <div class="skeleton" style="height:36px; border-radius:6px;"></div>
+        </div>
+        <div class="stat-sub">pending submissions</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Opportunities</div>
+        <div class="stat-value" id="org-stat-opps">
+          <div class="skeleton" style="height:36px; border-radius:6px;"></div>
+        </div>
+        <div class="stat-sub">total created</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Volunteers</div>
+        <div class="stat-value" id="org-stat-volunteers">
+          <div class="skeleton" style="height:36px; border-radius:6px;"></div>
+        </div>
+        <div class="stat-sub">participants joined</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Hours approved</div>
+        <div class="stat-value" id="org-stat-hours">
+          <div class="skeleton" style="height:36px; border-radius:6px;"></div>
+        </div>
+        <div class="stat-sub">across all volunteers</div>
+      </div>
+    </div>
+
+
+    <!-- Two-column content area -->
+    <div class="org-content-grid">
+
+      <!-- Left: Pending submissions needing review -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Pending submissions</span>
+          <a href="submissions.html" class="section-card-link">View all</a>
+        </div>
+        <div class="section-card-body" id="pending-submissions-list">
+          <!-- Skeleton rows -->
+          <div class="sub-row">
+            <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div class="skeleton skeleton-text" style="width:65%;"></div>
+              <div class="skeleton skeleton-text" style="width:45%;"></div>
+            </div>
+          </div>
+          <div class="sub-row">
+            <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div class="skeleton skeleton-text" style="width:70%;"></div>
+              <div class="skeleton skeleton-text" style="width:40%;"></div>
+            </div>
+          </div>
+          <div class="sub-row">
+            <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div class="skeleton skeleton-text" style="width:55%;"></div>
+              <div class="skeleton skeleton-text" style="width:50%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Right: Recent opportunities -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Your opportunities</span>
+          <a href="manage-opportunities.html" class="section-card-link">Manage</a>
+        </div>
+        <div class="section-card-body" id="opportunities-list">
+          <!-- Skeleton rows -->
+          <div class="opp-row">
+            <div style="flex:1;">
+              <div class="skeleton skeleton-text" style="width:70%;"></div>
+              <div class="skeleton skeleton-text" style="width:40%;"></div>
+            </div>
+          </div>
+          <div class="opp-row">
+            <div style="flex:1;">
+              <div class="skeleton skeleton-text" style="width:60%;"></div>
+              <div class="skeleton skeleton-text" style="width:35%;"></div>
+            </div>
+          </div>
+          <div class="opp-row">
+            <div style="flex:1;">
+              <div class="skeleton skeleton-text" style="width:75%;"></div>
+              <div class="skeleton skeleton-text" style="width:45%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- End org-content-grid -->
+
+  </main>
+
+
+  <!-- ============================================================
+       FIREBASE SDK
+  ============================================================ -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <!-- ============================================================
+       HOURHERO SCRIPTS
+  ============================================================ -->
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+
+  <!-- ============================================================
+       ORG DASHBOARD PAGE SCRIPT
+  ============================================================ -->
+  <script>
+
+    // ---- 1. Protect this page — orgs only ---------------------
+    HH.Router.protect("org");
+
+    // ---- 2. Run setup once auth check passes ------------------
+    HH.Router.onReady(function (uid) {
+      loadOrgProfile(uid);
+      loadOrgStats(uid);
+      loadPendingSubmissions(uid);
+      loadOrgOpportunities(uid);
+    });
+
+
+    // ============================================================
+    // LOAD ORG PROFILE
+    // Reads the org name and personalises the page heading.
+    // Also shows the welcome card if the org has no opportunities
+    // yet — detected by checking if their opportunities object
+    // is empty.
+    // ============================================================
+    function loadOrgProfile(uid) {
+      HH.db.ref("organizations/" + uid).once("value").then(function (snap) {
+        if (!snap.exists()) return;
+        var org = snap.val();
+        var name = org.name || "Your organization";
+
+        document.getElementById("org-heading").textContent =
+          name + " — Dashboard";
+        document.getElementById("org-subheading").textContent =
+          "Here is what needs your attention today";
+
+        // Welcome heading inside the welcome card
+        document.getElementById("welcome-heading").textContent =
+          "Welcome to HourHero, " + name + "!";
+
+        // Show the welcome card if no opportunities exist yet
+        var hasOpps = org.opportunities &&
+                      Object.keys(org.opportunities).length > 0;
+        if (!hasOpps) {
+          document.getElementById("welcome-card").classList.remove("hidden");
+        }
+      });
+    }
+
+
+    // ============================================================
+    // LOAD ORG STATS
+    // Calculates the four dashboard metric cards:
+    //   pending   — submissions where org_id = uid AND status = pending
+    //   opps      — count of keys in organizations/{uid}/opportunities
+    //   volunteers— count of unique volunteer_ids across all submissions
+    //   hours     — sum of hours where org_id = uid AND status = approved
+    // ============================================================
+    function loadOrgStats(uid) {
+
+      HH.db.ref("submissions")
+        .orderByChild("org_id")
+        .equalTo(uid)
+        .once("value")
+        .then(function (snap) {
+          var pending    = 0;
+          var totalHours = 0;
+          var volunteers = {};
+
+          snap.forEach(function (child) {
+            var s = child.val();
+            if (s.status === "pending")  pending++;
+            if (s.status === "approved") totalHours += (s.hours || 0);
+            if (s.volunteer_id)          volunteers[s.volunteer_id] = true;
+          });
+
+          document.getElementById("org-stat-pending").textContent   = pending;
+          document.getElementById("org-stat-volunteers").textContent =
+            Object.keys(volunteers).length;
+          document.getElementById("org-stat-hours").textContent =
+            parseFloat(totalHours).toFixed(1);
+
+          // Update the sidebar pending badge
+          var badge = document.getElementById("sidebar-pending-badge");
+          if (pending > 0) {
+            badge.textContent = pending;
+            badge.style.display = "inline-flex";
+          }
+        });
+
+      // Opportunity count lives on the org record itself
+      HH.db.ref("organizations/" + uid + "/opportunities")
+        .once("value")
+        .then(function (snap) {
+          var count = snap.exists()
+            ? Object.keys(snap.val() || {}).length
+            : 0;
+          document.getElementById("org-stat-opps").textContent = count;
+        });
+    }
+
+
+    // ============================================================
+    // LOAD PENDING SUBMISSIONS
+    // Shows up to 5 pending submissions with quick
+    // approve / reject buttons directly on the dashboard.
+    // Uses a real-time listener so approvals made on the
+    // Submissions page are reflected here instantly.
+    // ============================================================
+    function loadPendingSubmissions(uid) {
+      HH.db.ref("submissions")
+        .orderByChild("org_id")
+        .equalTo(uid)
+        .on("value", function (snap) {
+
+          var container = document.getElementById("pending-submissions-list");
+          var pending   = [];
+
+          snap.forEach(function (child) {
+            var s = child.val();
+            s._key = child.key;
+            if (s.status === "pending") pending.push(s);
+          });
+
+          // Sort newest first
+          pending.sort(function (a, b) {
+            return (b.submitted_at || 0) - (a.submitted_at || 0);
+          });
+
+          // Show only first 5 on the dashboard
+          var visible = pending.slice(0, 5);
+
+          if (visible.length === 0) {
+            container.innerHTML =
+              '<div class="empty-state" style="padding:1.5rem 0;">' +
+                '<p style="color:var(--color-gray-400);font-size:0.875rem;">' +
+                  'No pending submissions. All caught up!' +
+                '</p>' +
+              '</div>';
+            return;
+          }
+
+          var html = "";
+          visible.forEach(function (s) {
+            var initials = getInitials(s.volunteer_name || "??");
+            html +=
+              '<div class="sub-row" id="subrow-' + escHtml(s._key) + '">' +
+                '<div class="sub-row-avatar">' + initials + '</div>' +
+                '<div class="sub-row-main">' +
+                  '<div class="sub-row-name">' +
+                    escHtml(s.volunteer_name || "Unknown") +
+                  '</div>' +
+                  '<div class="sub-row-detail">' +
+                    escHtml(s.opportunity_title || "Volunteer hours") +
+                    ' &middot; ' + (s.hours || 0) + 'h' +
+                    (s.date ? ' &middot; ' + escHtml(s.date) : '') +
+                  '</div>' +
+                '</div>' +
+                '<div class="sub-row-actions">' +
+                  '<button class="btn btn-sm btn-success"' +
+                    ' onclick="quickApprove(\'' + escHtml(s._key) + '\',\'' +
+                    escHtml(s.volunteer_id) + '\',' + (s.hours || 0) + ')">' +
+                    'Approve' +
+                  '</button>' +
+                  '<button class="btn btn-sm btn-outline"' +
+                    ' onclick="quickReject(\'' + escHtml(s._key) + '\')">' +
+                    'Reject' +
+                  '</button>' +
+                '</div>' +
+              '</div>';
+          });
+
+          container.innerHTML = html;
+        });
+    }
+
+
+    // ============================================================
+    // QUICK APPROVE
+    // Called by the Approve button on a pending submission row.
+    // Does three writes in one atomic Firebase update:
+    //   1. submissions/{key}/status → "approved"
+    //   2. submissions/{key}/reviewed_at → timestamp
+    //   3. users/{volunteer_id}/total_hours → incremented by hours
+    // ============================================================
+    function quickApprove(submissionKey, volunteerId, hours) {
+      var btn = event.target;
+      btn.disabled = true;
+      btn.textContent = "...";
+
+      // Read current total_hours first, then increment
+      HH.db.ref("users/" + volunteerId + "/total_hours")
+        .once("value")
+        .then(function (snap) {
+          var current = snap.val() || 0;
+          var updated = parseFloat(current) + parseFloat(hours);
+
+          // Build a multi-path update — Firebase applies all three
+          // writes atomically in a single network request
+          var updates = {};
+          updates["submissions/" + submissionKey + "/status"]      = "approved";
+          updates["submissions/" + submissionKey + "/reviewed_at"] = HH.TIMESTAMP;
+          updates["users/" + volunteerId + "/total_hours"]         = updated;
+
+          return HH.db.ref().update(updates);
+        })
+        .then(function () {
+          // The real-time listener on loadPendingSubmissions will
+          // automatically remove this row from the list
+        })
+        .catch(function (err) {
+          console.error("Approve failed:", err);
+          btn.disabled = false;
+          btn.textContent = "Approve";
+          alert("Could not approve. Please try again.");
+        });
+    }
+
+
+    // ============================================================
+    // QUICK REJECT
+    // Sets status to "rejected". Does NOT change total_hours.
+    // ============================================================
+    function quickReject(submissionKey) {
+      var btn = event.target;
+      btn.disabled = true;
+      btn.textContent = "...";
+
+      var updates = {};
+      updates["submissions/" + submissionKey + "/status"]      = "rejected";
+      updates["submissions/" + submissionKey + "/reviewed_at"] = HH.TIMESTAMP;
+
+      HH.db.ref().update(updates).catch(function (err) {
+        console.error("Reject failed:", err);
+        btn.disabled = false;
+        btn.textContent = "Reject";
+        alert("Could not reject. Please try again.");
+      });
+    }
+
+
+    // ============================================================
+    // LOAD ORG OPPORTUNITIES
+    // Shows the 5 most recently created opportunities for this org.
+    // ============================================================
+    function loadOrgOpportunities(uid) {
+      HH.db.ref("opportunities")
+        .orderByChild("org_id")
+        .equalTo(uid)
+        .limitToLast(5)
+        .once("value")
+        .then(function (snap) {
+          var container = document.getElementById("opportunities-list");
+
+          if (!snap.exists()) {
+            container.innerHTML =
+              '<div class="empty-state" style="padding:1.5rem 0;">' +
+                '<p style="color:var(--color-gray-400);font-size:0.875rem;">' +
+                  'No opportunities yet. ' +
+                  '<a href="create-opportunity.html">Create one</a>' +
+                '</p>' +
+              '</div>';
+            return;
+          }
+
+          var items = [];
+          snap.forEach(function (child) {
+            items.push(child.val());
+          });
+
+          // Sort newest first
+          items.sort(function (a, b) {
+            return (b.created_at || 0) - (a.created_at || 0);
+          });
+
+          var html = "";
+          items.forEach(function (opp) {
+            var count  = opp.participants
+              ? Object.keys(opp.participants).length
+              : 0;
+            var status = opp.status === "open"
+              ? '<span class="badge badge-approved">Open</span>'
+              : '<span class="badge badge-rejected">Closed</span>';
+
+            html +=
+              '<div class="opp-row">' +
+                '<div>' +
+                  '<div class="opp-row-title">' +
+                    escHtml(opp.title || "Untitled opportunity") +
+                  '</div>' +
+                  '<div class="opp-row-meta">' +
+                    count + ' participant' + (count !== 1 ? 's' : '') +
+                    (opp.date ? ' &middot; ' + escHtml(opp.date) : '') +
+                  '</div>' +
+                '</div>' +
+                '<div style="flex-shrink:0;">' + status + '</div>' +
+              '</div>';
+          });
+
+          container.innerHTML = html;
+        });
+    }
+
+
+    // ============================================================
+    // MOBILE MENU TOGGLE
+    // ============================================================
+    function toggleMobileMenu() {
+      var dropdown = document.getElementById("org-mobile-dropdown");
+      dropdown.classList.toggle("open");
+    }
+
+    // Close mobile menu when clicking outside it
+    document.addEventListener("click", function (e) {
+      var dropdown = document.getElementById("org-mobile-dropdown");
+      var btn = document.querySelector(".org-mobile-menu-btn");
+      if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+        dropdown.classList.remove("open");
+      }
+    });
+
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
+    function getInitials(name) {
+      var parts = name.trim().split(" ");
+      if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+      return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+  </script>
+
+</body>
+</html>

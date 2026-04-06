@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HourHero — Settings</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <style>
+    body { background: var(--color-gray-100); }
+
+    .profile-header {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-size: 1.3rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .profile-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+    }
+
+    .profile-email {
+      font-size: 0.85rem;
+      color: var(--color-gray-500);
+      margin-top: 2px;
+    }
+
+    .profile-role-badge {
+      display: inline-flex;
+      align-items: center;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: var(--radius-full);
+      margin-top: var(--space-2);
+    }
+
+    .settings-section {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-4);
+    }
+
+    .settings-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--color-gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: var(--space-3) var(--space-5);
+      background: var(--color-gray-50);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--color-gray-100);
+      gap: var(--space-3);
+    }
+
+    .settings-row:last-child {
+      border-bottom: none;
+    }
+
+    .settings-row-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+    }
+
+    .settings-row-sub {
+      font-size: 0.8rem;
+      color: var(--color-gray-500);
+      margin-top: 2px;
+    }
+
+    /* Toggle switch */
+    .toggle-wrap {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle-wrap input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--color-gray-300);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: #ffffff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      pointer-events: none;
+    }
+
+    .toggle-wrap input:checked ~ .toggle-track {
+      background: var(--color-primary);
+    }
+
+    .toggle-wrap input:checked ~ .toggle-track .toggle-thumb {
+      transform: translateX(20px);
+    }
+
+    /* Inline edit form */
+    .inline-edit {
+      display: none;
+      padding: var(--space-4) var(--space-5);
+      border-top: 1px solid var(--color-gray-100);
+      background: var(--color-gray-50);
+    }
+
+    .inline-edit.open {
+      display: block;
+    }
+
+    .logout-btn {
+      width: 100%;
+      padding: var(--space-4);
+      background: none;
+      border: none;
+      color: var(--color-danger-text);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-danger-border);
+      background: var(--color-danger-light);
+      transition: background 0.15s;
+    }
+
+    .logout-btn:hover {
+      background: #fecaca;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a href="dashboard.html" class="top-nav-logo">HourHero</a>
+    <div class="top-nav-title">Settings</div>
+    <div class="top-nav-right"></div>
+  </nav>
+
+  <main class="page-with-nav">
+    <div class="page-content">
+
+      <!-- Profile header card -->
+      <div class="profile-header">
+        <div class="profile-avatar" id="profile-avatar">HH</div>
+        <div>
+          <div class="profile-name"  id="profile-name">Loading...</div>
+          <div class="profile-email" id="profile-email"></div>
+          <div class="profile-role-badge">Student volunteer</div>
+        </div>
+      </div>
+
+      <div id="settings-message" style="margin-bottom:var(--space-3);"></div>
+
+      <!-- Account section -->
+      <div class="settings-section">
+        <div class="settings-section-title">Account</div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Display name</div>
+            <div class="settings-row-sub" id="row-name-value">—</div>
+          </div>
+          <button class="btn btn-sm btn-outline"
+                  onclick="toggleEdit('name')">Edit</button>
+        </div>
+        <div class="inline-edit" id="edit-name">
+          <div class="form-group">
+            <label class="form-label" for="input-name">New name</label>
+            <input class="form-input" type="text" id="input-name"
+                   placeholder="Your full name" />
+          </div>
+          <div style="display:flex;gap:var(--space-3);">
+            <button class="btn btn-primary btn-sm"
+                    onclick="saveName()">Save</button>
+            <button class="btn btn-secondary btn-sm"
+                    onclick="toggleEdit('name')">Cancel</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Email address</div>
+            <div class="settings-row-sub" id="row-email-value">—</div>
+          </div>
+          <button class="btn btn-sm btn-outline"
+                  onclick="toggleEdit('email')">Edit</button>
+        </div>
+        <div class="inline-edit" id="edit-email">
+          <div class="form-group">
+            <label class="form-label" for="input-email">New email</label>
+            <input class="form-input" type="email" id="input-email"
+                   placeholder="you@example.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-email-pass">
+              Confirm with password
+            </label>
+            <input class="form-input" type="password" id="input-email-pass"
+                   placeholder="Your current password" />
+          </div>
+          <div style="display:flex;gap:var(--space-3);">
+            <button class="btn btn-primary btn-sm"
+                    onclick="saveEmail()">Save</button>
+            <button class="btn btn-secondary btn-sm"
+                    onclick="toggleEdit('email')">Cancel</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Password</div>
+            <div class="settings-row-sub">Send a reset link to your email</div>
+          </div>
+          <button class="btn btn-sm btn-outline"
+                  onclick="sendReset()">Reset</button>
+        </div>
+
+      </div>
+
+
+      <!-- Notifications section -->
+      <div class="settings-section">
+        <div class="settings-section-title">Notifications</div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Push notifications</div>
+            <div class="settings-row-sub">
+              Get notified when a submission is reviewed
+            </div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="toggle-push" checked
+                   onchange="saveNotifPrefs()" />
+            <div class="toggle-track">
+              <div class="toggle-thumb"></div>
+            </div>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Email summaries</div>
+            <div class="settings-row-sub">
+              Weekly email with your hour totals
+            </div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="toggle-email"
+                   onchange="saveNotifPrefs()" />
+            <div class="toggle-track">
+              <div class="toggle-thumb"></div>
+            </div>
+          </label>
+        </div>
+
+      </div>
+
+
+      <!-- App section -->
+      <div class="settings-section">
+        <div class="settings-section-title">App</div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Install HourHero</div>
+            <div class="settings-row-sub">Add to your home screen</div>
+          </div>
+          <a href="install.html" class="btn btn-sm btn-outline">Install</a>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Version</div>
+            <div class="settings-row-sub">HourHero v1.0.0</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Privacy policy</div>
+          </div>
+          <a href="#" class="btn btn-sm btn-ghost">View</a>
+        </div>
+
+      </div>
+
+
+      <!-- Logout -->
+      <button class="logout-btn" onclick="HH.Router.signOutAndRedirect()">
+        Sign out
+      </button>
+
+      <div style="height:var(--space-6);"></div>
+
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="dashboard.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span>Home</span>
+    </a>
+    <a href="log-hours.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      <span>Log</span>
+    </a>
+    <a href="opportunities.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span>Explore</span>
+    </a>
+    <a href="settings.html" class="bottom-nav-item active">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+
+  <script>
+
+    HH.Router.protect("volunteer");
+
+    var _uid     = null;
+    var _profile = {};
+
+    HH.Router.onReady(function (uid) {
+      _uid = uid;
+      loadProfile(uid);
+    });
+
+
+    function loadProfile(uid) {
+      HH.db.ref("users/" + uid).once("value").then(function (snap) {
+        if (!snap.exists()) return;
+        _profile = snap.val();
+
+        var name  = _profile.name  || "";
+        var email = _profile.email || "";
+        var ini   = initials(name || "HH");
+
+        document.getElementById("profile-avatar").textContent = ini;
+        document.getElementById("profile-name").textContent   = name;
+        document.getElementById("profile-email").textContent  = email;
+        document.getElementById("row-name-value").textContent = name;
+        document.getElementById("row-email-value").textContent = email;
+        document.getElementById("input-name").value           = name;
+        document.getElementById("input-email").value          = email;
+
+        // Notification prefs
+        var prefs = (_profile.preferences || {}).notifications || {};
+        document.getElementById("toggle-push").checked  =
+          prefs.push !== false;
+        document.getElementById("toggle-email").checked =
+          prefs.email_summary === true;
+      });
+    }
+
+
+    function toggleEdit(section) {
+      var el = document.getElementById("edit-" + section);
+      el.classList.toggle("open");
+    }
+
+
+    function saveName() {
+      var val = document.getElementById("input-name").value.trim();
+      if (!val) return showMsg("error", "Name cannot be empty.");
+
+      HH.db.ref("users/" + _uid + "/name").set(val)
+        .then(function () {
+          document.getElementById("profile-name").textContent  = val;
+          document.getElementById("row-name-value").textContent = val;
+          document.getElementById("profile-avatar").textContent = initials(val);
+          toggleEdit("name");
+          showMsg("success", "Name updated.");
+        })
+        .catch(function (e) { showMsg("error", e.message); });
+    }
+
+
+    function saveEmail() {
+      var newEmail = document.getElementById("input-email").value.trim();
+      var pass     = document.getElementById("input-email-pass").value;
+
+      if (!newEmail) return showMsg("error", "Please enter a new email.");
+      if (!pass)     return showMsg("error", "Please enter your password to confirm.");
+
+      // Re-authenticate then update
+      var credential = firebase.auth.EmailAuthProvider
+        .credential(_profile.email, pass);
+
+      HH.auth.currentUser.reauthenticateWithCredential(credential)
+        .then(function () {
+          return HH.auth.currentUser.updateEmail(newEmail);
+        })
+        .then(function () {
+          return HH.db.ref("users/" + _uid + "/email").set(newEmail);
+        })
+        .then(function () {
+          _profile.email = newEmail;
+          document.getElementById("profile-email").textContent   = newEmail;
+          document.getElementById("row-email-value").textContent = newEmail;
+          toggleEdit("email");
+          showMsg("success", "Email updated.");
+        })
+        .catch(function (e) {
+          var msg = e.code === "auth/wrong-password"
+            ? "Incorrect password."
+            : e.message;
+          showMsg("error", msg);
+        });
+    }
+
+
+    function sendReset() {
+      HH.sendPasswordReset(_profile.email)
+        .then(function () {
+          showMsg("success", "Password reset email sent to " + _profile.email);
+        })
+        .catch(function (e) { showMsg("error", e.message); });
+    }
+
+
+    function saveNotifPrefs() {
+      var prefs = {
+        push:          document.getElementById("toggle-push").checked,
+        email_summary: document.getElementById("toggle-email").checked
+      };
+      HH.db.ref("users/" + _uid + "/preferences/notifications").set(prefs);
+    }
+
+
+    function showMsg(type, text) {
+      var el = document.getElementById("settings-message");
+      var bg = type === "error"
+        ? "var(--color-danger-light)"  : "var(--color-success-light)";
+      var co = type === "error"
+        ? "var(--color-danger-text)"   : "var(--color-success-text)";
+      var bd = type === "error"
+        ? "var(--color-danger-border)" : "var(--color-success-border)";
+      el.innerHTML =
+        '<div style="background:' + bg + ';color:' + co +
+        ';border:1px solid ' + bd +
+        ';border-radius:var(--radius-md);padding:0.7rem 0.9rem;' +
+        'font-size:0.875rem;font-weight:500;">' +
+          escHtml(text) +
+        '</div>';
+      setTimeout(function () { el.innerHTML = ""; }, 4000);
+    }
+
+    function initials(name) {
+      var p = name.trim().split(" ");
+      return p.length === 1
+        ? p[0].charAt(0).toUpperCase()
+        : (p[0].charAt(0) + p[1].charAt(0)).toUpperCase();
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+  </script>
+</body>
+</html>

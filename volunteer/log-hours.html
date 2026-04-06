@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HourHero — Log Hours</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <style>
+    body { background: var(--color-gray-100); }
+
+    .time-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-3);
+    }
+
+    .hours-display {
+      background: var(--color-primary-light);
+      border: 1.5px solid var(--color-primary-mid);
+      border-radius: var(--radius-md);
+      padding: 0.625rem 0.875rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      text-align: center;
+    }
+
+    .submit-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+
+    .log-list-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-4);
+    }
+
+    .log-list-header {
+      padding: var(--space-4) var(--space-5) var(--space-3);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .log-list-body {
+      padding: 0 var(--space-5);
+    }
+
+    .rejection-note {
+      font-size: 0.775rem;
+      color: var(--color-danger-text);
+      margin-top: 3px;
+      font-style: italic;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position:  400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg,
+        var(--color-gray-100) 25%,
+        var(--color-gray-200) 50%,
+        var(--color-gray-100) 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a href="dashboard.html" class="top-nav-logo">HourHero</a>
+    <div class="top-nav-right">
+      <a href="settings.html" class="nav-avatar" id="nav-avatar">HH</a>
+    </div>
+  </nav>
+
+  <main class="page-with-nav">
+    <div class="page-content">
+
+      <div class="page-header">
+        <h1 class="page-header-title">Log hours</h1>
+        <p class="page-header-sub">Submit your volunteer time for approval</p>
+      </div>
+
+      <!-- Submission form -->
+      <div class="submit-card">
+
+        <div id="form-message"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="sel-opp">Opportunity</label>
+          <select class="form-select" id="sel-opp" onchange="onOppChange()">
+            <option value="">— Select an opportunity —</option>
+          </select>
+          <div class="form-hint">
+            Only opportunities you have joined appear here.
+            <a href="opportunities.html">Browse more</a>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sel-date">Date of service</label>
+          <input class="form-input" type="date" id="sel-date" />
+        </div>
+
+        <div class="time-row">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="sel-start">Start time</label>
+            <input class="form-input" type="time" id="sel-start"
+                   oninput="calcHours()" />
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="sel-end">End time</label>
+            <input class="form-input" type="time" id="sel-end"
+                   oninput="calcHours()" />
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Hours</label>
+            <div class="hours-display" id="hours-display">0.0 h</div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:var(--space-4);">
+          <label class="form-label" for="sel-desc">
+            Description
+            <span class="form-label-optional">(optional)</span>
+          </label>
+          <textarea class="form-textarea" id="sel-desc"
+                    placeholder="Brief description of what you did..."
+                    rows="3"></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-full" id="btn-submit"
+                onclick="handleSubmit()">
+          Submit for approval
+        </button>
+
+      </div>
+
+
+      <!-- Submission history tabs -->
+      <div class="log-list-card">
+        <div class="log-list-header">
+          <div class="section-heading" style="margin-bottom:var(--space-3);">
+            My submissions
+          </div>
+          <div class="tabs" style="margin-bottom:0; border-bottom:none;">
+            <button class="tab-btn active" onclick="switchLogTab('pending',this)">
+              Pending
+            </button>
+            <button class="tab-btn" onclick="switchLogTab('approved',this)">
+              Approved
+            </button>
+            <button class="tab-btn" onclick="switchLogTab('rejected',this)">
+              Rejected
+            </button>
+          </div>
+        </div>
+
+        <div class="log-list-body">
+          <div id="tab-pending"  class="tab-panel active">
+            <div id="list-pending">
+              <div class="list-item skeleton-row">
+                <div class="skeleton" style="width:100%;height:13px;margin:12px 0 6px;"></div>
+                <div class="skeleton" style="width:60%;height:11px;margin-bottom:12px;"></div>
+              </div>
+            </div>
+          </div>
+          <div id="tab-approved" class="tab-panel">
+            <div id="list-approved"></div>
+          </div>
+          <div id="tab-rejected" class="tab-panel">
+            <div id="list-rejected"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="dashboard.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span>Home</span>
+    </a>
+    <a href="log-hours.html" class="bottom-nav-item active">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      <span>Log</span>
+    </a>
+    <a href="opportunities.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span>Explore</span>
+    </a>
+    <a href="settings.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+
+  <script>
+
+    HH.Router.protect("volunteer");
+
+    // Caches loaded from Firebase — used for form + duplicate check
+    var _uid         = null;
+    var _joinedOpps  = {};   // { opp_id: { title, org_id, org_name } }
+
+    HH.Router.onReady(function (uid) {
+      _uid = uid;
+      setDefaultDate();
+      loadAvatar(uid);
+      loadJoinedOpportunities(uid);
+      listenSubmissions(uid);
+    });
+
+
+    // ---- Set today as the default date ----
+    function setDefaultDate() {
+      var today = new Date().toISOString().split("T")[0];
+      document.getElementById("sel-date").value = today;
+      document.getElementById("sel-date").max   = today;
+    }
+
+
+    // ---- Load avatar initials ----
+    function loadAvatar(uid) {
+      HH.db.ref("users/" + uid + "/name").once("value").then(function (s) {
+        var name = s.val() || "HH";
+        document.getElementById("nav-avatar").textContent = initials(name);
+      });
+    }
+
+
+    // ---- Populate opportunity dropdown ----
+    function loadJoinedOpportunities(uid) {
+      HH.db.ref("users/" + uid + "/joined_opportunities")
+        .once("value")
+        .then(function (snap) {
+          if (!snap.exists()) return;
+          var ids = Object.keys(snap.val() || {});
+          var sel = document.getElementById("sel-opp");
+
+          ids.forEach(function (id) {
+            HH.db.ref("opportunities/" + id).once("value").then(function (os) {
+              if (!os.exists()) return;
+              var o = os.val();
+              _joinedOpps[id] = {
+                title:    o.title   || "Untitled",
+                org_id:   o.org_id  || "",
+                org_name: o.org_name|| ""
+              };
+              var opt = document.createElement("option");
+              opt.value       = id;
+              opt.textContent = o.title + (o.org_name ? " — " + o.org_name : "");
+              sel.appendChild(opt);
+            });
+          });
+        });
+    }
+
+
+    // ---- Auto-fill org when opp changes ----
+    function onOppChange() { /* extend later if needed */ }
+
+
+    // ---- Calculate hours from start/end time ----
+    function calcHours() {
+      var s = document.getElementById("sel-start").value;
+      var e = document.getElementById("sel-end").value;
+      var display = document.getElementById("hours-display");
+
+      if (!s || !e) { display.textContent = "0.0 h"; return; }
+
+      var start = timeToMinutes(s);
+      var end   = timeToMinutes(e);
+      var diff  = end - start;
+
+      if (diff <= 0) { display.textContent = "—"; return; }
+
+      display.textContent = (diff / 60).toFixed(1) + " h";
+    }
+
+    function timeToMinutes(t) {
+      var p = t.split(":");
+      return parseInt(p[0]) * 60 + parseInt(p[1]);
+    }
+
+
+    // ---- Tab switcher ----
+    function switchLogTab(tab, btn) {
+      ["pending","approved","rejected"].forEach(function (t) {
+        document.getElementById("tab-" + t).classList.toggle("active", t === tab);
+      });
+      document.querySelectorAll(".tab-btn").forEach(function (b) {
+        b.classList.toggle("active", b === btn);
+      });
+    }
+
+
+    // ---- Real-time listener for this user's submissions ----
+    function listenSubmissions(uid) {
+      HH.db.ref("submissions")
+        .orderByChild("volunteer_id")
+        .equalTo(uid)
+        .on("value", function (snap) {
+          var buckets = { pending: [], approved: [], rejected: [] };
+
+          snap.forEach(function (c) {
+            var s = c.val();
+            var status = s.status || "pending";
+            if (buckets[status]) buckets[status].push(s);
+          });
+
+          Object.keys(buckets).forEach(function (status) {
+            buckets[status].sort(function (a, b) {
+              return (b.submitted_at || 0) - (a.submitted_at || 0);
+            });
+            renderLogList(status, buckets[status]);
+          });
+        });
+    }
+
+
+    function renderLogList(status, items) {
+      var container = document.getElementById("list-" + status);
+      if (!container) return;
+
+      if (!items.length) {
+        container.innerHTML =
+          '<div class="empty-state" style="padding:1.5rem 0;">' +
+            '<p style="font-size:0.875rem;color:var(--color-gray-400);">' +
+              'No ' + status + ' submissions.' +
+            '</p>' +
+          '</div>';
+        return;
+      }
+
+      var html = "";
+      items.forEach(function (s) {
+        var badgeClass = "badge-" + status;
+        var dateStr = s.date
+          ? new Date(s.date).toLocaleDateString("en-US",
+              { month: "short", day: "numeric", year: "numeric" })
+          : "";
+        var rejection = (status === "rejected" && s.rejection_note)
+          ? '<div class="rejection-note">Reason: ' + escHtml(s.rejection_note) + '</div>'
+          : "";
+
+        html +=
+          '<div class="list-item">' +
+            '<div class="list-item-icon">' +
+              '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/>' +
+              '<polyline points="12 6 12 12 16 14"/></svg>' +
+            '</div>' +
+            '<div class="list-item-main">' +
+              '<div class="list-item-title">' +
+                escHtml(s.opportunity_title || "Volunteer hours") +
+              '</div>' +
+              '<div class="list-item-sub">' +
+                escHtml(s.org_name || "") +
+                (dateStr ? " &middot; " + dateStr : "") +
+              '</div>' +
+              rejection +
+            '</div>' +
+            '<div class="list-item-end">' +
+              '<div class="list-item-hours">' + (s.hours || 0) + 'h</div>' +
+              '<div class="badge ' + badgeClass + '" style="margin-top:4px;">' +
+                status.charAt(0).toUpperCase() + status.slice(1) +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+
+    // ---- Submit handler ----
+    function handleSubmit() {
+      var oppId  = document.getElementById("sel-opp").value;
+      var date   = document.getElementById("sel-date").value;
+      var start  = document.getElementById("sel-start").value;
+      var end    = document.getElementById("sel-end").value;
+      var desc   = document.getElementById("sel-desc").value.trim();
+      var msgEl  = document.getElementById("form-message");
+
+      // Clear previous message
+      msgEl.innerHTML = "";
+
+      // Validation
+      if (!oppId) {
+        return showFormMsg("error", "Please select an opportunity.");
+      }
+      if (!date) {
+        return showFormMsg("error", "Please select a date.");
+      }
+      if (new Date(date) > new Date()) {
+        return showFormMsg("error", "Date cannot be in the future.");
+      }
+      if (!start || !end) {
+        return showFormMsg("error", "Please enter both start and end times.");
+      }
+      var startMin = timeToMinutes(start);
+      var endMin   = timeToMinutes(end);
+      if (endMin <= startMin) {
+        return showFormMsg("error", "End time must be after start time.");
+      }
+      var hours = (endMin - startMin) / 60;
+      if (hours < 0.25) {
+        return showFormMsg("error", "Minimum submission is 15 minutes (0.25 h).");
+      }
+      if (hours > 12) {
+        return showFormMsg("error", "Maximum submission is 12 hours per entry.");
+      }
+
+      var opp  = _joinedOpps[oppId] || {};
+      var btn  = document.getElementById("btn-submit");
+      btn.disabled   = true;
+      btn.textContent = "Submitting...";
+
+      // Check for duplicate (same opp + same date + status pending/approved)
+      HH.db.ref("submissions")
+        .orderByChild("volunteer_id")
+        .equalTo(_uid)
+        .once("value")
+        .then(function (snap) {
+          var duplicate = false;
+          snap.forEach(function (c) {
+            var s = c.val();
+            if (s.opportunity_id === oppId &&
+                s.date           === date  &&
+                (s.status === "pending" || s.status === "approved")) {
+              duplicate = true;
+            }
+          });
+
+          if (duplicate) {
+            btn.disabled    = false;
+            btn.textContent = "Submit for approval";
+            return showFormMsg("error",
+              "You already have a pending or approved entry for this opportunity on this date.");
+          }
+
+          // Write the submission
+          var key    = HH.db.ref("submissions").push().key;
+          var record = {
+            submission_id:     key,
+            volunteer_id:      _uid,
+            opportunity_id:    oppId,
+            opportunity_title: opp.title    || "",
+            org_id:            opp.org_id   || "",
+            org_name:          opp.org_name || "",
+            date:              date,
+            start_time:        start,
+            end_time:          end,
+            hours:             parseFloat(hours.toFixed(2)),
+            description:       desc,
+            status:            "pending",
+            submitted_at:      HH.TIMESTAMP
+          };
+
+          // Also increment the user's pending_count
+          return HH.db.ref("users/" + _uid + "/pending_count")
+            .once("value")
+            .then(function (pc) {
+              var updates = {};
+              updates["submissions/" + key]               = record;
+              updates["users/" + _uid + "/pending_count"] =
+                (pc.val() || 0) + 1;
+              return HH.db.ref().update(updates);
+            });
+        })
+        .then(function () {
+          if (!btn.disabled) return; // duplicate path already returned
+          btn.disabled    = false;
+          btn.textContent = "Submit for approval";
+          showFormMsg("success", "Submitted! Waiting for the organization to review.");
+          // Reset form fields but keep opp + date selected for convenience
+          document.getElementById("sel-start").value  = "";
+          document.getElementById("sel-end").value    = "";
+          document.getElementById("sel-desc").value   = "";
+          document.getElementById("hours-display").textContent = "0.0 h";
+        })
+        .catch(function (err) {
+          btn.disabled    = false;
+          btn.textContent = "Submit for approval";
+          showFormMsg("error", "Submit failed: " + err.message);
+        });
+    }
+
+
+    function showFormMsg(type, text) {
+      var el = document.getElementById("form-message");
+      var bg = type === "error"
+        ? "var(--color-danger-light)"   : "var(--color-success-light)";
+      var co = type === "error"
+        ? "var(--color-danger-text)"    : "var(--color-success-text)";
+      var bd = type === "error"
+        ? "var(--color-danger-border)"  : "var(--color-success-border)";
+      el.innerHTML =
+        '<div style="background:' + bg + ';color:' + co +
+        ';border:1px solid ' + bd +
+        ';border-radius:var(--radius-md);padding:0.7rem 0.9rem;' +
+        'font-size:0.875rem;font-weight:500;margin-bottom:1rem;">' +
+          escHtml(text) +
+        '</div>';
+    }
+
+    function initials(name) {
+      var p = name.trim().split(" ");
+      return p.length === 1
+        ? p[0].charAt(0).toUpperCase()
+        : (p[0].charAt(0) + p[1].charAt(0)).toUpperCase();
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+  </script>
+</body>
+</html>

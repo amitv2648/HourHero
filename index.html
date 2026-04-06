@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HourHero — Track Your Volunteer Hours</title>
+  <meta name="description" content="HourHero helps students log volunteer hours and connect with organizations." />
+
+  <!-- PWA meta tags -->
+  <meta name="theme-color" content="#4F46E5" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+
+  <!-- ============================================================
+       STYLES
+       main.css   — CSS variables, reset, typography
+       components — shared UI components (buttons, cards, nav)
+       The style block below only handles layout specific to
+       this landing page. Everything reusable lives in the CSS files.
+  ============================================================ -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+
+  <style>
+    /* ---- Page-level layout ---- */
+    .lp-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+      background: #ffffff;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .lp-logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #4F46E5;
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .lp-nav-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    /* ---- Hero section ---- */
+    .lp-hero {
+      text-align: center;
+      padding: 5rem 1.5rem 4rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .lp-hero-badge {
+      display: inline-block;
+      background: #EEF2FF;
+      color: #4338CA;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.3rem 0.9rem;
+      border-radius: 99px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.3px;
+    }
+
+    .lp-hero h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.2;
+      margin-bottom: 1.25rem;
+      letter-spacing: -1px;
+    }
+
+    .lp-hero h1 span {
+      color: #4F46E5;
+    }
+
+    .lp-hero p {
+      font-size: 1.1rem;
+      color: #6B7280;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .lp-hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ---- Features strip ---- */
+    .lp-features {
+      background: #F9FAFB;
+      padding: 4rem 1.5rem;
+    }
+
+    .lp-features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .lp-feature-card {
+      background: #ffffff;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 1.75rem 1.5rem;
+    }
+
+    .lp-feature-icon {
+      width: 44px;
+      height: 44px;
+      background: #EEF2FF;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .lp-feature-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: #4F46E5;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .lp-feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.4rem;
+    }
+
+    .lp-feature-card p {
+      font-size: 0.9rem;
+      color: #6B7280;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ---- Stats strip ---- */
+    .lp-stats {
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+
+    .lp-stats-grid {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .lp-stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #4F46E5;
+    }
+
+    .lp-stat-label {
+      font-size: 0.85rem;
+      color: #6B7280;
+      margin-top: 0.25rem;
+    }
+
+    /* ---- CTA banner ---- */
+    .lp-cta-banner {
+      background: #4F46E5;
+      padding: 4rem 1.5rem;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    .lp-cta-banner h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+
+    .lp-cta-banner p {
+      font-size: 1rem;
+      opacity: 0.85;
+      margin-bottom: 2rem;
+    }
+
+    /* ---- Footer ---- */
+    .lp-footer {
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: #9CA3AF;
+      border-top: 1px solid #E5E7EB;
+    }
+
+    .lp-footer a {
+      color: #6B7280;
+      text-decoration: none;
+      margin: 0 0.5rem;
+    }
+
+    .lp-footer a:hover {
+      color: #4F46E5;
+    }
+
+    /* ---- Button styles ---- */
+    .btn-primary {
+      display: inline-block;
+      background: #4F46E5;
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background: #4338CA;
+    }
+
+    .btn-outline {
+      display: inline-block;
+      background: transparent;
+      color: #374151;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      border: 1.5px solid #D1D5DB;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .btn-outline:hover {
+      border-color: #4F46E5;
+      color: #4F46E5;
+    }
+
+    .btn-white {
+      display: inline-block;
+      background: #ffffff;
+      color: #4F46E5;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+
+    .btn-white:hover {
+      background: #EEF2FF;
+    }
+
+    .btn-white-outline {
+      display: inline-block;
+      background: transparent;
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.5);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .btn-white-outline:hover {
+      border-color: #ffffff;
+      background: rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 480px) {
+      .lp-hero h1 {
+        font-size: 1.9rem;
+      }
+      .lp-stats-grid {
+        gap: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       TOP NAVIGATION
+  ============================================================ -->
+  <nav class="lp-nav">
+    <a href="index.html" class="lp-logo">HourHero</a>
+    <div class="lp-nav-actions">
+      <a href="auth.html?mode=login" class="btn-outline">Log in</a>
+      <a href="auth.html?mode=signup" class="btn-primary">Sign up free</a>
+    </div>
+  </nav>
+
+
+  <!-- ============================================================
+       HERO SECTION
+  ============================================================ -->
+  <section class="lp-hero">
+    <span class="lp-hero-badge">Free for students and organizations</span>
+    <h1>Track your volunteer hours.<br /><span>Build your future.</span></h1>
+    <p>
+      HourHero connects students and organizations in one place.
+      Log hours, join opportunities, and get verified — all from
+      your phone or desktop.
+    </p>
+    <div class="lp-hero-cta">
+      <a href="auth.html?mode=signup&role=volunteer" class="btn-primary">
+        I'm a student
+      </a>
+      <a href="auth.html?mode=signup&role=org" class="btn-outline">
+        I'm an organization
+      </a>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       FEATURES STRIP
+       Three core value props — one for each user action
+  ============================================================ -->
+  <section class="lp-features">
+    <div class="lp-features-grid">
+
+      <div class="lp-feature-card">
+        <div class="lp-feature-icon">
+          <!-- Clock icon -->
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h3>Log hours instantly</h3>
+        <p>Record your volunteer time in seconds. Pick an organization, enter your hours, and submit — done.</p>
+      </div>
+
+      <div class="lp-feature-card">
+        <div class="lp-feature-icon">
+          <!-- Search icon -->
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <h3>Browse opportunities</h3>
+        <p>Discover volunteer opportunities posted by local organizations and join with a single tap.</p>
+      </div>
+
+      <div class="lp-feature-card">
+        <div class="lp-feature-icon">
+          <!-- Check badge icon -->
+          <svg viewBox="0 0 24 24">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <polyline points="9 12 11 14 15 10"/>
+          </svg>
+        </div>
+        <h3>Get verified</h3>
+        <p>Organizations approve your submissions directly in the app. Your verified total is always up to date.</p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       STATS STRIP
+       Social proof — replace these numbers with real ones once
+       you have actual users. They are hardcoded for now.
+  ============================================================ -->
+  <section class="lp-stats">
+    <div class="lp-stats-grid">
+      <div>
+        <div class="lp-stat-number">2,400+</div>
+        <div class="lp-stat-label">Hours logged</div>
+      </div>
+      <div>
+        <div class="lp-stat-number">140+</div>
+        <div class="lp-stat-label">Students signed up</div>
+      </div>
+      <div>
+        <div class="lp-stat-number">30+</div>
+        <div class="lp-stat-label">Organizations</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       BOTTOM CTA BANNER
+  ============================================================ -->
+  <section class="lp-cta-banner">
+    <h2>Ready to get started?</h2>
+    <p>It takes less than two minutes to create your free account.</p>
+    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+      <a href="auth.html?mode=signup&role=volunteer" class="btn-white">
+        Create student account
+      </a>
+      <a href="auth.html?mode=signup&role=org" class="btn-white-outline">
+        Register your organization
+      </a>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="lp-footer">
+    <p>
+      &copy; 2025 HourHero &nbsp;|&nbsp;
+      <a href="#">Privacy policy</a>
+      <a href="#">Terms of service</a>
+      <a href="#">Contact</a>
+    </p>
+  </footer>
+
+
+  <!-- ============================================================
+       FIREBASE SDK — must load before HourHero scripts
+  ============================================================ -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <!-- ============================================================
+       HOURHERO FOUNDATION SCRIPTS
+       Note: paths are relative to the ROOT folder (no ../)
+       because index.html lives at the root level.
+  ============================================================ -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/router.js"></script>
+
+  <!-- ============================================================
+       PAGE SCRIPT
+       index.html is a public page. initPublicPage() only
+       redirects users who are ALREADY logged in straight to
+       their dashboard. Everyone else stays on this page.
+  ============================================================ -->
+  <script>
+    HH.Router.initPublicPage();
+  </script>
+
+</body>
+</html>

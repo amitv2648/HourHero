@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HourHero — Badges</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    body { background: var(--color-gray-100); }
+
+    .badges-hero {
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .badges-hero h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+
+    .badges-hero p { font-size: 0.83rem; opacity: 0.82; }
+
+    .badges-hero-stat-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+      text-align: right;
+    }
+
+    .badges-hero-stat-lbl {
+      font-size: 0.72rem;
+      opacity: 0.78;
+      text-align: right;
+    }
+
+    .lb-link {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      margin-bottom: var(--space-5);
+      transition: border-color .15s;
+    }
+
+    .lb-link:hover {
+      border-color: var(--color-primary-mid);
+      text-decoration: none;
+    }
+
+    .lb-link-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+    }
+
+    .lb-link-sub {
+      font-size: 0.79rem;
+      color: var(--color-gray-500);
+      margin-top: 2px;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--color-gray-400);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin: var(--space-3) 0 var(--space-2);
+    }
+
+    .badge-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      display: flex;
+      align-items: stretch;
+      gap: var(--space-4);
+      margin-bottom: var(--space-3);
+    }
+
+    .badge-card.earned {
+      border-color: var(--color-primary-mid);
+    }
+
+    .badge-img {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .badge-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .badge-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-1);
+    }
+
+    .badge-desc {
+      font-size: 0.81rem;
+      color: var(--color-gray-500);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .badge-fraction {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-top: var(--space-2);
+    }
+
+    .badge-earned-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--color-success-light);
+      color: var(--color-success-text);
+      font-size: 0.71rem;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: var(--radius-full);
+      margin-top: var(--space-2);
+      width: fit-content;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a href="dashboard.html" class="top-nav-logo">HourHero</a>
+    <div class="top-nav-title">Badges</div>
+    <div class="top-nav-right">
+      <a href="settings.html" class="nav-avatar" id="nav-avatar">HH</a>
+    </div>
+  </nav>
+
+  <main class="page-with-nav">
+    <div class="page-content">
+
+      <div class="badges-hero">
+        <div>
+          <h2>Your badges</h2>
+          <p>1 approved hour = 1 point</p>
+        </div>
+        <div>
+          <div class="badges-hero-stat-num" id="total-pts">—</div>
+          <div class="badges-hero-stat-lbl">total points</div>
+        </div>
+      </div>
+
+      <a href="leaderboard.html" class="lb-link">
+        <div>
+          <div class="lb-link-title">Global leaderboard</div>
+          <div class="lb-link-sub">See how you rank against all volunteers</div>
+        </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="var(--color-primary)" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </a>
+
+      <div id="badges-container"></div>
+
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="dashboard.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg><span>Home</span>
+    </a>
+    <a href="log-hours.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg><span>Log</span>
+    </a>
+    <a href="opportunities.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg><span>Explore</span>
+    </a>
+    <a href="badges.html" class="bottom-nav-item active">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="6"/>
+        <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+      </svg><span>Badges</span>
+    </a>
+    <a href="settings.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg><span>Profile</span>
+    </a>
+  </nav>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+  <script>
+    HH.Router.protect("volunteer");
+
+    var BADGES = [
+      { id:"newcomer",  name:"Newcomer",    pts:0,   color:"#94A3B8", sym:"N",  desc:"Welcome to HourHero. Your journey begins here." },
+      { id:"firstStep", name:"First Step",  pts:1,   color:"#3B82F6", sym:"1",  desc:"Log your very first hour of volunteer service." },
+      { id:"rising",    name:"Rising Star", pts:5,   color:"#10B981", sym:"★",  desc:"Volunteer for a total of 5 hours." },
+      { id:"committed", name:"Committed",   pts:10,  color:"#F59E0B", sym:"✓",  desc:"Reach 10 hours of dedicated service." },
+      { id:"dedicated", name:"Dedicated",   pts:25,  color:"#EF4444", sym:"♥",  desc:"Achieve 25 total hours of volunteer work." },
+      { id:"champion",  name:"Champion",    pts:50,  color:"#8B5CF6", sym:"◆",  desc:"Complete 50 hours of volunteer service." },
+      { id:"hero",      name:"Hero",        pts:100, color:"#EC4899", sym:"⚡", desc:"A true hero — reach 100 hours of service." },
+      { id:"legend",    name:"Legend",      pts:250, color:"#F97316", sym:"♛",  desc:"Legendary dedication — 250 hours total." },
+      { id:"icon",      name:"Icon",        pts:500, color:"#EAB308", sym:"✦",  desc:"The ultimate achievement — 500 hours of service." }
+    ];
+
+    HH.Router.onReady(function(uid) {
+      HH.db.ref("users/" + uid + "/name").once("value").then(function(s) {
+        document.getElementById("nav-avatar").textContent = ini(s.val() || "HH");
+      });
+      HH.db.ref("users/" + uid + "/total_hours").once("value").then(function(s) {
+        var pts = Math.floor(parseFloat(s.val() || 0));
+        document.getElementById("total-pts").textContent = pts;
+        renderBadges(pts);
+      });
+    });
+
+    function renderBadges(pts) {
+      var earnedHTML = "", lockedHTML = "";
+
+      BADGES.forEach(function(b) {
+        var earned = pts >= b.pts;
+        var fracStr = b.pts === 0
+          ? "Always earned"
+          : (Math.min(pts, b.pts)) + "/" + b.pts + " pts";
+
+        var card =
+          '<div class="badge-card' + (earned ? " earned" : "") + '">' +
+            '<div class="badge-img">' + mkSVG(b.color, b.sym, earned) + '</div>' +
+            '<div class="badge-right">' +
+              '<div class="badge-name">' + esc(b.name) + '</div>' +
+              '<div class="badge-desc">' + esc(b.desc) + '</div>' +
+              (earned
+                ? '<div class="badge-earned-pill">&#10003; Earned</div>'
+                : '<div class="badge-fraction" style="color:' + b.color + ';">' + fracStr + '</div>'
+              ) +
+            '</div>' +
+          '</div>';
+
+        if (earned) earnedHTML += card;
+        else         lockedHTML += card;
+      });
+
+      document.getElementById("badges-container").innerHTML =
+        '<div class="section-label">Earned</div>' + earnedHTML +
+        (lockedHTML ? '<div class="section-label">Locked</div>' + lockedHTML : "");
+    }
+
+    function mkSVG(color, sym, earned) {
+      var c = earned ? color : "#D1D5DB";
+      var op = earned ? "1" : "0.5";
+      return '<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' +
+        (earned ? '<circle cx="40" cy="40" r="38" fill="' + c + '" opacity="0.12"/>' : '') +
+        '<polygon points="40,5 69,22 69,58 40,75 11,58 11,22" fill="' + c + '"/>' +
+        '<polygon points="40,11 63,26 63,54 40,69 17,54 17,26" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>' +
+        '<text x="40" y="41" font-family="system-ui,sans-serif" font-size="24" fill="white" ' +
+        'text-anchor="middle" dominant-baseline="middle" font-weight="bold" opacity="' + op + '">' + sym + '</text>' +
+        '</svg>';
+    }
+
+    function ini(n) {
+      var p = n.trim().split(" ");
+      return p.length === 1 ? p[0][0].toUpperCase() : (p[0][0] + p[1][0]).toUpperCase();
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HourHero — Create Opportunity</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <style>
+    body { background: var(--color-gray-100); }
+    .org-main { margin-left:220px; padding:var(--space-8); min-height:100vh; }
+    @media(max-width:640px){
+      .org-main { margin-left:0; padding:var(--space-4);
+                  padding-top:calc(var(--nav-height) + var(--space-4)); }
+    }
+    .form-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      max-width: 640px;
+    }
+    .char-count {
+      font-size: 0.75rem;
+      color: var(--color-gray-400);
+      text-align: right;
+      margin-top: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="org-sidebar">
+    <div class="org-sidebar-logo">HourHero</div>
+    <div class="org-sidebar-label">Main</div>
+    <nav class="org-sidebar-nav">
+      <a href="dashboard.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>Dashboard
+      </a>
+      <a href="submissions.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>Submissions
+      </a>
+    </nav>
+    <div class="org-sidebar-label">Opportunities</div>
+    <nav class="org-sidebar-nav">
+      <a href="create-opportunity.html" class="org-nav-item active">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>Create opportunity
+      </a>
+      <a href="manage-opportunities.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/>
+          <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>Manage opportunities
+      </a>
+      <a href="participants.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>Participants
+      </a>
+    </nav>
+    <div class="org-sidebar-label" style="margin-top:auto;">Account</div>
+    <nav class="org-sidebar-nav">
+      <a href="settings.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83
+                   2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1
+                   1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65
+                   1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65
+                   1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09
+                   A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2
+                   0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0
+                   0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65
+                   1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65
+                   1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09
+                   a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>Settings
+      </a>
+      <a href="#" class="org-nav-item"
+         onclick="HH.Router.signOutAndRedirect();return false;">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>Sign out
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Mobile nav -->
+  <nav class="top-nav" style="display:none;" id="mobile-topnav">
+    <span style="font-size:1.1rem;font-weight:800;color:var(--color-primary);">
+      HourHero
+    </span>
+    <a href="dashboard.html" class="btn btn-sm btn-ghost">Dashboard</a>
+  </nav>
+
+  <main class="org-main">
+
+    <div style="margin-bottom:var(--space-6);">
+      <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.4px;
+                 margin-bottom:var(--space-1);">
+        Create opportunity
+      </h1>
+      <p style="font-size:0.875rem;color:var(--color-gray-500);">
+        Fill in the details below. Volunteers will be able to see and join this
+        opportunity immediately after you publish it.
+      </p>
+    </div>
+
+    <div class="form-card">
+
+      <div id="create-message" style="margin-bottom:var(--space-3);"></div>
+
+      <div class="form-group">
+        <label class="form-label" for="opp-title">Opportunity title *</label>
+        <input class="form-input" type="text" id="opp-title"
+               placeholder="e.g. Food bank packing shift"
+               maxlength="80"
+               oninput="updateCharCount('opp-title','count-title',80)" />
+        <div class="char-count">
+          <span id="count-title">0</span> / 80
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="opp-desc">Description *</label>
+        <textarea class="form-textarea" id="opp-desc" rows="4"
+                  placeholder="Describe what volunteers will be doing, what to bring, any requirements..."
+                  maxlength="600"
+                  oninput="updateCharCount('opp-desc','count-desc',600)">
+        </textarea>
+        <div class="char-count">
+          <span id="count-desc">0</span> / 600
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="opp-category">Category *</label>
+          <select class="form-select" id="opp-category">
+            <option value="">— Select —</option>
+            <option value="Education">Education</option>
+            <option value="Environment">Environment</option>
+            <option value="Community">Community</option>
+            <option value="Health">Health</option>
+            <option value="Animals">Animals</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="opp-date">Date *</label>
+          <input class="form-input" type="date" id="opp-date" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="opp-location">
+            Location
+            <span class="form-label-optional">(optional)</span>
+          </label>
+          <input class="form-input" type="text" id="opp-location"
+                 placeholder="123 Main St or Zoom" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="opp-max">
+            Max volunteers
+            <span class="form-label-optional">(optional)</span>
+          </label>
+          <input class="form-input" type="number" id="opp-max"
+                 placeholder="No limit" min="1" max="9999" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="opp-status">Status</label>
+        <select class="form-select" id="opp-status">
+          <option value="open">Open — visible to volunteers</option>
+          <option value="closed">Closed — hidden from volunteers</option>
+        </select>
+      </div>
+
+      <div style="display:flex;gap:var(--space-3);margin-top:var(--space-2);">
+        <button class="btn btn-primary" id="btn-publish"
+                onclick="publishOpportunity()">
+          Publish opportunity
+        </button>
+        <a href="manage-opportunities.html" class="btn btn-secondary">
+          Cancel
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+
+  <script>
+
+    HH.Router.protect("org");
+
+    var _uid     = null;
+    var _orgName = "";
+
+    HH.Router.onReady(function (uid) {
+      _uid = uid;
+      // Set min date to today
+      document.getElementById("opp-date").min =
+        new Date().toISOString().split("T")[0];
+
+      HH.db.ref("organizations/" + uid + "/name")
+        .once("value")
+        .then(function (s) { _orgName = s.val() || ""; });
+
+      // Show mobile topnav on small screens
+      if (window.innerWidth <= 640) {
+        document.getElementById("mobile-topnav").style.display = "flex";
+      }
+    });
+
+
+    function updateCharCount(inputId, countId, max) {
+      var len = document.getElementById(inputId).value.length;
+      document.getElementById(countId).textContent = len;
+    }
+
+
+    function publishOpportunity() {
+      var title    = document.getElementById("opp-title").value.trim();
+      var desc     = document.getElementById("opp-desc").value.trim();
+      var category = document.getElementById("opp-category").value;
+      var date     = document.getElementById("opp-date").value;
+      var location = document.getElementById("opp-location").value.trim();
+      var maxVol   = document.getElementById("opp-max").value;
+      var status   = document.getElementById("opp-status").value;
+
+      clearMsg();
+
+      if (!title)    return showMsg("error", "Please enter a title.");
+      if (!desc)     return showMsg("error", "Please enter a description.");
+      if (!category) return showMsg("error", "Please select a category.");
+      if (!date)     return showMsg("error", "Please select a date.");
+
+      var btn = document.getElementById("btn-publish");
+      btn.disabled    = true;
+      btn.textContent = "Publishing...";
+
+      var key    = HH.db.ref("opportunities").push().key;
+      var record = {
+        opp_id:       key,
+        org_id:       _uid,
+        org_name:     _orgName,
+        title:        title,
+        description:  desc,
+        category:     category,
+        date:         date,
+        location:     location || null,
+        max_volunteers: maxVol ? parseInt(maxVol) : null,
+        status:       status,
+        participants: {},
+        created_at:   HH.TIMESTAMP
+      };
+
+      var updates = {};
+      updates["opportunities/" + key]                             = record;
+      updates["organizations/" + _uid + "/opportunities/" + key] = true;
+
+      HH.db.ref().update(updates)
+        .then(function () {
+          btn.disabled    = false;
+          btn.textContent = "Publish opportunity";
+          showMsg("success",
+            "Opportunity published! Volunteers can now find and join it.");
+          // Reset form
+          ["opp-title","opp-desc","opp-location","opp-max"].forEach(function(id){
+            document.getElementById(id).value = "";
+          });
+          document.getElementById("opp-category").value = "";
+          document.getElementById("opp-date").value     = "";
+          document.getElementById("opp-status").value   = "open";
+          document.getElementById("count-title").textContent = "0";
+          document.getElementById("count-desc").textContent  = "0";
+        })
+        .catch(function (err) {
+          btn.disabled    = false;
+          btn.textContent = "Publish opportunity";
+          showMsg("error", "Failed to publish: " + err.message);
+        });
+    }
+
+
+    function showMsg(type, text) {
+      var el = document.getElementById("create-message");
+      var bg = type === "error"
+        ? "var(--color-danger-light)"  : "var(--color-success-light)";
+      var co = type === "error"
+        ? "var(--color-danger-text)"   : "var(--color-success-text)";
+      var bd = type === "error"
+        ? "var(--color-danger-border)" : "var(--color-success-border)";
+      el.innerHTML =
+        '<div style="background:' + bg + ';color:' + co +
+        ';border:1px solid ' + bd +
+        ';border-radius:var(--radius-md);padding:0.7rem 0.9rem;' +
+        'font-size:0.875rem;font-weight:500;">' + escHtml(text) + '</div>';
+    }
+
+    function clearMsg() {
+      document.getElementById("create-message").innerHTML = "";
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+  </script>
+</body>
+</html>

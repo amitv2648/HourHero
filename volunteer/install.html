@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HourHero — Install App</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <style>
+    body { background: var(--color-gray-100); }
+
+    .install-hero {
+      text-align: center;
+      padding: var(--space-8) var(--space-4) var(--space-6);
+    }
+
+    .install-logo {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-primary);
+      letter-spacing: -1px;
+      margin-bottom: var(--space-2);
+    }
+
+    .install-hero h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: var(--space-2);
+    }
+
+    .install-hero p {
+      font-size: 0.9rem;
+      color: var(--color-gray-500);
+    }
+
+    .platform-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-4);
+    }
+
+    .platform-card-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .platform-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--color-primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .platform-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--color-primary);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .platform-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+    }
+
+    .platform-sub {
+      font-size: 0.8rem;
+      color: var(--color-gray-500);
+    }
+
+    .step-list {
+      padding: var(--space-4) var(--space-5);
+    }
+
+    .step-item {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .step-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      font-size: 0.9rem;
+      color: var(--color-gray-700);
+      line-height: 1.5;
+      padding-top: 3px;
+    }
+
+    .step-key {
+      display: inline-block;
+      background: var(--color-gray-100);
+      border: 1px solid var(--color-gray-300);
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--color-gray-700);
+    }
+
+    .already-installed {
+      background: var(--color-success-light);
+      border: 1px solid var(--color-success-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      text-align: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .already-installed h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-success-text);
+      margin-bottom: var(--space-2);
+    }
+
+    .already-installed p {
+      font-size: 0.875rem;
+      color: var(--color-success-text);
+    }
+
+    /* Highlight the detected platform */
+    .platform-card.detected {
+      border-color: var(--color-primary-mid);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .detected-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--color-primary);
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a href="dashboard.html" class="top-nav-logo">HourHero</a>
+    <div class="top-nav-title">Install</div>
+    <div class="top-nav-right"></div>
+  </nav>
+
+  <main class="page-with-nav">
+    <div class="page-content">
+
+      <div class="install-hero">
+        <div class="install-logo">HourHero</div>
+        <h1>Add to your home screen</h1>
+        <p>
+          Install HourHero as an app — it loads instantly,<br />
+          works offline, and feels native on any device.
+        </p>
+      </div>
+
+      <!-- Already installed banner — shown if flag is set -->
+      <div class="already-installed hidden" id="installed-banner">
+        <h3>Already installed!</h3>
+        <p>HourHero is already on your home screen. You're all set.</p>
+      </div>
+
+      <!-- Native install button (Chrome/Edge/Android) -->
+      <div id="native-install-wrap" style="margin-bottom:var(--space-4);display:none;">
+        <button class="btn btn-primary btn-full btn-lg" id="native-install-btn"
+                onclick="triggerNativeInstall()">
+          Install HourHero now
+        </button>
+        <p style="font-size:0.8rem;color:var(--color-gray-500);
+                  text-align:center;margin-top:var(--space-2);">
+          Your browser supports direct installation
+        </p>
+      </div>
+
+      <!-- iOS Safari instructions -->
+      <div class="platform-card" id="card-ios">
+        <div class="platform-card-header">
+          <div class="platform-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div>
+            <div class="platform-name">iPhone or iPad</div>
+            <div class="platform-sub">Safari browser</div>
+          </div>
+          <span class="detected-badge hidden" id="ios-detected">Your device</span>
+        </div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              Open this page in <strong>Safari</strong>
+              (not Chrome or Firefox — the install option only appears in Safari on iOS).
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              Tap the <strong>Share</strong> button at the bottom of the screen
+              — it looks like a box with an arrow pointing up.
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              Scroll down in the share sheet and tap
+              <span class="step-key">Add to Home Screen</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text">
+              Tap <span class="step-key">Add</span> in the top right corner.
+              HourHero will appear on your home screen.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Android Chrome instructions -->
+      <div class="platform-card" id="card-android">
+        <div class="platform-card-header">
+          <div class="platform-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="5" y="2" width="14" height="20" rx="2"/>
+              <line x1="12" y1="18" x2="12" y2="18"/>
+            </svg>
+          </div>
+          <div>
+            <div class="platform-name">Android</div>
+            <div class="platform-sub">Chrome browser</div>
+          </div>
+          <span class="detected-badge hidden" id="android-detected">Your device</span>
+        </div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              Tap the <strong>three dots menu</strong>
+              in the top right corner of Chrome.
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              Tap <span class="step-key">Add to Home screen</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              Tap <span class="step-key">Add</span> on the confirmation dialog.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Chrome/Edge instructions -->
+      <div class="platform-card" id="card-desktop">
+        <div class="platform-card-header">
+          <div class="platform-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <div>
+            <div class="platform-name">Desktop</div>
+            <div class="platform-sub">Chrome or Edge browser</div>
+          </div>
+          <span class="detected-badge hidden" id="desktop-detected">Your device</span>
+        </div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              Look for the <strong>install icon</strong>
+              in the address bar — it looks like a monitor with a down arrow.
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              Click it and then click
+              <span class="step-key">Install</span> in the popup.
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              HourHero will open in its own window and appear in your
+              taskbar and Start menu / Dock.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Done button -->
+      <a href="dashboard.html" class="btn btn-primary btn-full"
+         style="margin-top:var(--space-2);"
+         onclick="markInstalled()">
+        Done — take me to my dashboard
+      </a>
+
+      <a href="dashboard.html"
+         style="display:block;text-align:center;margin-top:var(--space-4);
+                font-size:0.875rem;color:var(--color-gray-500);">
+        Skip for now
+      </a>
+
+      <div style="height:var(--space-8);"></div>
+
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+
+  <script>
+
+    HH.Router.protect("volunteer");
+
+    var _uid           = null;
+    var _deferredPrompt = null;  // holds the native install prompt
+
+    HH.Router.onReady(function (uid) {
+      _uid = uid;
+      detectPlatform();
+      checkIfInstalled(uid);
+    });
+
+
+    // Capture the native install prompt before the browser auto-hides it
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      _deferredPrompt = e;
+      document.getElementById("native-install-wrap").style.display = "block";
+    });
+
+
+    function detectPlatform() {
+      var ua      = navigator.userAgent;
+      var isIOS   = /iphone|ipad|ipod/i.test(ua);
+      var isAndroid = /android/i.test(ua);
+      var isMobile  = isIOS || isAndroid;
+
+      if (isIOS) {
+        document.getElementById("card-ios").classList.add("detected");
+        document.getElementById("ios-detected").classList.remove("hidden");
+      } else if (isAndroid) {
+        document.getElementById("card-android").classList.add("detected");
+        document.getElementById("android-detected").classList.remove("hidden");
+      } else {
+        document.getElementById("card-desktop").classList.add("detected");
+        document.getElementById("desktop-detected").classList.remove("hidden");
+      }
+    }
+
+
+    function checkIfInstalled(uid) {
+      HH.db.ref("users/" + uid + "/preferences/has_installed")
+        .once("value")
+        .then(function (snap) {
+          if (snap.val() === true) {
+            document.getElementById("installed-banner").classList.remove("hidden");
+          }
+        });
+    }
+
+
+    function triggerNativeInstall() {
+      if (!_deferredPrompt) return;
+      _deferredPrompt.prompt();
+      _deferredPrompt.userChoice.then(function (result) {
+        if (result.outcome === "accepted") {
+          markInstalled();
+        }
+        _deferredPrompt = null;
+        document.getElementById("native-install-wrap").style.display = "none";
+      });
+    }
+
+
+    function markInstalled() {
+      if (!_uid) return;
+      HH.db.ref("users/" + _uid + "/preferences/has_installed").set(true);
+    }
+
+  </script>
+</body>
+</html>

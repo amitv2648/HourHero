@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HourHero — Organization Settings</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    body { background: var(--color-gray-100); }
+    .org-main { margin-left:220px; padding:var(--space-8); min-height:100vh; }
+    @media(max-width:640px){
+      .org-main { margin-left:0; padding:var(--space-4);
+                  padding-top:calc(var(--nav-height)+var(--space-4)); }
+    }
+    .settings-max { max-width: 560px; }
+    .profile-header {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+    .org-avatar {
+      width: 64px; height: 64px;
+      border-radius: var(--radius-lg);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-size: 1.4rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .settings-section {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-4);
+    }
+    .settings-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--color-gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: var(--space-3) var(--space-5);
+      background: var(--color-gray-50);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--color-gray-100);
+      gap: var(--space-3);
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+    }
+    .settings-row-sub {
+      font-size: 0.8rem;
+      color: var(--color-gray-500);
+      margin-top: 2px;
+    }
+    .inline-edit { display: none; padding: var(--space-4) var(--space-5);
+                   border-top: 1px solid var(--color-gray-100);
+                   background: var(--color-gray-50); }
+    .inline-edit.open { display: block; }
+    .logout-btn {
+      width: 100%;
+      padding: var(--space-4);
+      background: var(--color-danger-light);
+      border: 1px solid var(--color-danger-border);
+      color: var(--color-danger-text);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: var(--radius-lg);
+      transition: background 0.15s;
+    }
+    .logout-btn:hover { background: #fecaca; }
+    .toggle-wrap { position:relative; width:44px; height:24px; flex-shrink:0; }
+    .toggle-wrap input { opacity:0; width:0; height:0; position:absolute; }
+    .toggle-track { position:absolute; inset:0; background:var(--color-gray-300);
+                    border-radius:var(--radius-full); cursor:pointer; transition:background 0.2s; }
+    .toggle-thumb { position:absolute; top:3px; left:3px; width:18px; height:18px;
+                    background:#fff; border-radius:50%; transition:transform 0.2s; pointer-events:none; }
+    .toggle-wrap input:checked ~ .toggle-track { background:var(--color-primary); }
+    .toggle-wrap input:checked ~ .toggle-track .toggle-thumb { transform:translateX(20px); }
+  </style>
+</head>
+<body>
+
+  <aside class="org-sidebar">
+    <div class="org-sidebar-logo">HourHero</div>
+    <div class="org-sidebar-label">Main</div>
+    <nav class="org-sidebar-nav">
+      <a href="dashboard.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>Dashboard
+      </a>
+      <a href="submissions.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>Submissions
+      </a>
+    </nav>
+    <div class="org-sidebar-label">Opportunities</div>
+    <nav class="org-sidebar-nav">
+      <a href="create-opportunity.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>Create opportunity
+      </a>
+      <a href="manage-opportunities.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+        </svg>Manage opportunities
+      </a>
+      <a href="participants.html" class="org-nav-item">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+        </svg>Participants
+      </a>
+    </nav>
+    <div class="org-sidebar-label" style="margin-top:auto;">Account</div>
+    <nav class="org-sidebar-nav">
+      <a href="settings.html" class="org-nav-item active">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83
+                   2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1
+                   1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65
+                   1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65
+                   1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09
+                   A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2
+                   0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0
+                   0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65
+                   1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65
+                   1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09
+                   a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>Settings
+      </a>
+      <a href="#" class="org-nav-item"
+         onclick="HH.Router.signOutAndRedirect();return false;">
+        <svg class="org-nav-icon" viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>Sign out
+      </a>
+    </nav>
+  </aside>
+
+  <main class="org-main">
+    <div class="settings-max">
+
+      <div style="margin-bottom:var(--space-5);">
+        <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.4px;
+                   margin-bottom:4px;">Organization settings</h1>
+        <p style="font-size:0.875rem;color:var(--color-gray-500);">
+          Manage your organization profile and account
+        </p>
+      </div>
+
+      <!-- Profile header -->
+      <div class="profile-header">
+        <div class="org-avatar" id="org-avatar">HH</div>
+        <div>
+          <div style="font-size:1.1rem;font-weight:700;color:var(--color-gray-900);"
+               id="org-name-display">Loading...</div>
+          <div style="font-size:0.85rem;color:var(--color-gray-500);margin-top:2px;"
+               id="org-email-display"></div>
+          <div style="display:inline-flex;align-items:center;
+                      background:var(--color-primary-light);
+                      color:var(--color-primary);font-size:0.72rem;
+                      font-weight:700;padding:2px 10px;
+                      border-radius:var(--radius-full);margin-top:6px;">
+            Organization
+          </div>
+        </div>
+      </div>
+
+      <div id="settings-msg" style="margin-bottom:var(--space-3);"></div>
+
+      <!-- Account section -->
+      <div class="settings-section">
+        <div class="settings-section-title">Account</div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Organization name</div>
+            <div class="settings-row-sub" id="row-name-val">—</div>
+          </div>
+          <button class="btn btn-sm btn-outline"
+                  onclick="toggleEdit('name')">Edit</button>
+        </div>
+        <div class="inline-edit" id="edit-name">
+          <div class="form-group">
+            <label class="form-label" for="input-name">New organization name</label>
+            <input class="form-input" type="text" id="input-name"
+                   placeholder="Your organization name" />
+          </div>
+          <div style="display:flex;gap:var(--space-3);">
+            <button class="btn btn-primary btn-sm"
+                    onclick="saveName()">Save</button>
+            <button class="btn btn-secondary btn-sm"
+                    onclick="toggleEdit('name')">Cancel</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Email address</div>
+            <div class="settings-row-sub" id="row-email-val">—</div>
+          </div>
+          <button class="btn btn-sm btn-outline"
+                  onclick="toggleEdit('email')">Edit</button>
+        </div>
+        <div class="inline-edit" id="edit-email">
+          <div class="form-group">
+            <label class="form-label" for="input-email">New email</label>
+            <input class="form-input" type="email" id="input-email" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-email-pass">
+              Confirm with current password
+            </label>
+            <input class="form-input" type="password" id="input-email-pass" />
+          </div>
+          <div style="display:flex;gap:var(--space-3);">
+            <button class="btn btn-primary btn-sm"
+                    onclick="saveEmail()">Save</button>
+            <button class="btn btn-secondary btn-sm"
+                    onclick="toggleEdit('email')">Cancel</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Password</div>
+            <div class="settings-row-sub">Send a reset link to your email</div>
+          </div>
+          <button class="btn btn-sm btn-outline"
+                  onclick="sendReset()">Reset</button>
+        </div>
+
+      </div>
+
+
+      <!-- Notifications section -->
+      <div class="settings-section">
+        <div class="settings-section-title">Notifications</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Email on new submission</div>
+            <div class="settings-row-sub">
+              Get an email when a volunteer submits hours
+            </div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="toggle-email-sub" checked
+                   onchange="saveNotifPrefs()" />
+            <div class="toggle-track">
+              <div class="toggle-thumb"></div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+
+      <!-- Danger zone -->
+      <div class="settings-section">
+        <div class="settings-section-title">Danger zone</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Delete organization</div>
+            <div class="settings-row-sub">
+              Permanently delete this account and all its data
+            </div>
+          </div>
+          <button class="btn btn-sm btn-danger"
+                  onclick="confirmDelete()">Delete</button>
+        </div>
+      </div>
+
+      <!-- Sign out -->
+      <button class="logout-btn"
+              onclick="HH.Router.signOutAndRedirect()">
+        Sign out
+      </button>
+
+      <div style="height:var(--space-8);"></div>
+
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+
+  <script>
+
+    HH.Router.protect("org");
+
+    var _uid     = null;
+    var _profile = {};
+
+    HH.Router.onReady(function (uid) {
+      _uid = uid;
+      loadProfile(uid);
+    });
+
+
+    function loadProfile(uid) {
+      HH.db.ref("organizations/" + uid).once("value").then(function (snap) {
+        if (!snap.exists()) return;
+        _profile = snap.val();
+
+        var name  = _profile.name  || "";
+        var email = _profile.email || "";
+        var ini   = initials(name || "HH");
+
+        document.getElementById("org-avatar").textContent       = ini;
+        document.getElementById("org-name-display").textContent = name;
+        document.getElementById("org-email-display").textContent = email;
+        document.getElementById("row-name-val").textContent      = name;
+        document.getElementById("row-email-val").textContent     = email;
+        document.getElementById("input-name").value             = name;
+        document.getElementById("input-email").value            = email;
+
+        var prefs = (_profile.preferences || {}).notifications || {};
+        document.getElementById("toggle-email-sub").checked =
+          prefs.email_on_submission !== false;
+      });
+    }
+
+
+    function toggleEdit(section) {
+      document.getElementById("edit-" + section).classList.toggle("open");
+    }
+
+
+    function saveName() {
+      var val = document.getElementById("input-name").value.trim();
+      if (!val) return showMsg("error", "Name cannot be empty.");
+
+      HH.db.ref("organizations/" + _uid + "/name").set(val)
+        .then(function () {
+          _profile.name = val;
+          document.getElementById("org-name-display").textContent = val;
+          document.getElementById("row-name-val").textContent     = val;
+          document.getElementById("org-avatar").textContent       = initials(val);
+          toggleEdit("name");
+          showMsg("success", "Name updated.");
+        })
+        .catch(function (e) { showMsg("error", e.message); });
+    }
+
+
+    function saveEmail() {
+      var newEmail = document.getElementById("input-email").value.trim();
+      var pass     = document.getElementById("input-email-pass").value;
+
+      if (!newEmail) return showMsg("error", "Please enter a new email.");
+      if (!pass)     return showMsg("error", "Please enter your current password.");
+
+      var credential = firebase.auth.EmailAuthProvider
+        .credential(_profile.email, pass);
+
+      HH.auth.currentUser.reauthenticateWithCredential(credential)
+        .then(function () {
+          return HH.auth.currentUser.updateEmail(newEmail);
+        })
+        .then(function () {
+          return HH.db.ref("organizations/" + _uid + "/email").set(newEmail);
+        })
+        .then(function () {
+          _profile.email = newEmail;
+          document.getElementById("org-email-display").textContent  = newEmail;
+          document.getElementById("row-email-val").textContent       = newEmail;
+          toggleEdit("email");
+          showMsg("success", "Email updated.");
+        })
+        .catch(function (e) {
+          showMsg("error",
+            e.code === "auth/wrong-password" ? "Incorrect password." : e.message);
+        });
+    }
+
+
+    function sendReset() {
+      HH.sendPasswordReset(_profile.email)
+        .then(function () {
+          showMsg("success", "Reset email sent to " + _profile.email);
+        })
+        .catch(function (e) { showMsg("error", e.message); });
+    }
+
+
+    function saveNotifPrefs() {
+      var prefs = {
+        email_on_submission: document.getElementById("toggle-email-sub").checked
+      };
+      HH.db.ref("organizations/" + _uid + "/preferences/notifications")
+        .set(prefs);
+    }
+
+
+    function confirmDelete() {
+      if (!confirm(
+        "Are you sure? This will permanently delete your organization, " +
+        "all your opportunities, and all submission records. " +
+        "This cannot be undone."
+      )) return;
+
+      var pass = prompt("Enter your password to confirm deletion:");
+      if (!pass) return;
+
+      var credential = firebase.auth.EmailAuthProvider
+        .credential(_profile.email, pass);
+
+      HH.auth.currentUser.reauthenticateWithCredential(credential)
+        .then(function () {
+          var updates = {};
+          updates["organizations/" + _uid] = null;
+          return HH.db.ref().update(updates);
+        })
+        .then(function () {
+          return HH.auth.currentUser.delete();
+        })
+        .then(function () {
+          window.location.replace(HH.Router.PATHS.landing);
+        })
+        .catch(function (e) {
+          showMsg("error",
+            e.code === "auth/wrong-password" ? "Incorrect password." : e.message);
+        });
+    }
+
+
+    function showMsg(type, text) {
+      var el = document.getElementById("settings-msg");
+      var bg = type === "error"
+        ? "var(--color-danger-light)"  : "var(--color-success-light)";
+      var co = type === "error"
+        ? "var(--color-danger-text)"   : "var(--color-success-text)";
+      var bd = type === "error"
+        ? "var(--color-danger-border)" : "var(--color-success-border)";
+      el.innerHTML =
+        '<div style="background:' + bg + ';color:' + co +
+        ';border:1px solid ' + bd +
+        ';border-radius:var(--radius-md);padding:0.7rem 0.9rem;' +
+        'font-size:0.875rem;font-weight:500;">' +
+          escHtml(text) + '</div>';
+      setTimeout(function () { el.innerHTML = ""; }, 4000);
+    }
+
+    function initials(name) {
+      var p = (name || "?").trim().split(" ");
+      return p.length === 1
+        ? p[0].charAt(0).toUpperCase()
+        : (p[0].charAt(0) + p[1].charAt(0)).toUpperCase();
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+  </script>
+</body>
+</html>

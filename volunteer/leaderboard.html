@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HourHero — Leaderboard</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    body { background: var(--color-gray-100); }
+
+    .lb-hero {
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      color: #fff;
+      margin-bottom: var(--space-4);
+      text-align: center;
+    }
+
+    .lb-hero h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .lb-hero p { font-size: 0.85rem; opacity: 0.82; }
+
+    .my-rank-card {
+      background: var(--color-primary-light);
+      border: 1.5px solid var(--color-primary-mid);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .my-rank-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-primary);
+      margin-bottom: 2px;
+    }
+
+    .my-rank-num {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--color-primary-dark);
+      line-height: 1;
+    }
+
+    .my-rank-stats {
+      text-align: right;
+      font-size: 0.83rem;
+      color: var(--color-primary);
+    }
+
+    .lb-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-4);
+    }
+
+    .lb-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .lb-row:last-child { border-bottom: none; }
+
+    .lb-row.me {
+      background: var(--color-primary-light);
+    }
+
+    .lb-rank {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .rank-1 { background: #FEF9C3; color: #92400E; font-size: 1.1rem; }
+    .rank-2 { background: #F1F5F9; color: #475569; font-size: 1.1rem; }
+    .rank-3 { background: #FEF3C7; color: #B45309; font-size: 1rem; }
+    .rank-other { background: var(--color-gray-100); color: var(--color-gray-600); }
+
+    .lb-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .lb-row.me .lb-avatar {
+      background: var(--color-primary);
+      color: #fff;
+    }
+
+    .lb-name {
+      flex: 1;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lb-name-you {
+      font-size: 0.7rem;
+      background: var(--color-primary);
+      color: #fff;
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      margin-left: 6px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    .lb-stats {
+      display: flex;
+      gap: var(--space-4);
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .lb-stat-val {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+    }
+
+    .lb-stat-lbl {
+      font-size: 0.68rem;
+      color: var(--color-gray-400);
+    }
+
+    .lb-empty {
+      padding: var(--space-8) var(--space-4);
+      text-align: center;
+      color: var(--color-gray-400);
+      font-size: 0.875rem;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position:-400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, var(--color-gray-100) 25%,
+        var(--color-gray-200) 50%, var(--color-gray-100) 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a href="dashboard.html" class="top-nav-logo">HourHero</a>
+    <div class="top-nav-title">Leaderboard</div>
+    <div class="top-nav-right">
+      <a href="badges.html" class="btn btn-sm btn-ghost">Badges</a>
+    </div>
+  </nav>
+
+  <main class="page-with-nav">
+    <div class="page-content">
+
+      <div class="lb-hero">
+        <h2>Global leaderboard</h2>
+        <p>Ranked by total approved volunteer hours</p>
+      </div>
+
+      <!-- Current user's rank card -->
+      <div class="my-rank-card" id="my-rank-card" style="display:none;">
+        <div>
+          <div class="my-rank-label">Your rank</div>
+          <div class="my-rank-num" id="my-rank-num">#—</div>
+        </div>
+        <div class="my-rank-stats" id="my-rank-stats"></div>
+      </div>
+
+      <div class="lb-card" id="lb-list">
+        <!-- Skeleton rows -->
+        <div class="lb-row">
+          <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+          <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+          <div class="skeleton" style="flex:1;height:13px;"></div>
+          <div class="skeleton" style="width:80px;height:13px;"></div>
+        </div>
+        <div class="lb-row">
+          <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+          <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+          <div class="skeleton" style="flex:1;height:13px;"></div>
+          <div class="skeleton" style="width:80px;height:13px;"></div>
+        </div>
+        <div class="lb-row">
+          <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+          <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+          <div class="skeleton" style="flex:1;height:13px;"></div>
+          <div class="skeleton" style="width:80px;height:13px;"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="dashboard.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg><span>Home</span>
+    </a>
+    <a href="log-hours.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg><span>Log</span>
+    </a>
+    <a href="opportunities.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg><span>Explore</span>
+    </a>
+    <a href="badges.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="6"/>
+        <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+      </svg><span>Badges</span>
+    </a>
+    <a href="settings.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg><span>Profile</span>
+    </a>
+  </nav>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+  <script>
+    HH.Router.protect("volunteer");
+
+    var RANK_SYMBOLS = { 1: "🥇", 2: "🥈", 3: "🥉" };
+
+    HH.Router.onReady(function(uid) {
+      loadLeaderboard(uid);
+    });
+
+    function loadLeaderboard(myUid) {
+      HH.db.ref("users")
+        .orderByChild("total_hours")
+        .once("value")
+        .then(function(snap) {
+          var users = [];
+          snap.forEach(function(c) {
+            var u = c.val();
+            if (u.name) {
+              users.push({
+                uid:   c.key,
+                name:  u.name,
+                hours: parseFloat(u.total_hours || 0),
+                pts:   Math.floor(parseFloat(u.total_hours || 0))
+              });
+            }
+          });
+
+          // Sort descending
+          users.sort(function(a, b) { return b.hours - a.hours; });
+
+          // Find my rank
+          var myRank = -1;
+          for (var i = 0; i < users.length; i++) {
+            if (users[i].uid === myUid) {
+              myRank = i + 1;
+              break;
+            }
+          }
+
+          // Show my rank card
+          if (myRank > 0) {
+            var me = users[myRank - 1];
+            document.getElementById("my-rank-num").textContent = "#" + myRank;
+            document.getElementById("my-rank-stats").innerHTML =
+              me.hours.toFixed(1) + " hrs &nbsp;|&nbsp; " + me.pts + " pts";
+            document.getElementById("my-rank-card").style.display = "flex";
+          }
+
+          renderList(users, myUid);
+        });
+    }
+
+    function renderList(users, myUid) {
+      var container = document.getElementById("lb-list");
+
+      if (!users.length) {
+        container.innerHTML =
+          '<div class="lb-empty">No volunteers on the leaderboard yet. Be the first!</div>';
+        return;
+      }
+
+      // Show top 100
+      var visible = users.slice(0, 100);
+      var html = "";
+
+      visible.forEach(function(u, i) {
+        var rank = i + 1;
+        var isMe = u.uid === myUid;
+        var rankClass = rank <= 3 ? "rank-" + rank : "rank-other";
+        var rankLabel = RANK_SYMBOLS[rank] || rank;
+
+        html +=
+          '<div class="lb-row' + (isMe ? " me" : "") + '">' +
+            '<div class="lb-rank ' + rankClass + '">' + rankLabel + '</div>' +
+            '<div class="lb-avatar">' + ini(u.name) + '</div>' +
+            '<div class="lb-name">' +
+              esc(u.name) +
+              (isMe ? '<span class="lb-name-you">You</span>' : '') +
+            '</div>' +
+            '<div class="lb-stats">' +
+              '<div>' +
+                '<div class="lb-stat-val">' + u.hours.toFixed(1) + '</div>' +
+                '<div class="lb-stat-lbl">hrs</div>' +
+              '</div>' +
+              '<div>' +
+                '<div class="lb-stat-val">' + u.pts + '</div>' +
+                '<div class="lb-stat-lbl">pts</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+    function ini(n) {
+      var p = (n || "?").trim().split(" ");
+      return p.length === 1 ? p[0][0].toUpperCase() : (p[0][0] + p[1][0]).toUpperCase();
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+  </script>
+</body>
+</html>

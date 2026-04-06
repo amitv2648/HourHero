@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HourHero — Dashboard</title>
+  <meta name="theme-color" content="#4F46E5"/>
+  <link rel="manifest" href="../manifest.json"/>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    body { background: var(--color-gray-100); }
+
+    .greeting-banner {
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      color: #fff;
+      margin-bottom: var(--space-3);
+    }
+
+    .greeting-name {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: var(--space-1);
+      letter-spacing: -0.3px;
+    }
+
+    .greeting-sub { font-size: 0.85rem; opacity: 0.8; }
+
+    /* Progress card */
+    .progress-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      margin-bottom: var(--space-4);
+    }
+
+    .progress-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+
+    .progress-badge-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-gray-600);
+    }
+
+    .progress-next-label {
+      font-size: 0.78rem;
+      color: var(--color-gray-500);
+    }
+
+    .progress-next-name {
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .progress-bar-track {
+      height: 10px;
+      background: var(--color-gray-200);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: var(--space-2);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: linear-gradient(90deg, #4F46E5, #7C3AED);
+      transition: width 0.6s ease;
+    }
+
+    .progress-pts {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .progress-pts-current {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .progress-pts-needed {
+      font-size: 0.78rem;
+      color: var(--color-gray-400);
+    }
+
+    .progress-maxed {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--color-success-text);
+      text-align: center;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    /* Quick actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .quick-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .quick-card:hover {
+      border-color: var(--color-primary-mid);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+    }
+
+    .quick-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--color-primary-light);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quick-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--color-primary);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .quick-label {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+    }
+
+    .quick-sub { font-size: 0.775rem; color: var(--color-gray-500); }
+
+    /* Activity feed */
+    .activity-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-4);
+    }
+
+    .activity-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-4) var(--space-3);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .activity-title { font-size: 0.95rem; font-weight: 700; color: var(--color-gray-900); }
+
+    .activity-link {
+      font-size: 0.8rem;
+      color: var(--color-primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .activity-link:hover { text-decoration: underline; }
+
+    .activity-body { padding: 0 var(--space-4); }
+
+    .install-banner {
+      background: var(--color-primary-light);
+      border: 1px solid var(--color-primary-mid);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .install-banner-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-primary);
+      padding: var(--space-1);
+      display: flex;
+      align-items: center;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position:-400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, var(--color-gray-100) 25%,
+        var(--color-gray-200) 50%, var(--color-gray-100) 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <span class="top-nav-logo">HourHero</span>
+    <div class="top-nav-right">
+      <a href="settings.html" class="nav-avatar" id="nav-avatar">HH</a>
+    </div>
+  </nav>
+
+  <main class="page-with-nav">
+    <div class="page-content">
+
+      <!-- Install banner -->
+      <div class="install-banner hidden" id="install-banner">
+        <div>
+          <div style="font-size:0.85rem;font-weight:600;color:var(--color-primary-dark);">
+            Add HourHero to your home screen
+          </div>
+          <div style="font-size:0.775rem;color:var(--color-primary);margin-top:2px;">
+            Works offline and loads instantly
+          </div>
+        </div>
+        <a href="install.html" class="btn btn-sm btn-primary">Install</a>
+        <button class="install-banner-close" onclick="dismissInstall()" title="Dismiss">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Greeting -->
+      <div class="greeting-banner">
+        <div class="greeting-name" id="greeting-name">Welcome back!</div>
+        <div class="greeting-sub">Here is your volunteer summary</div>
+      </div>
+
+      <!-- Badge progress card -->
+      <div class="progress-card" id="progress-card">
+        <div class="progress-top">
+          <span class="progress-badge-label" id="progress-current-badge">Loading...</span>
+          <span class="progress-next-label" id="progress-next-label"></span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progress-fill" style="width:0%;"></div>
+        </div>
+        <div class="progress-pts">
+          <span class="progress-pts-current" id="progress-pts-current"></span>
+          <span class="progress-pts-needed"  id="progress-pts-needed"></span>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Approved</div>
+          <div class="stat-value" id="stat-hours">
+            <div class="skeleton" style="height:36px;border-radius:6px;"></div>
+          </div>
+          <div class="stat-sub">hours total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending</div>
+          <div class="stat-value" id="stat-pending">
+            <div class="skeleton" style="height:36px;border-radius:6px;"></div>
+          </div>
+          <div class="stat-sub">submissions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Joined</div>
+          <div class="stat-value" id="stat-joined">
+            <div class="skeleton" style="height:36px;border-radius:6px;"></div>
+          </div>
+          <div class="stat-sub">opportunities</div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="quick-actions">
+        <a href="log-hours.html" class="quick-card">
+          <div class="quick-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="quick-label">Log hours</div>
+          <div class="quick-sub">Submit your time</div>
+        </a>
+        <a href="opportunities.html" class="quick-card">
+          <div class="quick-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <div class="quick-label">Browse</div>
+          <div class="quick-sub">Find opportunities</div>
+        </a>
+        <a href="badges.html" class="quick-card">
+          <div class="quick-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="6"/>
+              <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+            </svg>
+          </div>
+          <div class="quick-label">My badges</div>
+          <div class="quick-sub">View achievements</div>
+        </a>
+        <a href="leaderboard.html" class="quick-card">
+          <div class="quick-icon">
+            <svg viewBox="0 0 24 24">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6"  y1="20" x2="6"  y2="14"/>
+            </svg>
+          </div>
+          <div class="quick-label">Leaderboard</div>
+          <div class="quick-sub">Your global rank</div>
+        </a>
+      </div>
+
+      <!-- Activity feed -->
+      <div class="activity-card">
+        <div class="activity-hdr">
+          <span class="activity-title">Recent activity</span>
+          <a href="log-hours.html" class="activity-link">View all</a>
+        </div>
+        <div class="activity-body" id="activity-list">
+          <div class="list-item">
+            <div class="skeleton" style="width:38px;height:38px;border-radius:8px;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div class="skeleton" style="width:70%;height:13px;margin-bottom:6px;"></div>
+              <div class="skeleton" style="width:45%;height:11px;"></div>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="skeleton" style="width:38px;height:38px;border-radius:8px;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div class="skeleton" style="width:60%;height:13px;margin-bottom:6px;"></div>
+              <div class="skeleton" style="width:40%;height:11px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="dashboard.html" class="bottom-nav-item active">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg><span>Home</span>
+    </a>
+    <a href="log-hours.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg><span>Log</span>
+    </a>
+    <a href="opportunities.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg><span>Explore</span>
+    </a>
+    <a href="badges.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="6"/>
+        <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+      </svg><span>Badges</span>
+    </a>
+    <a href="settings.html" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg><span>Profile</span>
+    </a>
+  </nav>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+  <script>
+    HH.Router.protect("volunteer");
+
+    var BADGES = [
+      { name:"Newcomer",    pts:0   },
+      { name:"First Step",  pts:1   },
+      { name:"Rising Star", pts:5   },
+      { name:"Committed",   pts:10  },
+      { name:"Dedicated",   pts:25  },
+      { name:"Champion",    pts:50  },
+      { name:"Hero",        pts:100 },
+      { name:"Legend",      pts:250 },
+      { name:"Icon",        pts:500 }
+    ];
+
+    HH.Router.onReady(function(uid) {
+      loadProfile(uid);
+      loadStats(uid);
+      loadActivity(uid);
+      maybeShowInstall(uid);
+    });
+
+    function loadProfile(uid) {
+      HH.db.ref("users/" + uid).once("value").then(function(snap) {
+        if (!snap.exists()) return;
+        var p = snap.val();
+        var first = (p.name || "").split(" ")[0] || "there";
+        document.getElementById("greeting-name").textContent = "Welcome back, " + first + "!";
+        document.getElementById("nav-avatar").textContent = ini(p.name || "HH");
+      });
+    }
+
+    function loadStats(uid) {
+      HH.db.ref("users/" + uid + "/total_hours").once("value").then(function(s) {
+        var hours = parseFloat(s.val() || 0);
+        document.getElementById("stat-hours").textContent = hours.toFixed(1);
+        updateProgress(Math.floor(hours));
+      });
+
+      HH.db.ref("submissions").orderByChild("volunteer_id").equalTo(uid).once("value").then(function(snap) {
+        var pending = 0;
+        snap.forEach(function(c) { if (c.val().status === "pending") pending++; });
+        document.getElementById("stat-pending").textContent = pending;
+      });
+
+      HH.db.ref("users/" + uid + "/joined_opportunities").once("value").then(function(snap) {
+        document.getElementById("stat-joined").textContent =
+          snap.exists() ? Object.keys(snap.val() || {}).length : 0;
+      });
+    }
+
+    function updateProgress(pts) {
+      // Find current and next badge
+      var currentBadge = BADGES[0];
+      var nextBadge    = null;
+
+      for (var i = BADGES.length - 1; i >= 0; i--) {
+        if (pts >= BADGES[i].pts) {
+          currentBadge = BADGES[i];
+          nextBadge    = BADGES[i + 1] || null;
+          break;
+        }
+      }
+
+      document.getElementById("progress-current-badge").textContent =
+        "Current badge: " + currentBadge.name;
+
+      if (!nextBadge) {
+        // Max badge reached
+        document.getElementById("progress-next-label").textContent = "";
+        document.getElementById("progress-fill").style.width = "100%";
+        document.getElementById("progress-pts-current").textContent = pts + " pts";
+        document.getElementById("progress-pts-needed").textContent = "Maximum badge reached!";
+        return;
+      }
+
+      var prevPts  = currentBadge.pts;
+      var needed   = nextBadge.pts;
+      var range    = needed - prevPts;
+      var earned   = pts - prevPts;
+      var pct      = range > 0 ? Math.min(100, Math.round((earned / range) * 100)) : 100;
+
+      document.getElementById("progress-next-label").innerHTML =
+        'Next: <span class="progress-next-name">' + nextBadge.name + '</span>';
+      document.getElementById("progress-fill").style.width = pct + "%";
+      document.getElementById("progress-pts-current").textContent = pts + " pts";
+      document.getElementById("progress-pts-needed").textContent =
+        (needed - pts) + " pts to go";
+    }
+
+    function loadActivity(uid) {
+      HH.db.ref("submissions").orderByChild("volunteer_id").equalTo(uid)
+        .limitToLast(5).on("value", function(snap) {
+          var container = document.getElementById("activity-list");
+          if (!snap.exists()) {
+            container.innerHTML =
+              '<div class="empty-state" style="padding:2rem 1rem;">' +
+                '<p style="color:var(--color-gray-400);font-size:0.875rem;">No activity yet.</p>' +
+              '</div>';
+            return;
+          }
+          var items = [];
+          snap.forEach(function(c) { items.push(c.val()); });
+          items.sort(function(a,b) { return (b.submitted_at||0)-(a.submitted_at||0); });
+
+          var html = "";
+          items.forEach(function(s) {
+            var bc = "badge-" + (s.status || "pending");
+            var bl = (s.status || "pending");
+            bl = bl.charAt(0).toUpperCase() + bl.slice(1);
+            var ds = s.date ? new Date(s.date).toLocaleDateString("en-US",{month:"short",day:"numeric"}) : "";
+            html +=
+              '<div class="list-item">' +
+                '<div class="list-item-icon">' +
+                  '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/>' +
+                  '<polyline points="12 6 12 12 16 14"/></svg>' +
+                '</div>' +
+                '<div class="list-item-main">' +
+                  '<div class="list-item-title">' + esc(s.opportunity_title||"Volunteer hours") + '</div>' +
+                  '<div class="list-item-sub">' + esc(s.org_name||"") + (ds?" &middot; "+ds:"") + '</div>' +
+                '</div>' +
+                '<div class="list-item-end">' +
+                  '<div class="list-item-hours">' + (s.hours||0) + 'h</div>' +
+                  '<div class="badge ' + bc + '" style="margin-top:4px;">' + bl + '</div>' +
+                '</div>' +
+              '</div>';
+          });
+          container.innerHTML = html;
+        });
+    }
+
+    function maybeShowInstall(uid) {
+      HH.db.ref("users/" + uid + "/preferences/has_installed").once("value").then(function(snap) {
+        if (snap.val() !== true && !sessionStorage.getItem("hh_install_dismissed")) {
+          document.getElementById("install-banner").classList.remove("hidden");
+        }
+      });
+    }
+
+    function dismissInstall() {
+      document.getElementById("install-banner").classList.add("hidden");
+      sessionStorage.setItem("hh_install_dismissed", "1");
+    }
+
+    function ini(n) {
+      var p = (n||"HH").trim().split(" ");
+      return p.length===1 ? p[0][0].toUpperCase() : (p[0][0]+p[1][0]).toUpperCase();
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+  </script>
+</body>
+</html>

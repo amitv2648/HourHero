@@ -243,35 +243,30 @@
 
 
     function listenSubmissions(uid) {
-      HH.db.ref("submissions")
-        .orderByChild("org_id")
-        .equalTo(uid)
-        .on("value", function (snap) {
-          _allSubs = {};
-          snap.forEach(function (c) {
-            _allSubs[c.key] = c.val();
-            _allSubs[c.key]._key = c.key;
-          });
-
-          // Update pending badge
-          var pendingCount = Object.values(_allSubs).filter(function (s) {
-            return s.status === "pending";
-          }).length;
-
-          var badge     = document.getElementById("sb-pending-badge");
-          var tabBadge  = document.getElementById("tab-pending-count");
-          if (pendingCount > 0) {
-            badge.textContent    = pendingCount;
-            badge.style.display  = "inline-flex";
-            tabBadge.textContent = pendingCount;
-            tabBadge.style.display = "inline-flex";
-          } else {
-            badge.style.display    = "none";
-            tabBadge.style.display = "none";
-          }
-
-          renderTab();
+      HH.listenSubmissionsForOrg(uid, function (list) {
+        _allSubs = {};
+        list.forEach(function (s) {
+          _allSubs[s._key] = s;
         });
+
+        var pendingCount = list.filter(function (s) {
+          return s.status === "pending";
+        }).length;
+
+        var badge     = document.getElementById("sb-pending-badge");
+        var tabBadge  = document.getElementById("tab-pending-count");
+        if (pendingCount > 0) {
+          badge.textContent    = pendingCount;
+          badge.style.display  = "inline-flex";
+          tabBadge.textContent = pendingCount;
+          tabBadge.style.display = "inline-flex";
+        } else {
+          badge.style.display    = "none";
+          tabBadge.style.display = "none";
+        }
+
+        renderTab();
+      });
     }
 
 

@@ -222,33 +222,21 @@
 
 
     function loadData(uid) {
-      // Load all this org's opportunities for the filter dropdown
-      HH.db.ref("opportunities")
-        .orderByChild("org_id")
-        .equalTo(uid)
-        .once("value")
-        .then(function (snap) {
-          var sel = document.getElementById("opp-filter");
-          snap.forEach(function (c) {
-            _opps[c.key] = c.val().title || "Untitled";
-            var opt = document.createElement("option");
-            opt.value       = c.key;
-            opt.textContent = c.val().title || "Untitled";
-            sel.appendChild(opt);
-          });
+      HH.listOpportunitiesForOrg(uid).then(function (list) {
+        var sel = document.getElementById("opp-filter");
+        list.forEach(function (o) {
+          _opps[o._key] = o.title || "Untitled";
+          var opt = document.createElement("option");
+          opt.value       = o._key;
+          opt.textContent = o.title || "Untitled";
+          sel.appendChild(opt);
         });
+      });
 
-      // Load all submissions for this org (real-time)
-      HH.db.ref("submissions")
-        .orderByChild("org_id")
-        .equalTo(uid)
-        .on("value", function (snap) {
-          _submissions = [];
-          snap.forEach(function (c) {
-            _submissions.push(c.val());
-          });
-          renderParticipants();
-        });
+      HH.listenSubmissionsForOrg(uid, function (list) {
+        _submissions = list;
+        renderParticipants();
+      });
     }
 
 

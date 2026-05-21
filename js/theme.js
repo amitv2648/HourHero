@@ -1,21 +1,6 @@
 // ============================================================
 // HourHero — js/theme.js
-// ============================================================
-// This file MUST be loaded first on every page, before the
-// Firebase SDK and before any other scripts.
-//
-// It reads the saved theme from localStorage and applies it
-// to <html> instantly, before the page renders, so there is
-// never a white flash when dark mode is active.
-//
-// Usage on root pages (index.html, auth.html):
-//   <script src="js/theme.js"></script>
-//
-// Usage on subfolder pages (volunteer/, org/):
-//   <script src="../js/theme.js"></script>
-//
-// The theme is toggled by calling HH.Theme.set("dark") or
-// HH.Theme.set("light") from any settings page.
+// Load in <head> before CSS when possible to avoid theme flash.
 // ============================================================
 
 (function () {
@@ -26,36 +11,59 @@
   } else if (saved === "light") {
     document.documentElement.setAttribute("data-theme", "light");
   }
-  // If nothing saved, CSS media query handles system preference automatically
 
-  // Expose a simple API for the settings pages to call
   window.HH = window.HH || {};
   window.HH.Theme = {
 
-    // Get current effective theme
     get: function () {
       var attr = document.documentElement.getAttribute("data-theme");
-      if (attr) return attr;
+      if (attr === "dark" || attr === "light") return attr;
       return window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark" : "light";
     },
 
-    // Set and persist a theme
+    getSaved: function () {
+      return localStorage.getItem("hh_theme");
+    },
+
     set: function (theme) {
       localStorage.setItem("hh_theme", theme);
       document.documentElement.setAttribute("data-theme", theme);
     },
 
-    // Toggle between dark and light
     toggle: function () {
       window.HH.Theme.set(
         window.HH.Theme.get() === "dark" ? "light" : "dark"
       );
     },
 
-    // Return true if dark mode is currently active
     isDark: function () {
       return window.HH.Theme.get() === "dark";
+    },
+
+    /** Wire settings page dark-mode checkbox + status label */
+    bindToggle: function (checkboxId, statusId) {
+      var cb     = document.getElementById(checkboxId);
+      var status = statusId ? document.getElementById(statusId) : null;
+      if (!cb) return;
+
+      function syncUI() {
+        var saved = localStorage.getItem("hh_theme");
+        var dark  = window.HH.Theme.isDark();
+        cb.checked = dark;
+        if (status) {
+          status.textContent = !saved
+            ? "Follows system setting"
+            : (dark ? "Dark mode on" : "Light mode on");
+        }
+      }
+
+      cb.addEventListener("change", function () {
+        window.HH.Theme.set(cb.checked ? "dark" : "light");
+        syncUI();
+      });
+
+      syncUI();
     }
   };
 }());

@@ -4,16 +4,16 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HourHero — Log Hours</title>
+  <script src="../js/theme.js"></script>
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
-    body { background: var(--color-gray-100); }
+    body { background: var(--bg-page); }
 
-    /* Mode toggle */
     .mode-toggle {
       display: flex;
-      background: var(--color-white);
-      border: 1px solid var(--color-gray-200);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
       padding: 4px;
       margin-bottom: var(--space-4);
@@ -23,9 +23,8 @@
     .mode-btn {
       flex: 1;
       padding: 0.6rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--color-gray-500);
+      font-size: 0.875rem; font-weight: 600;
+      color: var(--text-secondary);
       border-radius: var(--radius-md);
       border: none;
       background: transparent;
@@ -39,10 +38,9 @@
       color: #fff;
     }
 
-    /* Standard form card */
     .form-card {
-      background: var(--color-white);
-      border: 1px solid var(--color-gray-200);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
       padding: var(--space-5);
       margin-bottom: var(--space-4);
@@ -59,16 +57,14 @@
       border: 1.5px solid var(--color-primary-mid);
       border-radius: var(--radius-md);
       padding: 0.625rem 0.875rem;
-      font-size: 0.95rem;
-      font-weight: 700;
+      font-size: 0.95rem; font-weight: 700;
       color: var(--color-primary);
       text-align: center;
     }
 
-    /* Submission history */
     .log-card {
-      background: var(--color-white);
-      border: 1px solid var(--color-gray-200);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
       overflow: hidden;
       margin-bottom: var(--space-4);
@@ -76,7 +72,7 @@
 
     .log-card-hdr {
       padding: var(--space-4) var(--space-5) var(--space-3);
-      border-bottom: 1px solid var(--color-gray-100);
+      border-bottom: 1px solid var(--border-color);
     }
 
     .log-card-body { padding: 0 var(--space-5); }
@@ -88,46 +84,37 @@
       font-style: italic;
     }
 
-    /* ===== COMPLEX / AI CHATBOT MODE ===== */
+    /* ===== CHAT UI ===== */
     .chat-container {
-      background: var(--color-white);
-      border: 1px solid var(--color-gray-200);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
       display: flex;
       flex-direction: column;
-      height: 520px;
+      height: 540px;
       margin-bottom: var(--space-4);
       overflow: hidden;
     }
 
     .chat-header {
       padding: var(--space-3) var(--space-4);
-      border-bottom: 1px solid var(--color-gray-100);
+      border-bottom: 1px solid var(--border-color);
       background: var(--color-gray-50);
       display: flex;
       align-items: center;
       gap: var(--space-3);
+      flex-shrink: 0;
     }
 
     .chat-header-dot {
-      width: 8px;
-      height: 8px;
+      width: 8px; height: 8px;
       border-radius: 50%;
       background: var(--color-success);
       flex-shrink: 0;
     }
 
-    .chat-header-title {
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: var(--color-gray-900);
-    }
-
-    .chat-header-sub {
-      font-size: 0.775rem;
-      color: var(--color-gray-500);
-      margin-left: auto;
-    }
+    .chat-header-title { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
+    .chat-header-sub   { font-size: 0.775rem; color: var(--text-secondary); margin-left: auto; }
 
     .chat-messages {
       flex: 1;
@@ -138,29 +125,19 @@
       gap: var(--space-3);
     }
 
-    .msg {
-      display: flex;
-      gap: var(--space-2);
-      max-width: 88%;
-    }
-
-    .msg.bot { align-self: flex-start; }
+    .msg { display: flex; gap: var(--space-2); max-width: 88%; }
+    .msg.bot  { align-self: flex-start; }
     .msg.user { align-self: flex-end; flex-direction: row-reverse; }
 
     .msg-avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      font-weight: 700;
+      width: 28px; height: 28px;
+      border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700;
     }
 
-    .msg.bot .msg-avatar { background: var(--color-primary-light); color: var(--color-primary); }
-    .msg.user .msg-avatar { background: var(--color-gray-200); color: var(--color-gray-600); }
+    .msg.bot  .msg-avatar { background: var(--color-primary-light); color: var(--color-primary); }
+    .msg.user .msg-avatar { background: var(--color-gray-200);      color: var(--color-gray-600); }
 
     .msg-bubble {
       padding: 0.6rem 0.875rem;
@@ -169,21 +146,11 @@
       line-height: 1.5;
     }
 
-    .msg.bot .msg-bubble {
-      background: var(--color-gray-100);
-      color: var(--color-gray-900);
-      border-bottom-left-radius: 4px;
-    }
+    .msg.bot  .msg-bubble { background: var(--color-gray-100); color: var(--text-primary); border-bottom-left-radius: 4px; }
+    .msg.user .msg-bubble { background: var(--color-primary);  color: #fff;               border-bottom-right-radius: 4px; }
 
-    .msg.user .msg-bubble {
-      background: var(--color-primary);
-      color: #fff;
-      border-bottom-right-radius: 4px;
-    }
-
-    /* Confirmation card inside chat */
     .confirm-card {
-      background: var(--color-white);
+      background: var(--bg-card);
       border: 1.5px solid var(--color-primary-mid);
       border-radius: var(--radius-lg);
       padding: var(--space-4);
@@ -195,72 +162,80 @@
       display: flex;
       justify-content: space-between;
       padding: 4px 0;
-      border-bottom: 1px solid var(--color-gray-100);
+      border-bottom: 1px solid var(--border-color);
       font-size: 0.83rem;
     }
-
     .confirm-row:last-child { border-bottom: none; }
+    .confirm-row-label { color: var(--text-secondary); font-weight: 600; }
+    .confirm-row-val   { color: var(--text-primary);   font-weight: 600; text-align: right; max-width: 60%; }
 
-    .confirm-row-label { color: var(--color-gray-500); font-weight: 600; }
-    .confirm-row-val { color: var(--color-gray-900); font-weight: 600; text-align: right; max-width: 60%; }
-
-    .confirm-actions {
-      display: flex;
-      gap: var(--space-2);
-      margin-top: var(--space-3);
-    }
+    .confirm-actions { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
 
     .chat-input-row {
-      border-top: 1px solid var(--color-gray-200);
+      border-top: 1px solid var(--border-color);
       padding: var(--space-3) var(--space-4);
       display: flex;
       gap: var(--space-2);
-      background: var(--color-white);
+      background: var(--bg-card);
+      flex-shrink: 0;
     }
 
     .chat-input {
       flex: 1;
       padding: 0.6rem 0.875rem;
       font-size: 0.9rem;
-      border: 1.5px solid var(--color-gray-200);
+      border: 1.5px solid var(--border-color);
       border-radius: var(--radius-full);
       outline: none;
-      transition: border-color .15s;
+      transition: border-color .15s, background 0.2s;
       background: var(--color-gray-50);
+      color: var(--text-primary);
     }
 
-    .chat-input:focus { border-color: var(--color-primary); background: var(--color-white); }
+    .chat-input:focus { border-color: var(--color-primary); background: var(--bg-card); }
+    .chat-input::placeholder { color: var(--text-muted); }
 
     .chat-send {
-      width: 38px;
-      height: 38px;
+      width: 38px; height: 38px;
       border-radius: 50%;
       background: var(--color-primary);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
       transition: background .15s;
     }
 
-    .chat-send:hover { background: var(--color-primary-dark); }
+    .chat-send:hover    { background: var(--color-primary-dark); }
     .chat-send:disabled { background: var(--color-gray-300); cursor: not-allowed; }
 
     .chat-send svg {
-      width: 16px;
-      height: 16px;
-      stroke: #fff;
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+      width: 16px; height: 16px;
+      stroke: #fff; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
     }
 
+    /* Nudge pill — appears below a general-question response when
+       the user is mid-flow, so they know they can resume logging */
+    .resume-nudge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 4px 10px;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--color-primary-mid);
+      transition: background .15s;
+    }
+    .resume-nudge:hover { background: var(--color-primary-mid); }
+
     @keyframes shimmer {
-      0%   { background-position:-400px 0; }
-      100% { background-position: 400px 0; }
+      0%   { background-position: -400px 0; }
+      100% { background-position:  400px 0; }
     }
     .skeleton {
       background: linear-gradient(90deg, var(--color-gray-100) 25%,
@@ -270,19 +245,24 @@
       border-radius: var(--radius-sm);
     }
 
-    /* Typing indicator */
     @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
     .typing-dot {
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--color-gray-400);
-      margin: 0 2px;
-      animation: blink 1.2s infinite;
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--text-muted);
+      margin: 0 2px; animation: blink 1.2s infinite;
     }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .mini-spin {
+      display: inline-block; width: 12px; height: 12px;
+      border: 2px solid var(--border-color);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 4px;
+    }
   </style>
 </head>
 <body>
@@ -304,16 +284,14 @@
 
       <!-- Mode toggle -->
       <div class="mode-toggle">
-        <button class="mode-btn active" id="btn-standard" onclick="setMode('standard')">
-          Standard entry
-        </button>
-        <button class="mode-btn" id="btn-complex" onclick="setMode('complex')">
-          Complex entry (AI)
-        </button>
+        <button class="mode-btn active" id="btn-standard"
+                onclick="setMode('standard')">Standard entry</button>
+        <button class="mode-btn" id="btn-complex"
+                onclick="setMode('complex')">Complex entry (AI)</button>
       </div>
 
 
-      <!-- ============ STANDARD MODE ============ -->
+      <!-- ======== STANDARD MODE ======== -->
       <div id="standard-mode">
 
         <div class="form-card">
@@ -352,13 +330,16 @@
 
           <div class="form-group" style="margin-top:var(--space-4);">
             <label class="form-label" for="sel-desc">
-              Description <span class="form-label-optional">(optional)</span>
+              Description
+              <span class="form-label-optional">(optional)</span>
             </label>
             <textarea class="form-textarea" id="sel-desc"
-                      placeholder="Brief description of what you did..." rows="3"></textarea>
+                      placeholder="Brief description of what you did..."
+                      rows="3"></textarea>
           </div>
 
-          <button class="btn btn-primary btn-full" id="btn-submit" onclick="handleSubmit()">
+          <button class="btn btn-primary btn-full"
+                  id="btn-submit" onclick="handleSubmit()">
             Submit for approval
           </button>
         </div>
@@ -366,37 +347,48 @@
         <!-- Submission history -->
         <div class="log-card">
           <div class="log-card-hdr">
-            <div class="section-heading" style="margin-bottom:var(--space-3);">My submissions</div>
+            <div class="section-heading" style="margin-bottom:var(--space-3);">
+              My submissions
+            </div>
             <div class="tabs" style="margin-bottom:0;border-bottom:none;">
-              <button class="tab-btn active" onclick="switchTab('pending',this)">Pending</button>
-              <button class="tab-btn" onclick="switchTab('approved',this)">Approved</button>
-              <button class="tab-btn" onclick="switchTab('rejected',this)">Rejected</button>
+              <button class="tab-btn active"
+                      onclick="switchTab('pending',this)">Pending</button>
+              <button class="tab-btn"
+                      onclick="switchTab('approved',this)">Approved</button>
+              <button class="tab-btn"
+                      onclick="switchTab('rejected',this)">Rejected</button>
             </div>
           </div>
           <div class="log-card-body">
-            <div id="tab-pending"  class="tab-panel active"><div id="list-pending"></div></div>
-            <div id="tab-approved" class="tab-panel"><div id="list-approved"></div></div>
-            <div id="tab-rejected" class="tab-panel"><div id="list-rejected"></div></div>
+            <div id="tab-pending"  class="tab-panel active">
+              <div id="list-pending"></div>
+            </div>
+            <div id="tab-approved" class="tab-panel">
+              <div id="list-approved"></div>
+            </div>
+            <div id="tab-rejected" class="tab-panel">
+              <div id="list-rejected"></div>
+            </div>
           </div>
         </div>
 
       </div>
 
 
-      <!-- ============ COMPLEX (AI CHATBOT) MODE ============ -->
+      <!-- ======== COMPLEX (AI CHATBOT) MODE ======== -->
       <div id="complex-mode" style="display:none;">
 
         <div class="chat-container">
           <div class="chat-header">
             <div class="chat-header-dot"></div>
             <div class="chat-header-title">HourHero Assistant</div>
-            <div class="chat-header-sub">Understands natural language</div>
+            <div class="chat-header-sub">Describe your volunteer schedule in your own words</div>
           </div>
           <div class="chat-messages" id="chat-messages"></div>
           <div class="chat-input-row">
             <input class="chat-input" type="text" id="chat-input"
-                   placeholder="Describe your volunteering..."
-                   onkeydown="if(event.key==='Enter') sendChat()"/>
+                   placeholder="Describe when and where you volunteered..."
+                   onkeydown="if(event.key==='Enter' && !event.shiftKey) sendChat()"/>
             <button class="chat-send" id="chat-send-btn" onclick="sendChat()">
               <svg viewBox="0 0 24 24">
                 <line x1="22" y1="2" x2="11" y2="13"/>
@@ -407,7 +399,6 @@
         </div>
 
       </div>
-
 
     </div>
   </main>
@@ -446,18 +437,20 @@
       </svg><span>Profile</span>
     </a>
   </nav>
-  <script src="../js/theme.js"></script>
+
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/router.js"></script>
+
   <script>
+
     HH.Router.protect("volunteer");
 
     var _uid        = null;
-    var _joinedOpps = {};    // { opp_id: { title, org_id, org_name } }
+    var _joinedOpps = {};
 
     HH.Router.onReady(function(uid) {
       _uid = uid;
@@ -473,16 +466,16 @@
     // MODE TOGGLE
     // ==================================================
     function setMode(mode) {
-      var isStandard = mode === "standard";
-      document.getElementById("standard-mode").style.display = isStandard ? "block" : "none";
-      document.getElementById("complex-mode").style.display  = isStandard ? "none"  : "block";
-      document.getElementById("btn-standard").classList.toggle("active",  isStandard);
-      document.getElementById("btn-complex").classList.toggle("active", !isStandard);
+      var isStd = mode === "standard";
+      document.getElementById("standard-mode").style.display = isStd ? "block" : "none";
+      document.getElementById("complex-mode").style.display  = isStd ? "none"  : "block";
+      document.getElementById("btn-standard").classList.toggle("active",  isStd);
+      document.getElementById("btn-complex").classList.toggle("active",  !isStd);
     }
 
 
     // ==================================================
-    // STANDARD MODE HELPERS
+    // STANDARD MODE
     // ==================================================
     function setDefaultDate() {
       var today = new Date().toISOString().split("T")[0];
@@ -496,14 +489,12 @@
       });
     }
 
-    // FIX: use Promise.all so all opportunities load reliably
     function loadJoinedOpps(uid) {
       HH.db.ref("users/" + uid + "/joined_opportunities")
         .once("value")
         .then(function(snap) {
           if (!snap.exists() || !snap.val()) return [];
-          var ids = Object.keys(snap.val());
-          return Promise.all(ids.map(function(id) {
+          return Promise.all(Object.keys(snap.val()).map(function(id) {
             return HH.db.ref("opportunities/" + id).once("value");
           }));
         })
@@ -512,15 +503,14 @@
           var sel = document.getElementById("sel-opp");
           snaps.forEach(function(os) {
             if (!os || !os.exists()) return;
-            var o   = os.val();
-            var id  = os.key;
+            var o = os.val(); var id = os.key;
             _joinedOpps[id] = {
               title:    o.title    || "Untitled",
               org_id:   o.org_id   || "",
               org_name: o.org_name || ""
             };
-            var opt       = document.createElement("option");
-            opt.value     = id;
+            var opt = document.createElement("option");
+            opt.value       = id;
             opt.textContent = o.title + (o.org_name ? " — " + o.org_name : "");
             sel.appendChild(opt);
           });
@@ -538,8 +528,7 @@
     }
 
     function toMin(t) {
-      var p = t.split(":");
-      return parseInt(p[0]) * 60 + parseInt(p[1]);
+      var p = t.split(":"); return parseInt(p[0]) * 60 + parseInt(p[1]);
     }
 
     function switchTab(tab, btn) {
@@ -552,46 +541,59 @@
     }
 
     function listenSubmissions(uid) {
-      HH.db.ref("submissions").orderByChild("volunteer_id").equalTo(uid)
-        .on("value", function(snap) {
-          var buckets = { pending: [], approved: [], rejected: [] };
-          snap.forEach(function(c) {
-            var s = c.val();
-            if (buckets[s.status]) buckets[s.status].push(s);
-          });
-          Object.keys(buckets).forEach(function(status) {
-            buckets[status].sort(function(a,b){ return (b.submitted_at||0)-(a.submitted_at||0); });
-            renderLogs(status, buckets[status]);
-          });
+      HH.listenSubmissionsForVolunteer(uid, function(list) {
+        var buckets = { pending: [], approved: [], rejected: [] };
+        list.forEach(function(s) {
+          if (buckets[s.status]) buckets[s.status].push(s);
         });
+        Object.keys(buckets).forEach(function(status) {
+          buckets[status].sort(function(a,b) {
+            return (b.submitted_at||0)-(a.submitted_at||0);
+          });
+          renderLogs(status, buckets[status]);
+        });
+      });
     }
 
     function renderLogs(status, items) {
       var c = document.getElementById("list-" + status);
       if (!c) return;
       if (!items.length) {
-        c.innerHTML = '<div class="empty-state" style="padding:1.5rem 0;">' +
-          '<p style="font-size:0.875rem;color:var(--color-gray-400);">No ' + status + ' submissions.</p></div>';
+        c.innerHTML =
+          '<div class="empty-state" style="padding:1.5rem 0;">' +
+            '<p style="font-size:.875rem;color:var(--text-muted);">' +
+              'No ' + status + ' submissions.' +
+            '</p>' +
+          '</div>';
         return;
       }
       var html = "";
       items.forEach(function(s) {
-        var ds = s.date ? new Date(s.date).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "";
+        var ds = s.date
+          ? new Date(s.date).toLocaleDateString("en-US",
+              {month:"short",day:"numeric",year:"numeric"})
+          : "";
         var rn = status === "rejected" && s.rejection_note
-          ? '<div class="rejection-note">Reason: ' + esc(s.rejection_note) + '</div>' : "";
+          ? '<div class="rejection-note">Reason: ' + esc(s.rejection_note) + '</div>'
+          : "";
         html +=
           '<div class="list-item">' +
             '<div class="list-item-icon"><svg viewBox="0 0 24 24">' +
-            '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>' +
+            '<circle cx="12" cy="12" r="10"/>' +
+            '<polyline points="12 6 12 12 16 14"/></svg></div>' +
             '<div class="list-item-main">' +
-              '<div class="list-item-title">' + esc(s.opportunity_title||"Volunteer hours") + '</div>' +
-              '<div class="list-item-sub">' + esc(s.org_name||"") + (ds?" &middot; "+ds:"") + '</div>' +
+              '<div class="list-item-title">' +
+                esc(s.opportunity_title || "Volunteer hours") +
+              '</div>' +
+              '<div class="list-item-sub">' +
+                esc(s.org_name || "") + (ds ? " &middot; " + ds : "") +
+              '</div>' +
               rn +
             '</div>' +
             '<div class="list-item-end">' +
               '<div class="list-item-hours">' + (s.hours||0) + 'h</div>' +
               '<div class="badge badge-' + status + '" style="margin-top:4px;">' +
-                status.charAt(0).toUpperCase()+status.slice(1) +
+                status.charAt(0).toUpperCase() + status.slice(1) +
               '</div>' +
             '</div>' +
           '</div>';
@@ -610,8 +612,10 @@
 
       if (!oppId)  return showFormMsg("error","Please select an opportunity.");
       if (!date)   return showFormMsg("error","Please select a date.");
-      if (new Date(date) > new Date()) return showFormMsg("error","Date cannot be in the future.");
-      if (!start || !end) return showFormMsg("error","Please enter start and end times.");
+      if (new Date(date) > new Date())
+        return showFormMsg("error","Date cannot be in the future.");
+      if (!start || !end)
+        return showFormMsg("error","Please enter start and end times.");
       var diff = toMin(end) - toMin(start);
       if (diff <= 0) return showFormMsg("error","End time must be after start time.");
       var hours = diff / 60;
@@ -622,22 +626,19 @@
       var btn = document.getElementById("btn-submit");
       btn.disabled = true; btn.textContent = "Submitting...";
 
-      // Duplicate check
-      HH.db.ref("submissions").orderByChild("volunteer_id").equalTo(_uid)
-        .once("value").then(function(snap) {
+      HH.listSubmissionsForVolunteer(_uid)
+        .then(function(list) {
           var dup = false;
-          snap.forEach(function(c) {
-            var s = c.val();
+          list.forEach(function(s) {
             if (s.opportunity_id === oppId && s.date === date &&
                 (s.status === "pending" || s.status === "approved")) dup = true;
           });
-
           if (dup) {
             btn.disabled = false; btn.textContent = "Submit for approval";
-            return showFormMsg("error","You already have an entry for this opportunity on this date.");
+            return showFormMsg("error",
+              "You already have an entry for this opportunity on this date.");
           }
-
-          var key    = HH.db.ref("submissions").push().key;
+          var key = HH.db.ref("submissions").push().key;
           var record = {
             submission_id: key, volunteer_id: _uid,
             opportunity_id: oppId, opportunity_title: opp.title||"",
@@ -647,7 +648,6 @@
             description: desc, status: "pending",
             submitted_at: HH.TIMESTAMP
           };
-
           return HH.db.ref("users/" + _uid + "/pending_count").once("value")
             .then(function(pc) {
               var u = {};
@@ -677,32 +677,40 @@
       var bd = type==="error" ? "var(--color-danger-border)"  : "var(--color-success-border)";
       document.getElementById("form-msg").innerHTML =
         '<div style="background:'+bg+';color:'+co+';border:1px solid '+bd+
-        ';border-radius:var(--radius-md);padding:.7rem .9rem;font-size:.875rem;font-weight:500;margin-bottom:1rem;">' +
+        ';border-radius:var(--radius-md);padding:.7rem .9rem;' +
+        'font-size:.875rem;font-weight:500;margin-bottom:1rem;">' +
         esc(text) + '</div>';
     }
 
-    function clearFormMsg() { document.getElementById("form-msg").innerHTML = ""; }
+    function clearFormMsg() {
+      document.getElementById("form-msg").innerHTML = "";
+    }
 
 
     // ==================================================
     // COMPLEX (AI CHATBOT) MODE
     // ==================================================
-    // This is a smart rule-based assistant that guides the user
-    // through logging hours using natural language. It parses
-    // dates, times and hours without needing an external API,
-    // so it works 100% locally without any API key.
+    // Volunteer-first assistant: interprets natural-language
+    // schedules, collects missing fields, ONE Firebase entry
+    // per schedule. Off-topic questions get a short answer,
+    // then the bot resumes collecting log details.
+    // JSON envelopes (<<<JSON>>> ... <<<END>>>) drive confirm/submit.
     // ==================================================
 
     var chatState = {
-      step: "greeting",   // greeting | org | date | hours | description | confirm | done
-      oppId:    null,
-      oppTitle: null,
-      orgId:    null,
-      orgName:  null,
-      dates:    [],
-      totalHours: 0,
-      description: null
+      step:          "open",   // open | collecting | confirm | done
+      loggingActive: false,    // true while gathering one schedule
+      oppId:         null,
+      oppTitle:      null,
+      orgId:         null,
+      orgName:       null,
+      dates:         [],
+      totalHours:    0,
+      description:   null
     };
+
+    // Full conversation history sent to the API each turn
+    var chatHistory = [];
 
     var _userAvatar = "ME";
 
@@ -711,10 +719,82 @@
         _userAvatar = ini(s.val() || "ME");
       });
 
+      // Build the system prompt once joined opps are known
+      // We wait 600ms so _joinedOpps has time to populate
       setTimeout(function() {
-        botMsg("Hi! I'm your volunteer logging assistant. I'll help you log your hours in a few quick steps.\n\nWhich organization or opportunity were you volunteering with?");
-        chatState.step = "org";
-      }, 400);
+        buildSystemPrompt();
+        botMsg(
+          "Hi! I help you log volunteer hours. Describe your schedule in your own " +
+          "words — even if it's unusual (e.g. \"every other Saturday in March, " +
+          "about 3 hours\" or \"Tuesdays and Thursdays last week, 2–4pm\").\n\n" +
+          "I'll turn it into one log entry and ask only for what's missing. " +
+          "If you go off-topic mid-way, I'll answer briefly and come back to your hours.\n\n" +
+          "What volunteering would you like to log?"
+        );
+      }, 700);
+    }
+
+    // Build the system prompt that governs Claude's behaviour
+    var _systemPrompt = "";
+
+    function buildSystemPrompt() {
+      var oppList = Object.keys(_joinedOpps).map(function(id) {
+        var o = _joinedOpps[id];
+        return "- ID:" + id + " | " + o.title + " | org: " + (o.org_name||"Unknown");
+      }).join("\n");
+
+      _systemPrompt =
+        "You are the HourHero volunteer logging assistant. Your main job is to help " +
+        "students log volunteer hours by understanding natural, casual, or unusual schedules.\n\n" +
+
+        "=== ONE ENTRY PER SCHEDULE (critical) ===\n" +
+        "- Each volunteering SCHEDULE the user is logging becomes exactly ONE log entry in Firebase.\n" +
+        "- A schedule = one continuous volunteering period they describe (even if it spans multiple days).\n" +
+        "- Put ALL dates for that schedule in the JSON \"dates\" array; \"hours\" is the TOTAL hours across those dates.\n" +
+        "- Never create multiple confirm/submit JSON blocks in one reply. Never split one schedule into several entries.\n" +
+        "- If the user describes TWO unrelated schedules (different places/opportunities or clearly separate stints), " +
+        "say you'll log them one at a time, finish the first with ONE confirm JSON, then start the second after submit.\n\n" +
+
+        "=== INTERPRETING UNUSUAL SCHEDULES ===\n" +
+        "- Parse fuzzy language: \"last few Tuesdays\", \"every other weekend in April\", \"9–1 on and off\", " +
+        "\"about 4 hours total\", \"half days Monday–Wednesday\".\n" +
+        "- Infer dates from context using today's date below; ask if ambiguous.\n" +
+        "- Sum hours correctly for multi-day schedules into a single total.\n" +
+        "- The user can ONLY log hours for opportunities they have JOINED (see list below).\n" +
+        "- NEVER invent a new opportunity, org, or opp_id. opp_id in JSON MUST be an exact ID from JOINED OPPORTUNITIES.\n" +
+        "- If the user names a place not in the joined list, tell them to open Explore, join that opportunity first, then come back to log hours.\n" +
+        "- Match by title/org keywords only among JOINED opportunities; ask which one if unclear.\n" +
+        "- Fields required before confirm: valid joined opp_id, date(s), total hours, short description.\n\n" +
+
+        "=== COLLECTION FLOW ===\n" +
+        "- When the user starts describing volunteer work, treat logging as ACTIVE until confirm is submitted or cancelled.\n" +
+        "- Ask for one missing field at a time; do not repeat fields you already have.\n" +
+        "- When ALL fields are ready for the current schedule, show a brief summary in visible text, then append:\n" +
+        "<<<JSON>>>\n" +
+        "{\"action\":\"confirm\",\"opp_id\":\"ID\",\"opp_title\":\"...\",\"org_id\":\"...\",\"org_name\":\"...\"," +
+        "\"dates\":[\"YYYY-MM-DD\"],\"hours\":3.5,\"description\":\"...\"}\n" +
+        "<<<END>>>\n" +
+        "- After user confirms in chat: <<<JSON>>>\n{\"action\":\"submit\"}\n<<<END>>>\n" +
+        "- If user cancels: <<<JSON>>>\n{\"action\":\"cancel\"}\n<<<END>>>\n\n" +
+
+        "=== OFF-TOPIC QUESTIONS (during logging) ===\n" +
+        "- If the user asks something unrelated WHILE you are collecting volunteer info (or they pivoted mid-flow):\n" +
+        "  1) Give a clear, helpful answer or clarification to their question (brief).\n" +
+        "  2) In the same message, gently return to logging: remind what you still need OR repeat the last question.\n" +
+        "- Do NOT refuse off-topic questions; answer them, then steer back.\n" +
+        "- Do NOT emit confirm JSON until the current schedule has all required fields.\n" +
+        "- If they were not logging yet and only ask off-topic, answer helpfully and invite them to describe volunteer hours when ready.\n\n" +
+
+        "=== STYLE ===\n" +
+        "- Warm, concise, mobile-friendly.\n" +
+        "- JSON envelopes are hidden from the user; never mention JSON to them.\n\n" +
+
+        "JOINED OPPORTUNITIES (use these IDs in confirm JSON):\n" +
+        (oppList || "None yet — user hasn't joined any opportunities.") + "\n\n" +
+
+        "Today's date: " + new Date().toLocaleDateString("en-US", {
+          weekday:"long", year:"numeric", month:"long", day:"numeric"
+        });
     }
 
     function sendChat() {
@@ -725,246 +805,347 @@
       input.value = "";
       addMsg("user", text);
 
+      if (chatState.step === "open" || chatState.step === "collecting") {
+        if (looksLikeVolunteering(text)) {
+          chatState.loggingActive = true;
+          chatState.step = "collecting";
+        }
+      }
+
+      chatHistory.push({ role: "user", content: text });
+
+      // Hint to the model when user is mid logging flow
+      if (chatState.loggingActive && chatState.step !== "confirm") {
+        chatHistory[chatHistory.length - 1].content =
+          text + "\n\n[System note: Volunteer logging is in progress for ONE schedule. " +
+          "If this message is off-topic, answer it briefly then ask for the next missing log detail. " +
+          "Do not emit confirm JSON until opportunity, dates, total hours, and description are complete.]";
+      }
+
       document.getElementById("chat-send-btn").disabled = true;
       showTyping();
 
-      setTimeout(function() {
+      callClaude().then(function(reply) {
         removeTyping();
         document.getElementById("chat-send-btn").disabled = false;
-        processInput(text);
-      }, 600 + Math.random() * 400);
-    }
-
-    function processInput(text) {
-      var lower = text.toLowerCase();
-
-      // Off-topic detection (questions not related to volunteering)
-      var offTopic = isOffTopic(lower, chatState.step);
-      if (offTopic) {
-        botMsg("That's a bit outside my area as a logging assistant, but happy to help briefly! " +
-          offTopic + "\n\nNow, let's get back to logging — " + stepPrompt(chatState.step));
-        return;
-      }
-
-      switch (chatState.step) {
-        case "org":        handleOrg(text); break;
-        case "date":       handleDate(text); break;
-        case "hours":      handleHours(text); break;
-        case "description":handleDescription(text); break;
-        case "confirm":    handleConfirm(lower); break;
-      }
-    }
-
-    // ---- Step handlers ----
-
-    function handleOrg(text) {
-      var oppIds = Object.keys(_joinedOpps);
-      if (!oppIds.length) {
-        botMsg("I don't see any joined opportunities on your account yet. Please join one from the Explore page first, then come back to log your hours.");
-        return;
-      }
-
-      // Try to find a match in joined opportunities
-      var lower  = text.toLowerCase();
-      var best   = null;
-      var bestScore = 0;
-
-      oppIds.forEach(function(id) {
-        var o     = _joinedOpps[id];
-        var title = (o.title + " " + o.org_name).toLowerCase();
-        var words = lower.split(/\s+/);
-        var score = 0;
-        words.forEach(function(w) { if (w.length > 2 && title.indexOf(w) !== -1) score++; });
-        if (score > bestScore) { bestScore = score; best = id; }
+        handleClaudeReply(reply);
+      }).catch(function(err) {
+        removeTyping();
+        document.getElementById("chat-send-btn").disabled = false;
+        botMsg("Sorry, I had trouble connecting. Please check your internet and try again.\n(" + err.message + ")");
       });
-
-      if (best && bestScore > 0) {
-        var o = _joinedOpps[best];
-        chatState.oppId    = best;
-        chatState.oppTitle = o.title;
-        chatState.orgId    = o.org_id;
-        chatState.orgName  = o.org_name;
-        chatState.step     = "date";
-        botMsg('Got it — "' + o.title + '" with ' + (o.org_name || "your organization") +
-          '.\n\nWhat date(s) did you volunteer? You can give me a single date, multiple dates, or a range (e.g. "Jan 5", "1/5 and 1/6", "Jan 3-5").');
-      } else {
-        // Show list of joined opportunities
-        var list = oppIds.map(function(id, i) {
-          return (i+1) + ". " + _joinedOpps[id].title + " — " + (_joinedOpps[id].org_name||"");
-        }).join("\n");
-        botMsg("I couldn't find a match. Here are your joined opportunities:\n\n" + list + "\n\nWhich one applies?");
-      }
     }
 
-    function handleDate(text) {
-      var dates = parseDates(text);
-      if (!dates.length) {
-        botMsg("I couldn't pick out a date from that. Could you try a format like \"January 15\", \"1/15/2025\", or \"today\"?");
-        return;
-      }
-
-      chatState.dates = dates;
-      chatState.step  = "hours";
-
-      var dStr = dates.map(function(d) {
-        return new Date(d + "T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
-      }).join(", ");
-
-      botMsg("Perfect — " + (dates.length > 1 ? "dates: " : "date: ") + dStr + ".\n\n" +
-        "How many hours did you volunteer? You can give me a start and end time (e.g. \"9am to 1pm\"), total hours (e.g. \"3.5 hours\"), or separate hours per day if multiple dates.");
+    // Chat via local server proxy (npm start) — uses free Gemini API key in .env
+    function callClaude() {
+      return fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system:   _systemPrompt,
+          messages: chatHistory
+        })
+      })
+      .then(function(res) {
+        return res.json().then(function(data) {
+          if (!res.ok) {
+            throw new Error(data.error || ("API error " + res.status));
+          }
+          return data;
+        });
+      })
+      .then(function(data) {
+        var text = (data.content || [])
+          .filter(function(b) { return b.type === "text"; })
+          .map(function(b) { return b.text; })
+          .join("");
+        return text;
+      });
     }
 
-    function handleHours(text) {
-      var hours = parseHours(text);
-      if (!hours || hours <= 0) {
-        botMsg("I couldn't figure out the hours from that. Try something like \"3 hours\", \"9am to 1pm\", or \"2.5 hours per day\".");
-        return;
+    // Parse Claude's reply — extract any JSON envelope, show the visible text
+    function handleClaudeReply(fullReply) {
+      var jsonMatch = fullReply.match(/<<<JSON>>>\s*([\s\S]*?)\s*<<<END>>>/);
+      var visibleText = fullReply
+        .replace(/<<<JSON>>>[\s\S]*?<<<END>>>/g, "")
+        .trim();
+
+      // Add to history using full reply (including JSON) so Claude remembers context
+      chatHistory.push({ role: "assistant", content: fullReply });
+
+      if (jsonMatch) {
+        var envelope;
+        try { envelope = JSON.parse(jsonMatch[1].trim()); } catch(e) { envelope = null; }
+
+        if (envelope) {
+          if (envelope.action === "confirm") {
+            if (chatState.step === "confirm") {
+              if (visibleText) botMsg(visibleText);
+              return;
+            }
+
+            var resolved = resolveJoinedOpp(envelope);
+            if (!resolved) {
+              if (visibleText) botMsg(visibleText);
+              botMsg(
+                "I can't submit this yet — \"" + (envelope.opp_title || "that opportunity") +
+                "\" isn't in your joined opportunities.\n\n" +
+                "Go to the Explore tab, find the opportunity, tap Join, then tell me again what you did."
+              );
+              return;
+            }
+
+            chatState.loggingActive = true;
+            chatState.oppId       = resolved.id;
+            chatState.oppTitle    = resolved.title;
+            chatState.orgId       = resolved.org_id;
+            chatState.orgName     = resolved.org_name;
+            chatState.dates       = envelope.dates       || [];
+            chatState.totalHours  = envelope.hours       || 0;
+            chatState.description = envelope.description || "";
+            chatState.step        = "confirm";
+
+            if (visibleText) botMsg(visibleText);
+            else botMsg("Here's a summary of the entry I'm about to create:");
+            showConfirmCard();
+            return;
+
+          } else if (envelope.action === "submit") {
+            submitFromChat();
+            return;
+
+          } else if (envelope.action === "cancel") {
+            resetChatState();
+            if (visibleText) botMsg(visibleText);
+            else botMsg("No problem — entry cancelled. Describe another volunteer schedule when you're ready.");
+            return;
+          }
+        }
       }
 
-      // If multiple dates and hours mentioned per day, multiply
-      if (chatState.dates.length > 1 && /per day|each day|daily/i.test(text)) {
-        hours = hours * chatState.dates.length;
-      }
-
-      // Cap reasonably
-      if (hours > chatState.dates.length * 12) {
-        botMsg("That seems like a lot of hours. Did you mean " + (chatState.dates.length > 1 ? hours / chatState.dates.length + " hours per day?" : "something less?") + " Please clarify.");
-        return;
-      }
-
-      chatState.totalHours = Math.round(hours * 4) / 4; // round to nearest 0.25
-      chatState.step       = "description";
-
-      botMsg("Great — " + chatState.totalHours + " hour" + (chatState.totalHours !== 1 ? "s" : "") + " total.\n\nCan you briefly describe what you did? (1–2 sentences, so the organization knows what you worked on)");
+      if (visibleText) botMsg(visibleText);
     }
 
-    function handleDescription(text) {
-      if (text.length < 5) {
-        botMsg("Can you give me a little more detail? Even a short sentence helps the organization understand what you did.");
-        return;
+    // Map AI envelope to a real joined opportunity (required for Firebase writes)
+    function resolveJoinedOpp(envelope) {
+      var id = String(envelope.opp_id || "").trim();
+      if (id && _joinedOpps[id]) {
+        var o = _joinedOpps[id];
+        return {
+          id:        id,
+          title:     o.title    || "",
+          org_id:    o.org_id   || "",
+          org_name:  o.org_name || ""
+        };
       }
 
-      chatState.description = text;
-      chatState.step        = "confirm";
+      var needle = String(envelope.opp_title || envelope.opp_id || "")
+        .toLowerCase().trim();
+      if (!needle) return null;
 
-      var dStr = chatState.dates.map(function(d) {
-        return new Date(d + "T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
-      }).join(", ");
+      var keys = Object.keys(_joinedOpps);
+      for (var i = 0; i < keys.length; i++) {
+        var k = keys[i];
+        var o2 = _joinedOpps[k];
+        var title = (o2.title    || "").toLowerCase();
+        var org   = (o2.org_name || "").toLowerCase();
+        if (title === needle || org === needle ||
+            title.indexOf(needle) >= 0 || needle.indexOf(title) >= 0 ||
+            (org && (org.indexOf(needle) >= 0 || needle.indexOf(org) >= 0))) {
+          return {
+            id:        k,
+            title:     o2.title    || "",
+            org_id:    o2.org_id   || "",
+            org_name:  o2.org_name || ""
+          };
+        }
+      }
+      return null;
+    }
 
-      var mainDate = chatState.dates[chatState.dates.length - 1];
+    function looksLikeVolunteering(text) {
+      if (!text) return false;
+      var t = text.toLowerCase();
+      return /volunteer|hours|log|shift|food bank|shelter|tutor|helped|worked at|opportunity|joined/.test(t)
+        || /\d+\s*(am|pm|hour|hr)/.test(t)
+        || /\b(mon|tue|wed|thu|fri|sat|sun|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/.test(t);
+    }
 
-      // Show confirmation card
+    // Show the confirmation card inside the chat
+    function showConfirmCard() {
+      var dStr = (chatState.dates || []).map(function(d) {
+        return new Date(d + "T12:00:00").toLocaleDateString("en-US",
+          {month:"short", day:"numeric", year:"numeric"});
+      }).join(", ") || "Not specified";
+
       var cardHTML =
         '<div class="confirm-card">' +
-          '<div style="font-size:0.85rem;font-weight:700;color:var(--color-gray-900);margin-bottom:8px;">Review your entry</div>' +
-          row("Opportunity", esc(chatState.oppTitle||"")) +
-          row("Organization", esc(chatState.orgName||"")) +
-          row("Date(s)", esc(dStr)) +
-          row("Total hours", chatState.totalHours + "h") +
-          row("Description", esc(chatState.description)) +
+          '<div style="font-size:0.85rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Review this schedule (1 log entry)</div>' +
+          confRow("Opportunity", esc(chatState.oppTitle || "Unknown")) +
+          confRow("Organization", esc(chatState.orgName || "Unknown")) +
+          confRow("Date(s)", esc(dStr)) +
+          confRow("Total hours", (chatState.totalHours || 0) + "h") +
+          confRow("Description", esc(chatState.description || "")) +
           '<div class="confirm-actions">' +
-            '<button class="btn btn-sm btn-success" onclick="confirmSubmit()">Confirm &amp; submit</button>' +
-            '<button class="btn btn-sm btn-secondary" onclick="cancelConfirm()">Edit</button>' +
+            '<button class="btn btn-sm btn-success" onclick="submitFromChat()">Confirm &amp; submit</button>' +
+            '<button class="btn btn-sm btn-secondary" onclick="cancelFromChat()">Cancel</button>' +
           '</div>' +
         '</div>';
 
-      addBotHTML("Does everything look right?" , cardHTML);
+      addBotHTML("", cardHTML);
     }
 
-    function handleConfirm(lower) {
-      if (/yes|confirm|submit|looks good|correct|right/i.test(lower)) {
-        confirmSubmit();
-      } else if (/no|edit|change|wrong/i.test(lower)) {
-        cancelConfirm();
-      } else {
-        botMsg('Just say "confirm" to submit, or "edit" to start over.');
-      }
+    function confRow(label, val) {
+      return '<div class="confirm-row">' +
+        '<span class="confirm-row-label">' + label + '</span>' +
+        '<span class="confirm-row-val">'   + val   + '</span>' +
+      '</div>';
     }
 
-    // ---- Submit from chatbot ----
-    function confirmSubmit() {
-      if (!chatState.oppId || !chatState.dates.length || !chatState.totalHours) {
-        botMsg("Something is missing. Let me start over — which opportunity were you volunteering with?");
-        chatState.step = "org";
+    // Submit exactly ONE log entry for the current schedule
+    function submitFromChat() {
+      if (chatState.step === "done") return;
+
+      var resolved = resolveJoinedOpp({
+        opp_id:    chatState.oppId,
+        opp_title: chatState.oppTitle
+      });
+
+      if (!resolved || !chatState.dates.length || !chatState.totalHours) {
+        botMsg(
+          "I can't submit — please join the opportunity on the Explore page first, " +
+          "then log your hours again."
+        );
+        resetChatState();
         return;
       }
 
-      var mainDate = chatState.dates[chatState.dates.length - 1];
+      document.querySelectorAll(".confirm-actions button").forEach(function(b) {
+        b.disabled = true;
+      });
 
-      var key    = HH.db.ref("submissions").push().key;
-      var record = {
+      var mainDate = chatState.dates[chatState.dates.length - 1];
+      var key      = HH.db.ref("submissions").push().key;
+      var record   = {
         submission_id:     key,
         volunteer_id:      _uid,
-        opportunity_id:    chatState.oppId,
-        opportunity_title: chatState.oppTitle || "",
-        org_id:            chatState.orgId    || "",
-        org_name:          chatState.orgName  || "",
+        opportunity_id:    resolved.id,
+        opportunity_title: resolved.title,
+        org_id:            resolved.org_id,
+        org_name:          resolved.org_name,
         date:              mainDate,
         dates_covered:     chatState.dates.join(", "),
-        hours:             chatState.totalHours,
-        description:       chatState.description,
+        hours:             parseFloat(chatState.totalHours),
+        description:       chatState.description || "",
         status:            "pending",
         submitted_at:      HH.TIMESTAMP
       };
 
-      // Disable confirm button
-      var btns = document.querySelectorAll(".confirm-actions button");
-      btns.forEach(function(b) { b.disabled = true; });
-
-      HH.db.ref().update({ ["submissions/" + key]: record })
+      HH.listSubmissionsForVolunteer(_uid)
+        .then(function(list) {
+          var dup = false;
+          list.forEach(function(s) {
+            if (s.opportunity_id === resolved.id && s.date === mainDate &&
+                (s.status === "pending" || s.status === "approved")) {
+              dup = true;
+            }
+          });
+          if (dup) {
+            throw new Error("DUPLICATE");
+          }
+          return HH.db.ref("users/" + _uid + "/pending_count").once("value");
+        })
+        .then(function(pc) {
+          var updates = {};
+          updates["submissions/" + key]               = record;
+          updates["users/" + _uid + "/pending_count"] = (pc.val() || 0) + 1;
+          return HH.db.ref().update(updates);
+        })
         .then(function() {
           chatState.step = "done";
-          botMsg("Your hours have been submitted for approval! You can track the status on the Standard tab.\n\nWant to log more hours? Just refresh the page.");
-          // Reset state for next entry
-          chatState = { step: "org", oppId: null, oppTitle: null, orgId: null, orgName: null, dates: [], totalHours: 0, description: null };
+          botMsg(
+            "Done! One log entry (" + chatState.totalHours + " hour" +
+            (chatState.totalHours !== 1 ? "s" : "") +
+            " total) was submitted for approval. Check the Standard tab for status.\n\n" +
+            "Have another separate schedule to log? Describe it and we'll do one entry at a time."
+          );
+          resetChatState();
         })
         .catch(function(err) {
-          btns.forEach(function(b) { b.disabled = false; });
-          botMsg("Something went wrong submitting: " + err.message + ". Please try again.");
+          document.querySelectorAll(".confirm-actions button").forEach(function(b) {
+            b.disabled = false;
+          });
+          if (err.message === "DUPLICATE") {
+            botMsg("You already have a pending or approved entry for that opportunity on that date.");
+            resetChatState();
+            return;
+          }
+          var msg = err.message || "Unknown error";
+          if (msg.indexOf("PERMISSION_DENIED") >= 0) {
+            botMsg(
+              "Permission denied — your account couldn't save to the database.\n\n" +
+              "Ask your admin to publish the rules in database.rules.json to Firebase " +
+              "(Realtime Database → Rules), then try again. Also make sure you joined " +
+              "this opportunity on the Explore page first."
+            );
+          } else {
+            botMsg("Something went wrong: " + msg + ". Please try again.");
+          }
         });
     }
 
-    function cancelConfirm() {
-      chatState = { step: "org", oppId: null, oppTitle: null, orgId: null, orgName: null, dates: [], totalHours: 0, description: null };
-      botMsg("No problem — let's start over. Which opportunity were you volunteering with?");
+    function cancelFromChat() {
+      resetChatState();
+      // Add a cancel message to history so Claude knows the entry was cancelled
+      chatHistory.push({
+        role: "user",
+        content: "(User cancelled the submission entry)"
+      });
+      botMsg("Entry cancelled. When you're ready, describe the volunteer schedule you'd like to log.");
+    }
+
+    function resetChatState() {
+      chatState = {
+        step: "open", loggingActive: false,
+        oppId: null, oppTitle: null,
+        orgId: null, orgName: null,
+        dates: [], totalHours: 0, description: null
+      };
     }
 
 
     // ---- Chat UI helpers ----
-
     function addMsg(role, text) {
-      var msgs = document.getElementById("chat-messages");
-      var isBot = role === "bot";
-      var lines = text.split("\n").map(function(l) {
+      var msgs   = document.getElementById("chat-messages");
+      var isBot  = role === "bot";
+      var lines  = text.split("\n").map(function(l) {
         return l ? '<span>' + esc(l) + '</span>' : '<br/>';
       }).join("");
 
-      var html =
+      msgs.insertAdjacentHTML("beforeend",
         '<div class="msg ' + role + '">' +
           '<div class="msg-avatar">' + (isBot ? "AI" : _userAvatar) + '</div>' +
           '<div class="msg-bubble">' + lines + '</div>' +
-        '</div>';
-
-      msgs.insertAdjacentHTML("beforeend", html);
+        '</div>'
+      );
       msgs.scrollTop = msgs.scrollHeight;
     }
 
     function addBotHTML(text, extraHTML) {
-      var msgs = document.getElementById("chat-messages");
+      var msgs  = document.getElementById("chat-messages");
       var lines = text.split("\n").map(function(l) {
         return l ? '<span>' + esc(l) + '</span>' : '<br/>';
       }).join("");
 
-      var html =
+      msgs.insertAdjacentHTML("beforeend",
         '<div class="msg bot">' +
           '<div class="msg-avatar">AI</div>' +
           '<div>' +
-            '<div class="msg-bubble">' + lines + '</div>' +
+            (text ? '<div class="msg-bubble">' + lines + '</div>' : '') +
             extraHTML +
           '</div>' +
-        '</div>';
-
-      msgs.insertAdjacentHTML("beforeend", html);
+        '</div>'
+      );
       msgs.scrollTop = msgs.scrollHeight;
     }
 
@@ -975,12 +1156,13 @@
       msgs.insertAdjacentHTML("beforeend",
         '<div class="msg bot" id="typing-indicator">' +
           '<div class="msg-avatar">AI</div>' +
-          '<div class="msg-bubble" style="padding:0.5rem 0.875rem;">' +
+          '<div class="msg-bubble" style="padding:.5rem .875rem;">' +
             '<span class="typing-dot"></span>' +
             '<span class="typing-dot"></span>' +
             '<span class="typing-dot"></span>' +
           '</div>' +
-        '</div>');
+        '</div>'
+      );
       msgs.scrollTop = msgs.scrollHeight;
     }
 
@@ -989,159 +1171,21 @@
       if (el) el.remove();
     }
 
-    function row(label, val) {
-      return '<div class="confirm-row">' +
-        '<span class="confirm-row-label">' + label + '</span>' +
-        '<span class="confirm-row-val">' + val + '</span>' +
-      '</div>';
-    }
 
-    function stepPrompt(step) {
-      var prompts = {
-        org:         "which opportunity were you volunteering with?",
-        date:        "what date(s) did you volunteer?",
-        hours:       "how many hours did you volunteer?",
-        description: "can you describe what you did in 1–2 sentences?",
-        confirm:     "does the entry look correct?"
-      };
-      return prompts[step] || "shall we continue logging your hours?";
-    }
-
-
-    // ---- Parsers ----
-
-    function parseDates(text) {
-      var dates = [];
-      var now   = new Date();
-      var year  = now.getFullYear();
-
-      // today / yesterday / tomorrow
-      var rel = { today: 0, yesterday: -1, tomorrow: 1 };
-      Object.keys(rel).forEach(function(k) {
-        if (text.toLowerCase().indexOf(k) !== -1) {
-          var d = new Date(now);
-          d.setDate(d.getDate() + rel[k]);
-          dates.push(toYMD(d));
-        }
-      });
-
-      if (dates.length) return dates;
-
-      // MM/DD/YYYY or MM/DD/YY or MM/DD
-      var slashRe = /\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/g;
-      var m;
-      while ((m = slashRe.exec(text)) !== null) {
-        var mo = parseInt(m[1]), da = parseInt(m[2]);
-        var yr = m[3] ? (m[3].length === 2 ? 2000+parseInt(m[3]) : parseInt(m[3])) : year;
-        if (mo >= 1 && mo <= 12 && da >= 1 && da <= 31) {
-          dates.push(yr + "-" + pad(mo) + "-" + pad(da));
-        }
-      }
-
-      if (dates.length) return unique(dates);
-
-      // Month name day [year]
-      var months = ["january","february","march","april","may","june",
-                    "july","august","september","october","november","december"];
-      var abbr   = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
-
-      months.forEach(function(mon, mi) {
-        var rx = new RegExp("\\b(" + mon + "|" + abbr[mi] + "\\.?)\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:[,\\s]+(\\d{4}))?\\b", "gi");
-        while ((m = rx.exec(text)) !== null) {
-          var da = parseInt(m[2]);
-          var yr = m[3] ? parseInt(m[3]) : year;
-          if (da >= 1 && da <= 31) dates.push(yr + "-" + pad(mi+1) + "-" + pad(da));
-        }
-      });
-
-      // Date range: "Jan 3-5" or "Jan 3 to 5"
-      var rangeRe = /\b(\w+ \d{1,2})\s*(?:-|to)\s*(\d{1,2})\b/gi;
-      while ((m = rangeRe.exec(text)) !== null) {
-        var startDates = parseDates(m[1]);
-        if (startDates.length) {
-          var base    = new Date(startDates[0] + "T12:00:00");
-          var endDay  = parseInt(m[2]);
-          var startDay = base.getDate();
-          for (var d = startDay; d <= endDay; d++) {
-            var nd = new Date(base.getFullYear(), base.getMonth(), d);
-            dates.push(toYMD(nd));
-          }
-        }
-      }
-
-      return unique(dates);
-    }
-
-    function parseHours(text) {
-      // "X to Y" time range
-      var timeRe = /\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*(?:to|-)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i;
-      var m = timeRe.exec(text);
-      if (m) {
-        var h1 = parseInt(m[1]), m1 = parseInt(m[2]||0), p1 = (m[3]||"").toLowerCase();
-        var h2 = parseInt(m[4]), m2 = parseInt(m[5]||0), p2 = (m[6]||"").toLowerCase();
-        if (p1 === "pm" && h1 < 12) h1 += 12;
-        if (p1 === "am" && h1 === 12) h1 = 0;
-        if (p2 === "pm" && h2 < 12) h2 += 12;
-        if (p2 === "am" && h2 === 12) h2 = 0;
-        var diff = (h2 * 60 + m2) - (h1 * 60 + m1);
-        if (diff > 0) return diff / 60;
-      }
-
-      // "X.Y hours" / "X hours" / "X hr"
-      var numRe = /(\d+(?:\.\d+)?)\s*(?:hours?|hrs?|h\b)/i;
-      m = numRe.exec(text);
-      if (m) return parseFloat(m[1]);
-
-      // Fraction: "half an hour" = 0.5
-      if (/half\s+an?\s+hour/i.test(text)) return 0.5;
-      if (/quarter\s+(?:of\s+an?\s+)?hour/i.test(text)) return 0.25;
-
-      // Plain number as last resort
-      m = /\b(\d+(?:\.\d+)?)\b/.exec(text);
-      if (m) return parseFloat(m[1]);
-
-      return null;
-    }
-
-    function isOffTopic(lower, step) {
-      // Detect obvious off-topic patterns and return a brief response string
-      if (/what(?:'s| is) the weather|weather (?:like|today|forecast)/i.test(lower)) {
-        return "I can't check the weather, but you can look it up on your weather app!";
-      }
-      if (/(?:who|what) is|tell me about|explain|how do(?:es)?(?! volunteering)/i.test(lower) &&
-          !/volunteer|org|hour|time|date|log|submit/i.test(lower)) {
-        return "That's a general knowledge question — I'd recommend searching online for the best answer.";
-      }
-      if (/joke|funny|game/i.test(lower)) {
-        return "I'm just a logging assistant, so jokes are a bit out of scope for me!";
-      }
-      return null;
-    }
-
-
-    // ---- Utilities ----
-    function toYMD(d) {
-      return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
-    }
-
-    function pad(n) { return n < 10 ? "0" + n : "" + n; }
-
-    function unique(arr) {
-      var seen = {};
-      return arr.filter(function(x) {
-        if (seen[x]) return false;
-        seen[x] = true; return true;
-      });
-    }
-
+    // ---- Shared utilities ----
     function ini(n) {
-      var p = (n||"HH").trim().split(" ");
-      return p.length===1 ? p[0][0].toUpperCase() : (p[0][0]+p[1][0]).toUpperCase();
+      var p = (n || "HH").trim().split(" ");
+      return p.length === 1
+        ? p[0][0].toUpperCase()
+        : (p[0][0] + p[1][0]).toUpperCase();
     }
 
     function esc(s) {
-      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      return String(s)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
     }
+
   </script>
 </body>
 </html>

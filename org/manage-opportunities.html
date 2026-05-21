@@ -194,21 +194,10 @@
 
 
     function loadOpportunities(uid) {
-      HH.db.ref("opportunities")
-        .orderByChild("org_id")
-        .equalTo(uid)
-        .on("value", function (snap) {
-          _opps = [];
-          snap.forEach(function (c) {
-            var o = c.val();
-            o._key = c.key;
-            _opps.push(o);
-          });
-          _opps.sort(function (a, b) {
-            return (b.created_at || 0) - (a.created_at || 0);
-          });
-          renderList();
-        });
+      HH.listenOpportunitiesForOrg(uid, function (list) {
+        _opps = list;
+        renderList();
+      });
     }
 
 

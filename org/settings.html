@@ -4,10 +4,11 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HourHero — Organization Settings</title>
+  <script src="../js/theme.js"></script>
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
-    body { background: var(--color-gray-100); }
+    body { background: var(--bg-page); }
     .org-main { margin-left:220px; padding:var(--space-8); min-height:100vh; }
     @media(max-width:640px){
       .org-main { margin-left:0; padding:var(--space-4);
@@ -15,8 +16,8 @@
     }
     .settings-max { max-width: 560px; }
     .profile-header {
-      background: var(--color-white);
-      border: 1px solid var(--color-gray-200);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
       padding: var(--space-5);
       display: flex;
@@ -37,8 +38,8 @@
       flex-shrink: 0;
     }
     .settings-section {
-      background: var(--color-white);
-      border: 1px solid var(--color-gray-200);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
       overflow: hidden;
       margin-bottom: var(--space-4);
@@ -46,34 +47,34 @@
     .settings-section-title {
       font-size: 0.75rem;
       font-weight: 700;
-      color: var(--color-gray-500);
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.6px;
       padding: var(--space-3) var(--space-5);
       background: var(--color-gray-50);
-      border-bottom: 1px solid var(--color-gray-100);
+      border-bottom: 1px solid var(--border-color);
     }
     .settings-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: var(--space-4) var(--space-5);
-      border-bottom: 1px solid var(--color-gray-100);
+      border-bottom: 1px solid var(--border-color);
       gap: var(--space-3);
     }
     .settings-row:last-child { border-bottom: none; }
     .settings-row-label {
       font-size: 0.9rem;
       font-weight: 600;
-      color: var(--color-gray-900);
+      color: var(--text-primary);
     }
     .settings-row-sub {
       font-size: 0.8rem;
-      color: var(--color-gray-500);
+      color: var(--text-secondary);
       margin-top: 2px;
     }
     .inline-edit { display: none; padding: var(--space-4) var(--space-5);
-                   border-top: 1px solid var(--color-gray-100);
+                   border-top: 1px solid var(--border-color);
                    background: var(--color-gray-50); }
     .inline-edit.open { display: block; }
     .logout-btn {
@@ -203,6 +204,21 @@
 
       <div id="settings-msg" style="margin-bottom:var(--space-3);"></div>
 
+      <!-- Appearance -->
+      <div class="settings-section">
+        <div class="settings-section-title">Appearance</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Dark mode</div>
+            <div class="settings-row-sub" id="theme-status">Follows system setting</div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="toggle-dark"/>
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          </label>
+        </div>
+      </div>
+
       <!-- Account section -->
       <div class="settings-section">
         <div class="settings-section-title">Account</div>
@@ -314,7 +330,6 @@
 
     </div>
   </main>
-  <script src="../js/theme.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -332,7 +347,7 @@
     HH.Router.onReady(function (uid) {
       _uid = uid;
       loadProfile(uid);
-      initThemeToggle();
+      HH.Theme.bindToggle("toggle-dark", "theme-status");
     });
 
 

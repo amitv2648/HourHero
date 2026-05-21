@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HourHero — Settings</title>
+  <script src="../js/theme.js"></script>
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
@@ -236,8 +237,7 @@
             <div class="settings-row-sub" id="theme-status">Follows system setting</div>
           </div>
           <label class="toggle-wrap">
-            <input type="checkbox" id="toggle-dark"
-                   onchange="toggleDark(this.checked)"/>
+            <input type="checkbox" id="toggle-dark"/>
             <div class="toggle-track"><div class="toggle-thumb"></div></div>
           </label>
         </div>
@@ -480,7 +480,6 @@
     </a>
   </nav>
 
-  <script src="../js/theme.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -498,7 +497,7 @@
     HH.Router.onReady(function(uid) {
       _uid = uid;
       loadProfile(uid);
-      initThemeToggle();
+      HH.Theme.bindToggle("toggle-dark", "theme-status");
     });
 
 
@@ -525,23 +524,6 @@
         document.getElementById("toggle-push").checked  = prefs.push !== false;
         document.getElementById("toggle-email").checked = prefs.email_summary === true;
       });
-    }
-
-
-    // ============================================================
-    // THEME TOGGLE
-    // ============================================================
-    function initThemeToggle() {
-      var isDark = HH.Theme.isDark();
-      document.getElementById("toggle-dark").checked = isDark;
-      document.getElementById("theme-status").textContent =
-        isDark ? "Dark mode on" : "Light mode on";
-    }
-
-    function toggleDark(checked) {
-      HH.Theme.set(checked ? "dark" : "light");
-      document.getElementById("theme-status").textContent =
-        checked ? "Dark mode on" : "Light mode on";
     }
 
 
@@ -683,15 +665,12 @@
 
         // Step 3 — delete all their submissions
         .then(function() {
-          return HH.db.ref("submissions")
-            .orderByChild("volunteer_id")
-            .equalTo(_uid)
-            .once("value");
+          return HH.listSubmissionsForVolunteer(_uid);
         })
-        .then(function(snap) {
+        .then(function(list) {
           var submissionWipes = {};
-          snap.forEach(function(c) {
-            submissionWipes["submissions/" + c.key] = null;
+          list.forEach(function(s) {
+            submissionWipes["submissions/" + s._key] = null;
           });
           if (Object.keys(submissionWipes).length > 0) {
             return HH.db.ref().update(submissionWipes);

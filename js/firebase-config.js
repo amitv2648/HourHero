@@ -27,3 +27,150 @@ window.HH._currentRole = null;
 // Pre-warm the database WebSocket connection immediately on
 // page load so it is already open when the user clicks a button
 window.HH.db.ref(".info/connected").on("value", function () {});
+
+
+// ============================================================
+// DB HELPERS — client-side filters (no Firebase indexes needed)
+// Indexed .orderByChild().equalTo() queries fail without
+// console indexes and leave dashboards stuck on "Loading...".
+// ============================================================
+HH._forEachChild = function (snap, fn) {
+  if (!snap || !snap.exists()) return;
+  snap.forEach(fn);
+};
+
+HH.listSubmissionsForVolunteer = function (uid) {
+  return HH.db.ref("submissions").once("value").then(function (snap) {
+    var list = [];
+    HH._forEachChild(snap, function (c) {
+      var s = c.val();
+      if (s && s.volunteer_id === uid) {
+        s._key = c.key;
+        list.push(s);
+      }
+    });
+    return list;
+  });
+};
+
+HH.listenSubmissionsForVolunteer = function (uid, callback, onError) {
+  return HH.db.ref("submissions").on(
+    "value",
+    function (snap) {
+      var list = [];
+      HH._forEachChild(snap, function (c) {
+        var s = c.val();
+        if (s && s.volunteer_id === uid) {
+          s._key = c.key;
+          list.push(s);
+        }
+      });
+      callback(list);
+    },
+    onError || function (err) { console.error("HourHero DB:", err); callback([]); }
+  );
+};
+
+HH.listSubmissionsForOrg = function (uid) {
+  return HH.db.ref("submissions").once("value").then(function (snap) {
+    var list = [];
+    HH._forEachChild(snap, function (c) {
+      var s = c.val();
+      if (s && s.org_id === uid) {
+        s._key = c.key;
+        list.push(s);
+      }
+    });
+    return list;
+  });
+};
+
+HH.listenSubmissionsForOrg = function (uid, callback, onError) {
+  return HH.db.ref("submissions").on(
+    "value",
+    function (snap) {
+      var list = [];
+      HH._forEachChild(snap, function (c) {
+        var s = c.val();
+        if (s && s.org_id === uid) {
+          s._key = c.key;
+          list.push(s);
+        }
+      });
+      callback(list);
+    },
+    onError || function (err) { console.error("HourHero DB:", err); callback([]); }
+  );
+};
+
+HH.listOpenOpportunities = function () {
+  return HH.db.ref("opportunities").once("value").then(function (snap) {
+    var list = [];
+    HH._forEachChild(snap, function (c) {
+      var o = c.val();
+      if (o && (o.status === "open" || o.status == null)) {
+        o._key = c.key;
+        list.push(o);
+      }
+    });
+    list.sort(function (a, b) { return (b.created_at || 0) - (a.created_at || 0); });
+    return list;
+  });
+};
+
+HH._isOpenOpportunity = function (o) {
+  return o && (o.status === "open" || o.status == null);
+};
+
+HH.listenOpenOpportunities = function (callback, onError) {
+  return HH.db.ref("opportunities").on(
+    "value",
+    function (snap) {
+      var list = [];
+      HH._forEachChild(snap, function (c) {
+        var o = c.val();
+        if (HH._isOpenOpportunity(o)) {
+          o._key = c.key;
+          list.push(o);
+        }
+      });
+      list.sort(function (a, b) { return (b.created_at || 0) - (a.created_at || 0); });
+      callback(list);
+    },
+    onError || function (err) { console.error("HourHero DB:", err); callback([]); }
+  );
+};
+
+HH.listOpportunitiesForOrg = function (uid) {
+  return HH.db.ref("opportunities").once("value").then(function (snap) {
+    var list = [];
+    HH._forEachChild(snap, function (c) {
+      var o = c.val();
+      if (o && o.org_id === uid) {
+        o._key = c.key;
+        list.push(o);
+      }
+    });
+    list.sort(function (a, b) { return (b.created_at || 0) - (a.created_at || 0); });
+    return list;
+  });
+};
+
+HH.listenOpportunitiesForOrg = function (uid, callback, onError) {
+  return HH.db.ref("opportunities").on(
+    "value",
+    function (snap) {
+      var list = [];
+      HH._forEachChild(snap, function (c) {
+        var o = c.val();
+        if (o && o.org_id === uid) {
+          o._key = c.key;
+          list.push(o);
+        }
+      });
+      list.sort(function (a, b) { return (b.created_at || 0) - (a.created_at || 0); });
+      callback(list);
+    },
+    onError || function (err) { console.error("HourHero DB:", err); callback([]); }
+  );
+};

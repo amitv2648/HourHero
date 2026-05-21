@@ -18,18 +18,19 @@
        The style block below only handles layout specific to
        this landing page. Everything reusable lives in the CSS files.
   ============================================================ -->
+  <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/components.css" />
 
   <style>
-    /* ---- Page-level layout ---- */
+    /* ---- Page-level layout (theme-aware) ---- */
     .lp-nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 1rem 1.5rem;
-      border-bottom: 1px solid #e5e7eb;
-      background: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-card);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -38,7 +39,7 @@
     .lp-logo {
       font-size: 1.4rem;
       font-weight: 700;
-      color: #4F46E5;
+      color: var(--color-primary);
       text-decoration: none;
       letter-spacing: -0.5px;
     }
@@ -55,12 +56,13 @@
       padding: 5rem 1.5rem 4rem;
       max-width: 680px;
       margin: 0 auto;
+      background: var(--bg-page);
     }
 
     .lp-hero-badge {
       display: inline-block;
-      background: #EEF2FF;
-      color: #4338CA;
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
       font-size: 0.8rem;
       font-weight: 600;
       padding: 0.3rem 0.9rem;
@@ -72,19 +74,19 @@
     .lp-hero h1 {
       font-size: 2.6rem;
       font-weight: 800;
-      color: #111827;
+      color: var(--text-primary);
       line-height: 1.2;
       margin-bottom: 1.25rem;
       letter-spacing: -1px;
     }
 
     .lp-hero h1 span {
-      color: #4F46E5;
+      color: var(--color-primary);
     }
 
     .lp-hero p {
       font-size: 1.1rem;
-      color: #6B7280;
+      color: var(--text-secondary);
       line-height: 1.7;
       margin-bottom: 2.5rem;
       max-width: 500px;
@@ -101,7 +103,7 @@
 
     /* ---- Features strip ---- */
     .lp-features {
-      background: #F9FAFB;
+      background: var(--color-gray-50);
       padding: 4rem 1.5rem;
     }
 
@@ -114,8 +116,8 @@
     }
 
     .lp-feature-card {
-      background: #ffffff;
-      border: 1px solid #E5E7EB;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 1.75rem 1.5rem;
     }
@@ -123,7 +125,7 @@
     .lp-feature-icon {
       width: 44px;
       height: 44px;
-      background: #EEF2FF;
+      background: var(--color-primary-light);
       border-radius: 10px;
       display: flex;
       align-items: center;
@@ -134,7 +136,7 @@
     .lp-feature-icon svg {
       width: 22px;
       height: 22px;
-      stroke: #4F46E5;
+      stroke: var(--color-primary);
       fill: none;
       stroke-width: 2;
       stroke-linecap: round;
@@ -144,13 +146,13 @@
     .lp-feature-card h3 {
       font-size: 1rem;
       font-weight: 700;
-      color: #111827;
+      color: var(--text-primary);
       margin-bottom: 0.4rem;
     }
 
     .lp-feature-card p {
       font-size: 0.9rem;
-      color: #6B7280;
+      color: var(--text-secondary);
       line-height: 1.6;
       margin: 0;
     }
@@ -159,6 +161,7 @@
     .lp-stats {
       padding: 3rem 1.5rem;
       text-align: center;
+      background: var(--bg-page);
     }
 
     .lp-stats-grid {
@@ -173,18 +176,18 @@
     .lp-stat-number {
       font-size: 2rem;
       font-weight: 800;
-      color: #4F46E5;
+      color: var(--color-primary);
     }
 
     .lp-stat-label {
       font-size: 0.85rem;
-      color: #6B7280;
+      color: var(--text-secondary);
       margin-top: 0.25rem;
     }
 
     /* ---- CTA banner ---- */
     .lp-cta-banner {
-      background: #4F46E5;
+      background: var(--color-primary);
       padding: 4rem 1.5rem;
       text-align: center;
       color: #ffffff;
@@ -207,24 +210,25 @@
       padding: 1.5rem;
       text-align: center;
       font-size: 0.82rem;
-      color: #9CA3AF;
-      border-top: 1px solid #E5E7EB;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-card);
     }
 
     .lp-footer a {
-      color: #6B7280;
+      color: var(--text-secondary);
       text-decoration: none;
       margin: 0 0.5rem;
     }
 
     .lp-footer a:hover {
-      color: #4F46E5;
+      color: var(--color-primary);
     }
 
     /* ---- Button styles ---- */
     .btn-primary {
       display: inline-block;
-      background: #4F46E5;
+      background: var(--color-primary);
       color: #ffffff;
       font-size: 0.95rem;
       font-weight: 600;
@@ -237,32 +241,32 @@
     }
 
     .btn-primary:hover {
-      background: #4338CA;
+      background: var(--color-primary-dark);
     }
 
     .btn-outline {
       display: inline-block;
       background: transparent;
-      color: #374151;
+      color: var(--text-primary);
       font-size: 0.95rem;
       font-weight: 600;
       padding: 0.75rem 1.75rem;
       border-radius: 8px;
-      border: 1.5px solid #D1D5DB;
+      border: 1.5px solid var(--border-input);
       cursor: pointer;
       text-decoration: none;
       transition: border-color 0.15s ease, color 0.15s ease;
     }
 
     .btn-outline:hover {
-      border-color: #4F46E5;
-      color: #4F46E5;
+      border-color: var(--color-primary);
+      color: var(--color-primary);
     }
 
     .btn-white {
       display: inline-block;
       background: #ffffff;
-      color: #4F46E5;
+      color: var(--color-primary);
       font-size: 0.95rem;
       font-weight: 600;
       padding: 0.75rem 1.75rem;
@@ -274,7 +278,7 @@
     }
 
     .btn-white:hover {
-      background: #EEF2FF;
+      background: var(--color-primary-light);
     }
 
     .btn-white-outline {
@@ -446,7 +450,6 @@
   <!-- ============================================================
        FIREBASE SDK — must load before HourHero scripts
   ============================================================ -->
-  <script src="js/theme.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>

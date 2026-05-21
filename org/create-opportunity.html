@@ -221,6 +221,7 @@
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/router.js"></script>
+  <script src="../js/geocode.js"></script>
 
   <script>
 
@@ -273,6 +274,14 @@
       btn.textContent = "Publishing...";
 
       var key    = HH.db.ref("opportunities").push().key;
+
+      function saveRecord(record) {
+        var updates = {};
+        updates["opportunities/" + key]                             = record;
+        updates["organizations/" + _uid + "/opportunities/" + key] = true;
+        return HH.db.ref().update(updates);
+      }
+
       var record = {
         opp_id:       key,
         org_id:       _uid,
@@ -288,11 +297,17 @@
         created_at:   HH.TIMESTAMP
       };
 
-      var updates = {};
-      updates["opportunities/" + key]                             = record;
-      updates["organizations/" + _uid + "/opportunities/" + key] = true;
+      var publishPromise = location
+        ? HH.Geocode.resolve(location).then(function (coord) {
+            if (coord) {
+              record.latitude  = coord.lat;
+              record.longitude = coord.lng;
+            }
+            return saveRecord(record);
+          })
+        : saveRecord(record);
 
-      HH.db.ref().update(updates)
+      publishPromise
         .then(function () {
           btn.disabled    = false;
           btn.textContent = "Publish opportunity";

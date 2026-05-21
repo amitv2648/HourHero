@@ -395,6 +395,7 @@
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/router.js"></script>
+  <script src="../js/geocode.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     HH.Router.protect("volunteer");
@@ -501,18 +502,10 @@
     }
 
     function listenOpps() {
-      HH.db.ref("opportunities")
-        .orderByChild("status").equalTo("open")
-        .on("value", function(snap) {
-          _allOpps = [];
-          snap.forEach(function(c) {
-            var o = c.val();
-            o._key = c.key;
-            _allOpps.push(o);
-          });
-          _allOpps.sort(function(a, b) { return (b.created_at||0)-(a.created_at||0); });
-          renderList();
-        });
+      HH.listenOpenOpportunities(function(list) {
+        _allOpps = list;
+        renderList();
+      });
     }
 
     function setCat(cat, btn) {
@@ -593,30 +586,31 @@
       var opp = _allOpps.find(function(o) { return o._key === key; });
       if (!opp) return;
 
+      var lat = opp.latitude != null ? parseFloat(opp.latitude) : null;
+      var lng = opp.longitude != null ? parseFloat(opp.longitude) : null;
+
+      if (lat != null && lng != null && !isNaN(lat) && !isNaN(lng)) {
+        pinOpp(opp, lat, lng);
+        return;
+      }
+
       if (!opp.location) {
         showMapInfo(opp, null, null);
         return;
       }
 
-      // Check geocode cache
-      if (_geoCache[opp.location]) {
-        var coord = _geoCache[opp.location];
-        pinOpp(opp, coord.lat, coord.lng);
+      var cacheKey = opp.location;
+      if (_geoCache[cacheKey]) {
+        var c = _geoCache[cacheKey];
+        pinOpp(opp, c.lat, c.lng);
         return;
       }
 
-      // Geocode via Nominatim (free, no key needed)
-      var url = "https://nominatim.openstreetmap.org/search?q=" +
-        encodeURIComponent(opp.location) + "&format=json&limit=1";
-
-      fetch(url, { headers: { "Accept-Language": "en" } })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data && data[0]) {
-            var lat = parseFloat(data[0].lat);
-            var lng = parseFloat(data[0].lon);
-            _geoCache[opp.location] = { lat: lat, lng: lng };
-            pinOpp(opp, lat, lng);
+      HH.Geocode.resolve(opp.location)
+        .then(function(coord) {
+          if (coord) {
+            _geoCache[cacheKey] = coord;
+            pinOpp(opp, coord.lat, coord.lng);
           } else {
             showMapInfo(opp, null, null);
           }

@@ -267,7 +267,7 @@
       <!-- Badge progress card -->
       <div class="progress-card" id="progress-card">
         <div class="progress-top">
-          <span class="progress-badge-label" id="progress-current-badge">Loading...</span>
+          <span class="progress-badge-label" id="progress-current-badge">Newcomer</span>
           <span class="progress-next-label" id="progress-next-label"></span>
         </div>
         <div class="progress-bar-track">
@@ -454,17 +454,23 @@
         var hours = parseFloat(s.val() || 0);
         document.getElementById("stat-hours").textContent = hours.toFixed(1);
         updateProgress(Math.floor(hours));
+      }).catch(function() {
+        document.getElementById("stat-hours").textContent = "0.0";
       });
 
-      HH.db.ref("submissions").orderByChild("volunteer_id").equalTo(uid).once("value").then(function(snap) {
+      HH.listSubmissionsForVolunteer(uid).then(function(list) {
         var pending = 0;
-        snap.forEach(function(c) { if (c.val().status === "pending") pending++; });
+        list.forEach(function(s) { if (s.status === "pending") pending++; });
         document.getElementById("stat-pending").textContent = pending;
+      }).catch(function() {
+        document.getElementById("stat-pending").textContent = "0";
       });
 
       HH.db.ref("users/" + uid + "/joined_opportunities").once("value").then(function(snap) {
         document.getElementById("stat-joined").textContent =
           snap.exists() ? Object.keys(snap.val() || {}).length : 0;
+      }).catch(function() {
+        document.getElementById("stat-joined").textContent = "0";
       });
     }
 
@@ -508,19 +514,17 @@
     }
 
     function loadActivity(uid) {
-      HH.db.ref("submissions").orderByChild("volunteer_id").equalTo(uid)
-        .limitToLast(5).on("value", function(snap) {
+      HH.listenSubmissionsForVolunteer(uid, function(items) {
           var container = document.getElementById("activity-list");
-          if (!snap.exists()) {
+          if (!items.length) {
             container.innerHTML =
               '<div class="empty-state" style="padding:2rem 1rem;">' +
                 '<p style="color:var(--color-gray-400);font-size:0.875rem;">No activity yet.</p>' +
               '</div>';
             return;
           }
-          var items = [];
-          snap.forEach(function(c) { items.push(c.val()); });
           items.sort(function(a,b) { return (b.submitted_at||0)-(a.submitted_at||0); });
+          items = items.slice(0, 5);
 
           var html = "";
           items.forEach(function(s) {
@@ -545,7 +549,7 @@
               '</div>';
           });
           container.innerHTML = html;
-        });
+      });
     }
 
     function maybeShowInstall(uid) {

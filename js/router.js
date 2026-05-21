@@ -139,6 +139,15 @@ HH.Router.protect = function (requiredRole) {
 // ON READY
 // ============================================================
 HH.Router.onReady = function (callback) {
+  // Auth may resolve before this line runs — call immediately if ready
+  if (window.HH._currentUid && document.documentElement.style.visibility === "visible") {
+    try {
+      callback(window.HH._currentUid, window.HH._currentRole);
+    } catch (err) {
+      console.error("HourHero Router: onReady callback error", err);
+    }
+    return;
+  }
   HH.Router._readyCallback = callback;
 };
 

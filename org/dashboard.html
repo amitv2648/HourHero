@@ -731,46 +731,46 @@
     //   hours     — sum of hours where org_id = uid AND status = approved
     // ============================================================
     function loadOrgStats(uid) {
+      function setStat(id, val) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = val;
+      }
 
-      HH.db.ref("submissions")
-        .orderByChild("org_id")
-        .equalTo(uid)
-        .once("value")
-        .then(function (snap) {
-          var pending    = 0;
-          var totalHours = 0;
-          var volunteers = {};
+      HH.listSubmissionsForOrg(uid).then(function (list) {
+        var pending    = 0;
+        var totalHours = 0;
+        var volunteers = {};
 
-          snap.forEach(function (child) {
-            var s = child.val();
-            if (s.status === "pending")  pending++;
-            if (s.status === "approved") totalHours += (s.hours || 0);
-            if (s.volunteer_id)          volunteers[s.volunteer_id] = true;
-          });
-
-          document.getElementById("org-stat-pending").textContent   = pending;
-          document.getElementById("org-stat-volunteers").textContent =
-            Object.keys(volunteers).length;
-          document.getElementById("org-stat-hours").textContent =
-            parseFloat(totalHours).toFixed(1);
-
-          // Update the sidebar pending badge
-          var badge = document.getElementById("sidebar-pending-badge");
-          if (pending > 0) {
-            badge.textContent = pending;
-            badge.style.display = "inline-flex";
-          }
+        list.forEach(function (s) {
+          if (s.status === "pending")  pending++;
+          if (s.status === "approved") totalHours += (s.hours || 0);
+          if (s.volunteer_id)          volunteers[s.volunteer_id] = true;
         });
 
-      // Opportunity count lives on the org record itself
+        setStat("org-stat-pending", pending);
+        setStat("org-stat-volunteers", Object.keys(volunteers).length);
+        setStat("org-stat-hours", parseFloat(totalHours).toFixed(1));
+
+        var badge = document.getElementById("sidebar-pending-badge");
+        if (badge && pending > 0) {
+          badge.textContent = pending;
+          badge.style.display = "inline-flex";
+        }
+      }).catch(function () {
+        setStat("org-stat-pending", "0");
+        setStat("org-stat-volunteers", "0");
+        setStat("org-stat-hours", "0.0");
+      });
+
       HH.db.ref("organizations/" + uid + "/opportunities")
         .once("value")
         .then(function (snap) {
           var count = snap.exists()
             ? Object.keys(snap.val() || {}).length
             : 0;
-          document.getElementById("org-stat-opps").textContent = count;
-        });
+          setStat("org-stat-opps", count);
+        })
+        .catch(function () { setStat("org-stat-opps", "0"); });
     }
 
 
@@ -782,21 +782,10 @@
     // Submissions page are reflected here instantly.
     // ============================================================
     function loadPendingSubmissions(uid) {
-      HH.db.ref("submissions")
-        .orderByChild("org_id")
-        .equalTo(uid)
-        .on("value", function (snap) {
-
+      HH.listenSubmissionsForOrg(uid, function (all) {
           var container = document.getElementById("pending-submissions-list");
-          var pending   = [];
+          var pending   = all.filter(function (s) { return s.status === "pending"; });
 
-          snap.forEach(function (child) {
-            var s = child.val();
-            s._key = child.key;
-            if (s.status === "pending") pending.push(s);
-          });
-
-          // Sort newest first
           pending.sort(function (a, b) {
             return (b.submitted_at || 0) - (a.submitted_at || 0);
           });
@@ -845,7 +834,7 @@
           });
 
           container.innerHTML = html;
-        });
+      });
     }
 
 
@@ -918,15 +907,10 @@
     // Shows the 5 most recently created opportunities for this org.
     // ============================================================
     function loadOrgOpportunities(uid) {
-      HH.db.ref("opportunities")
-        .orderByChild("org_id")
-        .equalTo(uid)
-        .limitToLast(5)
-        .once("value")
-        .then(function (snap) {
+      HH.listOpportunitiesForOrg(uid).then(function (items) {
           var container = document.getElementById("opportunities-list");
 
-          if (!snap.exists()) {
+          if (!items.length) {
             container.innerHTML =
               '<div class="empty-state" style="padding:1.5rem 0;">' +
                 '<p style="color:var(--color-gray-400);font-size:0.875rem;">' +
@@ -937,15 +921,7 @@
             return;
           }
 
-          var items = [];
-          snap.forEach(function (child) {
-            items.push(child.val());
-          });
-
-          // Sort newest first
-          items.sort(function (a, b) {
-            return (b.created_at || 0) - (a.created_at || 0);
-          });
+          items = items.slice(0, 5);
 
           var html = "";
           items.forEach(function (opp) {
@@ -972,6 +948,13 @@
           });
 
           container.innerHTML = html;
+        })
+        .catch(function () {
+          document.getElementById("opportunities-list").innerHTML =
+            '<div class="empty-state" style="padding:1.5rem 0;">' +
+              '<p style="color:var(--color-gray-400);font-size:0.875rem;">' +
+                'Could not load opportunities.' +
+              '</p></div>';
         });
     }
 

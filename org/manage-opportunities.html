@@ -9,11 +9,7 @@
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
     body { background: var(--color-gray-100); }
-    .org-main { margin-left:220px; padding:var(--space-8); min-height:100vh; }
-    @media(max-width:640px){
-      .org-main { margin-left:0; padding:var(--space-4);
-                  padding-top:calc(var(--nav-height)+var(--space-4)); }
-    }
+    
     .manage-card {
       background: var(--color-white);
       border: 1px solid var(--color-gray-200);
@@ -301,15 +297,34 @@
 
 
     function deleteOpp(key) {
-      if (!confirm("Delete this opportunity? This cannot be undone.")) return;
+      if (!confirm(
+        "Delete this opportunity? Enrolled volunteers will be removed and notified by email. " +
+        "This cannot be undone."
+      )) return;
 
-      var updates = {};
-      updates["opportunities/" + key]                              = null;
-      updates["organizations/" + _uid + "/opportunities/" + key]  = null;
-
-      HH.db.ref().update(updates)
-        .then(function () {
+      HH.deleteOpportunity(_uid, key)
+        .then(function (result) {
           showMsg("success", "Opportunity deleted.");
+          if (result.volunteers && result.volunteers.length) {
+            return HH.notifyOpportunityDeleted({
+              volunteers:        result.volunteers,
+              opportunityTitle:  result.title,
+              orgName:           result.orgName
+            }).then(function (notifyResult) {
+              if (notifyResult.sent > 0) {
+                showMsg("success",
+                  "Opportunity deleted. " + notifyResult.sent +
+                  " volunteer(s) notified by email.");
+              } else if (notifyResult.skipped) {
+                showMsg("success",
+                  "Opportunity deleted. Email is not configured on the server — " +
+                  "volunteers were unenrolled but not emailed.");
+              }
+            }).catch(function () {
+              showMsg("success",
+                "Opportunity deleted. Volunteers were unenrolled, but email notification failed.");
+            });
+          }
         })
         .catch(function (e) {
           showMsg("error", "Delete failed: " + e.message);
@@ -349,5 +364,8 @@
     HH.NavMenu.init({ role: "org", settingsPath: "settings.html",
                       mountSelector: ".profile-menu-mount" });
   </script>
+
+  <script src="../js/sidebar.js"></script>
+  <script>HH.Sidebar.init("org");</script>
 </body>
 </html>

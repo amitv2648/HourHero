@@ -174,3 +174,118 @@ HH.listenOpportunitiesForOrg = function (uid, callback, onError) {
     onError || function (err) { console.error("HourHero DB:", err); callback([]); }
   );
 };
+
+
+// ============================================================
+// ORG — approve / reject volunteer hour submissions
+// ============================================================
+HH.approveSubmission = function (submissionKey, volunteerId, hours) {
+  hours = parseFloat(hours || 0);
+
+  return HH.db.ref("users/" + volunteerId + "/total_hours")
+    .once("value")
+    .then(function (snap) {
+      var currentHours  = parseFloat(snap.val() || 0);
+      var updatedHours  = currentHours + hours;
+
+      return HH.db.ref("users/" + volunteerId + "/pending_count")
+        .once("value")
+        .then(function (pendingSnap) {
+          var pending = parseInt(pendingSnap.val() || 0, 10);
+          var updates = {};
+          updates["submissions/" + submissionKey + "/status"]      = "approved";
+          updates["submissions/" + submissionKey + "/reviewed_at"] = HH.TIMESTAMP;
+          updates["users/" + volunteerId + "/total_hours"]         = updatedHours;
+          if (pending > 0) {
+            updates["users/" + volunteerId + "/pending_count"] = pending - 1;
+          }
+          return HH.db.ref().update(updates);
+        });
+    });
+};
+
+HH.rejectSubmission = function (submissionKey, volunteerId, note) {
+  return HH.db.ref("users/" + volunteerId + "/pending_count")
+    .once("value")
+    .then(function (pendingSnap) {
+      var pending = parseInt(pendingSnap.val() || 0, 10);
+      var updates = {};
+      updates["submissions/" + submissionKey + "/status"]         = "rejected";
+      updates["submissions/" + submissionKey + "/reviewed_at"]    = HH.TIMESTAMP;
+      updates["submissions/" + submissionKey + "/rejection_note"] = note || null;
+      if (pending > 0) {
+        updates["users/" + volunteerId + "/pending_count"] = pending - 1;
+      }
+      return HH.db.ref().update(updates);
+    });
+};
+
+
+// ============================================================
+// ORG — delete opportunity + unenroll participants
+// ============================================================
+HH.deleteOpportunity = function (orgUid, oppKey) {
+  return HH.db.ref("opportunities/" + oppKey).once("value").then(function (snap) {
+    if (!snap.exists()) {
+      throw new Error("Opportunity not found.");
+    }
+
+    var opp = snap.val();
+    if (opp.org_id !== orgUid) {
+      throw new Error("You cannot delete this opportunity.");
+    }
+
+    var participantIds = opp.participants
+      ? Object.keys(opp.participants)
+      : [];
+
+    var updates = {};
+    updates["opportunities/" + oppKey]                             = null;
+    updates["organizations/" + orgUid + "/opportunities/" + oppKey] = null;
+
+    participantIds.forEach(function (volId) {
+      updates["users/" + volId + "/joined_opportunities/" + oppKey] = null;
+    });
+
+    var meta = {
+      title:   opp.title || "Untitled opportunity",
+      orgName: opp.org_name || ""
+    };
+
+    return HH.db.ref().update(updates).then(function () {
+      if (!participantIds.length) {
+        return { volunteers: [], title: meta.title, orgName: meta.orgName };
+      }
+
+      return Promise.all(participantIds.map(function (volId) {
+        return HH.db.ref("users/" + volId).once("value").then(function (uSnap) {
+          var v = uSnap.val() || {};
+          return {
+            email: v.email || "",
+            name:  v.name  || "Volunteer"
+          };
+        });
+      })).then(function (volunteers) {
+        return {
+          volunteers: volunteers.filter(function (v) { return v.email; }),
+          title:      meta.title,
+          orgName:    meta.orgName
+        };
+      });
+    });
+  });
+};
+
+
+HH.notifyOpportunityDeleted = function (payload) {
+  return fetch("/api/notify-opportunity-deleted", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify(payload)
+  }).then(function (r) {
+    return r.json().then(function (data) {
+      if (!r.ok) throw new Error((data && data.error) || "Notification failed");
+      return data;
+    });
+  });
+};

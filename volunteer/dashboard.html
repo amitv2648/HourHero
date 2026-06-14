@@ -225,6 +225,22 @@
       animation: shimmer 1.4s infinite linear;
       border-radius: var(--radius-sm);
     }
+
+    .report-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .report-bar-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      flex: 1;
+      min-width: 180px;
+    }
   </style>
 </head>
 <body>
@@ -273,6 +289,24 @@
           <span class="progress-pts-current" id="progress-pts-current"></span>
           <span class="progress-pts-needed"  id="progress-pts-needed"></span>
         </div>
+      </div>
+
+      <!-- Volunteer report download -->
+      <div class="report-bar">
+        <div class="report-bar-text">
+          Download a transcript of your volunteer hour entries to share with schools or organizations.
+        </div>
+        <button type="button" class="btn btn-outline" id="btn-download-report"
+                onclick="downloadVolunteerReport()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+               style="margin-right:6px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download volunteer report
+        </button>
       </div>
 
       <!-- Stats row -->
@@ -380,6 +414,9 @@
   <script>
     HH.Router.protect("volunteer");
 
+    var _uid     = null;
+    var _profile = {};
+
     var BADGES = [
       { name:"Newcomer",    pts:0   },
       { name:"First Step",  pts:1   },
@@ -393,6 +430,7 @@
     ];
 
     HH.Router.onReady(function(uid) {
+      _uid = uid;
       loadProfile(uid);
       loadStats(uid);
       loadActivity(uid);
@@ -402,10 +440,10 @@
     function loadProfile(uid) {
       HH.db.ref("users/" + uid).once("value").then(function(snap) {
         if (!snap.exists()) return;
-        var p = snap.val();
-        var first = (p.name || "").split(" ")[0] || "there";
+        _profile = snap.val();
+        var first = (_profile.name || "").split(" ")[0] || "there";
         document.getElementById("greeting-name").textContent = "Welcome back, " + first + "!";
-        if (window.HH && HH.NavMenu) HH.NavMenu.setInitials(ini(p.name || "HH"));
+        if (window.HH && HH.NavMenu) HH.NavMenu.setInitials(ini(_profile.name || "HH"));
       });
     }
 
@@ -525,6 +563,125 @@
       sessionStorage.setItem("hh_install_dismissed", "1");
     }
 
+    function downloadVolunteerReport() {
+      if (!_uid) return;
+
+      var btn = document.getElementById("btn-download-report");
+      btn.disabled = true;
+      var prevText = btn.innerHTML;
+      btn.textContent = "Preparing...";
+
+      Promise.all([
+        HH.listSubmissionsForVolunteer(_uid),
+        HH.db.ref("users/" + _uid + "/total_hours").once("value")
+      ]).then(function (results) {
+        var list        = results[0] || [];
+        var totalHours  = parseFloat((results[1].val()) || 0);
+        var approvedHrs = 0;
+
+        list.sort(function (a, b) {
+          var da = a.date || "";
+          var db = b.date || "";
+          return da < db ? 1 : da > db ? -1 : 0;
+        });
+
+        list.forEach(function (s) {
+          if (s.status === "approved") approvedHrs += parseFloat(s.hours || 0);
+        });
+
+        var name      = (_profile.name  || "Volunteer").trim();
+        var email     = (_profile.email || "").trim();
+        var generated = new Date().toLocaleString("en-US", {
+          month: "long", day: "numeric", year: "numeric",
+          hour: "numeric", minute: "2-digit"
+        });
+
+        var rowsHtml = "";
+        if (!list.length) {
+          rowsHtml =
+            "<tr><td colspan=\"6\" style=\"text-align:center;color:#6B7280;padding:1.5rem;\">" +
+            "No volunteer hour entries yet.</td></tr>";
+        } else {
+          list.forEach(function (s) {
+            var dateStr = s.date
+              ? new Date(s.date + "T12:00:00").toLocaleDateString("en-US",
+                  { month: "short", day: "numeric", year: "numeric" })
+              : "—";
+            var status = (s.status || "pending");
+            status = status.charAt(0).toUpperCase() + status.slice(1);
+            rowsHtml +=
+              "<tr>" +
+                "<td>" + reportEsc(dateStr) + "</td>" +
+                "<td>" + reportEsc(s.opportunity_title || "Volunteer hours") + "</td>" +
+                "<td>" + reportEsc(s.org_name || "—") + "</td>" +
+                "<td style=\"text-align:right;\">" + (parseFloat(s.hours || 0).toFixed(2)) + "</td>" +
+                "<td>" + reportEsc(status) + "</td>" +
+                "<td>" + reportEsc(s.description || "") + "</td>" +
+              "</tr>";
+          });
+        }
+
+        var html =
+          "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"/>" +
+          "<title>HourHero Volunteer Report — " + reportEsc(name) + "</title>" +
+          "<style>" +
+            "body{font-family:Georgia,'Times New Roman',serif;color:#111;max-width:900px;margin:2rem auto;padding:0 1.5rem;}" +
+            "h1{font-size:1.6rem;margin-bottom:0.25rem;}" +
+            ".meta{color:#4B5563;font-size:0.95rem;margin-bottom:1.5rem;line-height:1.6;}" +
+            ".summary{display:flex;gap:2rem;margin-bottom:1.5rem;font-size:0.95rem;}" +
+            "table{width:100%;border-collapse:collapse;font-size:0.9rem;}" +
+            "th,td{border:1px solid #D1D5DB;padding:0.55rem 0.65rem;text-align:left;vertical-align:top;}" +
+            "th{background:#F3F4F6;font-weight:700;}" +
+            "tr:nth-child(even){background:#FAFAFA;}" +
+            ".footer{margin-top:2rem;font-size:0.8rem;color:#6B7280;border-top:1px solid #E5E7EB;padding-top:1rem;}" +
+          "</style></head><body>" +
+          "<h1>HourHero Volunteer Service Report</h1>" +
+          "<div class=\"meta\">" +
+            "<div><strong>Volunteer:</strong> " + reportEsc(name) + "</div>" +
+            (email ? "<div><strong>Email:</strong> " + reportEsc(email) + "</div>" : "") +
+            "<div><strong>Generated:</strong> " + reportEsc(generated) + "</div>" +
+          "</div>" +
+          "<div class=\"summary\">" +
+            "<div><strong>Total approved hours:</strong> " + approvedHrs.toFixed(1) + "</div>" +
+            "<div><strong>Total entries:</strong> " + list.length + "</div>" +
+          "</div>" +
+          "<table>" +
+            "<thead><tr>" +
+              "<th>Date</th><th>Opportunity</th><th>Organization</th>" +
+              "<th>Hours</th><th>Status</th><th>Description</th>" +
+            "</tr></thead>" +
+            "<tbody>" + rowsHtml + "</tbody>" +
+          "</table>" +
+          "<div class=\"footer\">Generated by HourHero. Approved hours on file: " +
+            totalHours.toFixed(1) + ".</div>" +
+          "</body></html>";
+
+        var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        var url  = URL.createObjectURL(blob);
+        var a    = document.createElement("a");
+        var slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "volunteer";
+        a.href     = url;
+        a.download = "hourhero-volunteer-report-" + slug + ".html";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }).catch(function () {
+        alert("Could not generate your report. Please try again.");
+      }).finally(function () {
+        btn.disabled = false;
+        btn.innerHTML = prevText;
+      });
+    }
+
+    function reportEsc(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
     function ini(n) {
       var p = (n||"HH").trim().split(" ");
       return p.length===1 ? p[0][0].toUpperCase() : (p[0][0]+p[1][0]).toUpperCase();
@@ -536,6 +693,7 @@
   </script>
   <script src="../js/nav-menu.js"></script>
   <script src="../js/mobile-nav.js"></script>
+  <script src="../js/sidebar.js"></script>
   <script src="../js/volunteer-chrome.js"></script>
   <script>
     HH.VolunteerChrome.mount("dashboard");

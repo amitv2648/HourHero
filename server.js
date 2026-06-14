@@ -43,7 +43,112 @@ var app  = express();
 var PORT = process.env.PORT || 3000;
 var GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
+var mailTransport = null;
+
+function getMailTransport() {
+  if (mailTransport) return mailTransport;
+
+  var host = process.env.SMTP_HOST;
+  var user = process.env.SMTP_USER;
+  var pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) return null;
+
+  var nodemailer = require("nodemailer");
+  mailTransport = nodemailer.createTransport({
+    host:   host,
+    port:   parseInt(process.env.SMTP_PORT || "587", 10),
+    secure: process.env.SMTP_PORT === "465",
+    auth:   { user: user, pass: pass }
+  });
+
+  return mailTransport;
+}
+
+function buildOpportunityDeletedEmail(name, opportunityTitle, orgName) {
+  var safeName = name || "Volunteer";
+  var safeOpp  = opportunityTitle || "an opportunity";
+  var safeOrg  = orgName || "the organization";
+
+  var text =
+    "Hi " + safeName + ",\n\n" +
+    "We're sorry to let you know that \"" + safeOpp + "\" posted by " + safeOrg +
+    " has been removed from HourHero.\n\n" +
+    "You have been unenrolled from this opportunity. If you already logged hours, " +
+    "your existing submissions are unchanged.\n\n" +
+    "Browse other opportunities in HourHero anytime.\n\n" +
+    "— HourHero";
+
+  var html =
+    "<div style=\"font-family:system-ui,sans-serif;max-width:520px;color:#111;\">" +
+      "<p>Hi " + escapeHtml(safeName) + ",</p>" +
+      "<p>We're sorry to let you know that <strong>" + escapeHtml(safeOpp) +
+      "</strong> posted by <strong>" + escapeHtml(safeOrg) +
+      "</strong> has been removed from HourHero.</p>" +
+      "<p>You have been unenrolled from this opportunity. If you already logged hours, " +
+      "your existing submissions are unchanged.</p>" +
+      "<p>Browse other opportunities in HourHero anytime.</p>" +
+      "<p style=\"color:#6B7280;font-size:0.9rem;\">— HourHero</p>" +
+    "</div>";
+
+  return {
+    subject: "Update: \"" + safeOpp + "\" has been removed",
+    text:    text,
+    html:    html
+  };
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 app.use(express.json({ limit: "1mb" }));
+
+app.post("/api/notify-opportunity-deleted", function (req, res) {
+  var transport = getMailTransport();
+  var volunteers        = req.body.volunteers || [];
+  var opportunityTitle  = req.body.opportunityTitle || "an opportunity";
+  var orgName           = req.body.orgName || "the organization";
+
+  if (!volunteers.length) {
+    return res.json({ ok: true, sent: 0, skipped: false });
+  }
+
+  if (!transport) {
+    return res.json({
+      ok:      true,
+      sent:    0,
+      skipped: true,
+      reason:  "SMTP not configured"
+    });
+  }
+
+  var from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  var jobs = volunteers.map(function (v) {
+    if (!v.email) return Promise.resolve(null);
+    var content = buildOpportunityDeletedEmail(v.name, opportunityTitle, orgName);
+    return transport.sendMail({
+      from:    from,
+      to:      v.email,
+      subject: content.subject,
+      text:    content.text,
+      html:    content.html
+    });
+  });
+
+  Promise.all(jobs)
+    .then(function (results) {
+      var sent = results.filter(Boolean).length;
+      res.json({ ok: true, sent: sent, skipped: false });
+    })
+    .catch(function (err) {
+      res.status(500).json({ error: err.message || "Failed to send email" });
+    });
+});
 
 app.post("/api/chat", function (req, res) {
   var apiKey = process.env.GEMINI_API_KEY;
@@ -178,5 +283,11 @@ app.listen(PORT, function () {
     console.log("Free key: https://aistudio.google.com/apikey → save in .env");
   } else {
     console.log("AI chat: Google Gemini (default model: " + GEMINI_MODEL + ")");
+  }
+  if (!getMailTransport()) {
+    console.log("Warning: SMTP not configured — opportunity deletion emails will not send.");
+    console.log("Add SMTP_HOST, SMTP_USER, SMTP_PASS (and optional SMTP_FROM) to .env");
+  } else {
+    console.log("Email: SMTP configured for volunteer notifications");
   }
 });

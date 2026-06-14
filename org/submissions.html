@@ -8,11 +8,7 @@
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
     body { background: var(--color-gray-100); }
-    .org-main { margin-left:220px; padding:var(--space-8); min-height:100vh; }
-    @media(max-width:640px){
-      .org-main { margin-left:0; padding:var(--space-4);
-                  padding-top:calc(var(--nav-height)+var(--space-4)); }
-    }
+    
     .sub-card {
       background: var(--color-white);
       border: 1px solid var(--color-gray-200);
@@ -336,7 +332,8 @@
                 ' id="note-' + escHtml(s._key) + '"' +
                 ' placeholder="Reason for rejection (optional)" />' +
               '<button class="btn btn-sm btn-outline"' +
-                ' onclick="rejectSubmission(\'' + escHtml(s._key) + '\')">' +
+                ' onclick="rejectSubmission(\'' + escHtml(s._key) + '\',\'' +
+                escHtml(s.volunteer_id) + '\')">' +
                 'Reject' +
               '</button>' +
             '</div>';
@@ -409,44 +406,28 @@
       btn.disabled    = true;
       btn.textContent = "Approving...";
 
-      HH.db.ref("users/" + volunteerId + "/total_hours")
-        .once("value")
-        .then(function (snap) {
-          var current = parseFloat(snap.val() || 0);
-          var updated = current + parseFloat(hours);
-
-          var updates = {};
-          updates["submissions/" + key + "/status"]      = "approved";
-          updates["submissions/" + key + "/reviewed_at"] = HH.TIMESTAMP;
-          updates["users/" + volunteerId + "/total_hours"] = updated;
-
-          return HH.db.ref().update(updates);
-        })
+      HH.approveSubmission(key, volunteerId, hours)
         .catch(function (err) {
           btn.disabled    = false;
           btn.textContent = "Approve";
-          alert("Approve failed: " + err.message);
+          alert("Approve failed: " + (err.message || "Permission denied. Deploy the latest database rules."));
         });
     }
 
 
-    function rejectSubmission(key) {
+    function rejectSubmission(key, volunteerId) {
       var btn  = event.target;
       var note = (document.getElementById("note-" + key) || {}).value || "";
 
       btn.disabled    = true;
       btn.textContent = "Rejecting...";
 
-      var updates = {};
-      updates["submissions/" + key + "/status"]         = "rejected";
-      updates["submissions/" + key + "/reviewed_at"]    = HH.TIMESTAMP;
-      updates["submissions/" + key + "/rejection_note"] = note || null;
-
-      HH.db.ref().update(updates).catch(function (err) {
-        btn.disabled    = false;
-        btn.textContent = "Reject";
-        alert("Reject failed: " + err.message);
-      });
+      HH.rejectSubmission(key, volunteerId, note)
+        .catch(function (err) {
+          btn.disabled    = false;
+          btn.textContent = "Reject";
+          alert("Reject failed: " + (err.message || "Permission denied. Deploy the latest database rules."));
+        });
     }
 
 
@@ -470,5 +451,8 @@
     HH.NavMenu.init({ role: "org", settingsPath: "settings.html",
                       mountSelector: ".profile-menu-mount" });
   </script>
+
+  <script src="../js/sidebar.js"></script>
+  <script>HH.Sidebar.init("org");</script>
 </body>
 </html>

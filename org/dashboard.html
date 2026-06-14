@@ -14,21 +14,6 @@
       background: var(--color-gray-100);
     }
 
-    /* ---- Org page wrapper clears the sidebar ---- */
-    .org-main {
-      margin-left: 220px;
-      padding: var(--space-8);
-      min-height: 100vh;
-    }
-
-    @media (max-width: 640px) {
-      .org-main {
-        margin-left: 0;
-        padding: var(--space-4);
-        padding-top: calc(var(--nav-height) + var(--space-4));
-      }
-    }
-
     /* ---- Page header row ---- */
     .org-dashboard-header {
       display: flex;
@@ -832,7 +817,8 @@
                     'Approve' +
                   '</button>' +
                   '<button class="btn btn-sm btn-outline"' +
-                    ' onclick="quickReject(\'' + escHtml(s._key) + '\')">' +
+                    ' onclick="quickReject(\'' + escHtml(s._key) + '\',\'' +
+                    escHtml(s.volunteer_id) + '\')">' +
                     'Reject' +
                   '</button>' +
                 '</div>' +
@@ -857,31 +843,12 @@
       btn.disabled = true;
       btn.textContent = "...";
 
-      // Read current total_hours first, then increment
-      HH.db.ref("users/" + volunteerId + "/total_hours")
-        .once("value")
-        .then(function (snap) {
-          var current = snap.val() || 0;
-          var updated = parseFloat(current) + parseFloat(hours);
-
-          // Build a multi-path update — Firebase applies all three
-          // writes atomically in a single network request
-          var updates = {};
-          updates["submissions/" + submissionKey + "/status"]      = "approved";
-          updates["submissions/" + submissionKey + "/reviewed_at"] = HH.TIMESTAMP;
-          updates["users/" + volunteerId + "/total_hours"]         = updated;
-
-          return HH.db.ref().update(updates);
-        })
-        .then(function () {
-          // The real-time listener on loadPendingSubmissions will
-          // automatically remove this row from the list
-        })
+      HH.approveSubmission(submissionKey, volunteerId, hours)
         .catch(function (err) {
           console.error("Approve failed:", err);
           btn.disabled = false;
           btn.textContent = "Approve";
-          alert("Could not approve. Please try again.");
+          alert("Could not approve: " + (err.message || "Permission denied. Deploy the latest database rules."));
         });
     }
 
@@ -890,21 +857,18 @@
     // QUICK REJECT
     // Sets status to "rejected". Does NOT change total_hours.
     // ============================================================
-    function quickReject(submissionKey) {
+    function quickReject(submissionKey, volunteerId) {
       var btn = event.target;
       btn.disabled = true;
       btn.textContent = "...";
 
-      var updates = {};
-      updates["submissions/" + submissionKey + "/status"]      = "rejected";
-      updates["submissions/" + submissionKey + "/reviewed_at"] = HH.TIMESTAMP;
-
-      HH.db.ref().update(updates).catch(function (err) {
-        console.error("Reject failed:", err);
-        btn.disabled = false;
-        btn.textContent = "Reject";
-        alert("Could not reject. Please try again.");
-      });
+      HH.rejectSubmission(submissionKey, volunteerId, null)
+        .catch(function (err) {
+          console.error("Reject failed:", err);
+          btn.disabled = false;
+          btn.textContent = "Reject";
+          alert("Could not reject: " + (err.message || "Permission denied. Deploy the latest database rules."));
+        });
     }
 
 
@@ -1008,5 +972,8 @@
     HH.NavMenu.init({ role: "org", settingsPath: "settings.html",
                       mountSelector: ".profile-menu-mount" });
   </script>
+
+  <script src="../js/sidebar.js"></script>
+  <script>HH.Sidebar.init("org");</script>
 </body>
 </html>

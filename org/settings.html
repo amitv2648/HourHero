@@ -9,11 +9,7 @@
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
     body { background: var(--bg-page); }
-    .org-main { margin-left:220px; padding:var(--space-8); min-height:100vh; }
-    @media(max-width:640px){
-      .org-main { margin-left:0; padding:var(--space-4);
-                  padding-top:calc(var(--nav-height)+var(--space-4)); }
-    }
+    
     .settings-max { max-width: 560px; }
     .profile-header {
       background: var(--bg-card);
@@ -518,5 +514,8 @@
     HH.NavMenu.init({ role: "org", settingsPath: "settings.html",
                       mountSelector: ".profile-menu-mount" });
   </script>
+
+  <script src="../js/sidebar.js"></script>
+  <script>HH.Sidebar.init("org");</script>
 </body>
 </html>

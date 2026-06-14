@@ -113,6 +113,8 @@
   --max-width-app:     480px;
   --max-width-content: 680px;
   --nav-height:        60px;
+  --sidebar-width:     220px;
+  --sidebar-width-collapsed: 72px;
   --bottom-nav-height: 64px;
 }
 
@@ -416,9 +418,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .page-with-sidebar {
-  margin-left: 220px;
+  margin-left: var(--sidebar-width);
   padding: var(--space-8);
   min-height: 100vh;
+  transition: margin-left 0.22s ease;
 }
 
 @media (max-width: 640px) {

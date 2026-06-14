@@ -92,10 +92,7 @@ HH.Router.protect = function (requiredRole) {
       window.HH._currentUid  = user.uid;
       window.HH._currentRole = cached;
       document.documentElement.style.visibility = "visible";
-      if (typeof HH.Router._readyCallback === "function") {
-        HH.Router._readyCallback(user.uid, cached);
-        HH.Router._readyCallback = null;
-      }
+      HH.Router._fireReadyCallbacks(user.uid, cached);
       return;
     }
 
@@ -120,10 +117,7 @@ HH.Router.protect = function (requiredRole) {
       window.HH._currentRole = role;
       document.documentElement.style.visibility = "visible";
 
-      if (typeof HH.Router._readyCallback === "function") {
-        HH.Router._readyCallback(user.uid, role);
-        HH.Router._readyCallback = null;
-      }
+      HH.Router._fireReadyCallbacks(user.uid, role);
     }).catch(function (err) {
       if (settled) return;
       settled = true;
@@ -138,6 +132,20 @@ HH.Router.protect = function (requiredRole) {
 // ============================================================
 // ON READY
 // ============================================================
+HH.Router._readyCallbacks = [];
+
+HH.Router._fireReadyCallbacks = function (uid, role) {
+  var queue = HH.Router._readyCallbacks.slice();
+  HH.Router._readyCallbacks = [];
+  queue.forEach(function (callback) {
+    try {
+      callback(uid, role);
+    } catch (err) {
+      console.error("HourHero Router: onReady callback error", err);
+    }
+  });
+};
+
 HH.Router.onReady = function (callback) {
   // Auth may resolve before this line runs — call immediately if ready
   if (window.HH._currentUid && document.documentElement.style.visibility === "visible") {
@@ -148,7 +156,7 @@ HH.Router.onReady = function (callback) {
     }
     return;
   }
-  HH.Router._readyCallback = callback;
+  HH.Router._readyCallbacks.push(callback);
 };
 
 

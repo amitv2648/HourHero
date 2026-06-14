@@ -112,6 +112,9 @@
 </head>
 <body>
 
+  <div class="app-profile-corner">
+    <div class="profile-menu-mount"></div>
+  </div>
   <aside class="org-sidebar">
     <div class="org-sidebar-logo">HourHero</div>
     <div class="org-sidebar-label">Main</div>
@@ -460,6 +463,12 @@
         .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
     }
 
+  </script>
+
+  <script src="../js/nav-menu.js"></script>
+  <script>
+    HH.NavMenu.init({ role: "org", settingsPath: "settings.html",
+                      mountSelector: ".profile-menu-mount" });
   </script>
 </body>
 </html>

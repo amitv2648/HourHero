@@ -15,7 +15,7 @@
       display: flex;
       position: fixed;
       top: var(--nav-height);
-      bottom: var(--bottom-nav-height);
+      bottom: 0;
       left: 0;
       right: 0;
     }
@@ -243,7 +243,7 @@
         flex-direction: column;
         height: auto;
         margin-top: var(--nav-height);
-        margin-bottom: var(--bottom-nav-height);
+        margin-bottom: 0;
       }
 
       .opps-left {
@@ -278,15 +278,9 @@
 </head>
 <body>
 
-  <nav class="top-nav">
-    <a href="dashboard.html" class="top-nav-logo">HourHero</a>
-    <div class="top-nav-title">Opportunities</div>
-    <div class="top-nav-right">
-      <a href="settings.html" class="nav-avatar" id="nav-avatar">HH</a>
-    </div>
-  </nav>
+  <div id="vol-chrome-root"></div>
 
-  <!-- Two-column layout -->
+<!-- Two-column layout -->
   <div class="opps-layout">
 
     <!-- LEFT: list panel -->
@@ -354,41 +348,7 @@
   </div>
 
   <!-- Bottom nav -->
-  <nav class="bottom-nav">
-    <a href="dashboard.html" class="bottom-nav-item">
-      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
-        <rect x="3" y="3" width="7" height="7" rx="1"/>
-        <rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/>
-        <rect x="14" y="14" width="7" height="7" rx="1"/>
-      </svg><span>Home</span>
-    </a>
-    <a href="log-hours.html" class="bottom-nav-item">
-      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
-      </svg><span>Log</span>
-    </a>
-    <a href="opportunities.html" class="bottom-nav-item active">
-      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8"/>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg><span>Explore</span>
-    </a>
-    <a href="badges.html" class="bottom-nav-item">
-      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
-        <circle cx="12" cy="8" r="6"/>
-        <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
-      </svg><span>Badges</span>
-    </a>
-    <a href="settings.html" class="bottom-nav-item">
-      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg><span>Profile</span>
-    </a>
-  </nav>
-  <script src="../js/theme.js"></script>
+<script src="../js/theme.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -435,7 +395,7 @@
 
     function loadAvatar(uid) {
       HH.db.ref("users/" + uid + "/name").once("value").then(function(s) {
-        document.getElementById("nav-avatar").textContent = ini(s.val() || "HH");
+        if (window.HH && HH.NavMenu) HH.NavMenu.setInitials(ini(s.val() || "HH"));
       });
     }
 
@@ -705,6 +665,13 @@
     function esc(s) {
       return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     }
+  </script>
+
+  <script src="../js/nav-menu.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/volunteer-chrome.js"></script>
+  <script>
+    HH.VolunteerChrome.mount("opportunities");
   </script>
 </body>
 </html>

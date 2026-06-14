@@ -385,6 +385,9 @@
 
 <body>
 
+  <div class="app-profile-corner">
+    <div class="profile-menu-mount"></div>
+  </div>
   <!-- ============================================================
        SIDEBAR — visible on desktop
   ============================================================ -->
@@ -490,14 +493,17 @@
   ============================================================ -->
   <nav class="org-mobile-nav">
     <span class="org-mobile-nav-logo">HourHero</span>
-    <button class="org-mobile-menu-btn" onclick="toggleMobileMenu()" title="Menu">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="3" y1="6" x2="21" y2="6"/>
-        <line x1="3" y1="12" x2="21" y2="12"/>
-        <line x1="3" y1="18" x2="21" y2="18"/>
-      </svg>
-    </button>
+    <div class="app-mobile-nav-right">
+      <button class="org-mobile-menu-btn app-mobile-menu-btn" onclick="toggleMobileMenu()" title="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="profile-menu-mount"></div>
+    </div>
   </nav>
 
   <div class="org-mobile-dropdown" id="org-mobile-dropdown">
@@ -996,5 +1002,11 @@
 
   </script>
 
+
+  <script src="../js/nav-menu.js"></script>
+  <script>
+    HH.NavMenu.init({ role: "org", settingsPath: "settings.html",
+                      mountSelector: ".profile-menu-mount" });
+  </script>
 </body>
 </html>

@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HourHero — Manage Opportunities</title>
+  <script src="../js/theme.js"></script>
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
@@ -62,6 +63,9 @@
 </head>
 <body>
 
+  <div class="app-profile-corner">
+    <div class="profile-menu-mount"></div>
+  </div>
   <!-- Sidebar (same structure, active item changed) -->
   <aside class="org-sidebar">
     <div class="org-sidebar-logo">HourHero</div>
@@ -126,6 +130,25 @@
     </nav>
   </aside>
 
+  <nav class="app-mobile-nav">
+    <span class="app-mobile-nav-logo">HourHero</span>
+    <div class="app-mobile-nav-right">
+      <button type="button" class="app-mobile-menu-btn" onclick="toggleMobileMenu()" title="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="profile-menu-mount"></div>
+    </div>
+  </nav>
+
+  <div class="app-mobile-dropdown" id="app-mobile-dropdown">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="submissions.html">Submissions</a>
+    <a href="create-opportunity.html">Create opportunity</a>
+    <a href="manage-opportunities.html" class="active">Manage opportunities</a>
+    <a href="participants.html">Participants</a>
+    <a href="settings.html">Settings</a>
+  </div>
+
   <main class="org-main">
 
     <div style="display:flex;align-items:center;justify-content:space-between;
@@ -134,7 +157,7 @@
         <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.4px;
                    margin-bottom:4px;">Manage opportunities</h1>
         <p style="font-size:0.875rem;color:var(--color-gray-500);">
-          Open, close, or delete your posted opportunities
+          Open, close, edit, or delete your posted opportunities
         </p>
       </div>
       <a href="create-opportunity.html" class="btn btn-primary">
@@ -172,7 +195,6 @@
     </div>
 
   </main>
-  <script src="../js/theme.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -250,6 +272,8 @@
               '</div>' +
             '</div>' +
             '<div class="manage-row-actions">' +
+              '<a href="create-opportunity.html?edit=' + escHtml(o._key) + '" ' +
+                'class="btn btn-sm btn-outline">Edit</a>' +
               '<button class="btn btn-sm btn-outline"' +
                 ' onclick="toggleStatus(\'' + escHtml(o._key) + '\',\'' +
                 escHtml(o.status) + '\')">' +
@@ -316,6 +340,14 @@
         .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
     }
 
+  </script>
+
+  <script src="../js/nav-menu.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script>
+    HH.MobileNav.init("app-mobile-dropdown");
+    HH.NavMenu.init({ role: "org", settingsPath: "settings.html",
+                      mountSelector: ".profile-menu-mount" });
   </script>
 </body>
 </html>

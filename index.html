@@ -319,6 +319,8 @@
   <nav class="lp-nav">
     <a href="index.html" class="lp-logo">HourHero</a>
     <div class="lp-nav-actions">
+      <button type="button" class="theme-toggle-btn" id="public-theme-toggle"
+              aria-label="Toggle dark mode" title="Toggle theme"></button>
       <a href="auth.html?mode=login" class="btn-outline">Log in</a>
       <a href="auth.html?mode=signup" class="btn-primary">Sign up free</a>
     </div>
@@ -440,7 +442,7 @@
   <footer class="lp-footer">
     <p>
       &copy; 2025 HourHero &nbsp;|&nbsp;
-      <a href="#">Privacy policy</a>
+      <a href="privacy-policy.html">Privacy policy</a>
       <a href="#">Terms of service</a>
       <a href="#">Contact</a>
     </p>
@@ -471,6 +473,7 @@
   ============================================================ -->
   <script>
     HH.Router.initPublicPage();
+    HH.Theme.bindPublicToggle("public-theme-toggle");
   </script>
 
 </body>

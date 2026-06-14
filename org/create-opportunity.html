@@ -30,6 +30,9 @@
 </head>
 <body>
 
+  <div class="app-profile-corner">
+    <div class="profile-menu-mount"></div>
+  </div>
   <!-- Sidebar -->
   <aside class="org-sidebar">
     <div class="org-sidebar-logo">HourHero</div>
@@ -229,10 +232,10 @@
 
     var _uid     = null;
     var _orgName = "";
+    var _editKey = null;
 
     HH.Router.onReady(function (uid) {
       _uid = uid;
-      // Set min date to today
       document.getElementById("opp-date").min =
         new Date().toISOString().split("T")[0];
 
@@ -240,11 +243,47 @@
         .once("value")
         .then(function (s) { _orgName = s.val() || ""; });
 
-      // Show mobile topnav on small screens
       if (window.innerWidth <= 640) {
         document.getElementById("mobile-topnav").style.display = "flex";
       }
+
+      var params = new URLSearchParams(window.location.search);
+      _editKey = params.get("edit");
+      if (_editKey) {
+        loadForEdit(_editKey);
+      }
     });
+
+
+    function loadForEdit(key) {
+      HH.db.ref("opportunities/" + key).once("value").then(function (snap) {
+        if (!snap.exists()) {
+          return showMsg("error", "Opportunity not found.");
+        }
+        var o = snap.val();
+        if (o.org_id !== _uid) {
+          return showMsg("error", "You cannot edit this opportunity.");
+        }
+
+        document.getElementById("opp-title").value    = o.title || "";
+        document.getElementById("opp-desc").value     = o.description || "";
+        document.getElementById("opp-category").value = o.category || "";
+        document.getElementById("opp-date").value     = o.date || "";
+        document.getElementById("opp-location").value = o.location || "";
+        document.getElementById("opp-max").value      = o.max_volunteers || "";
+        document.getElementById("opp-status").value   = o.status || "open";
+
+        updateCharCount("opp-title", "count-title", 80);
+        updateCharCount("opp-desc", "count-desc", 600);
+
+        document.querySelector(".org-main h1").textContent = "Edit opportunity";
+        document.querySelector(".org-main p").textContent =
+          "Update the details below. Changes are visible to volunteers immediately.";
+        document.getElementById("btn-publish").textContent = "Save changes";
+      }).catch(function (err) {
+        showMsg("error", "Could not load opportunity: " + err.message);
+      });
+    }
 
 
     function updateCharCount(inputId, countId, max) {
@@ -271,7 +310,46 @@
 
       var btn = document.getElementById("btn-publish");
       btn.disabled    = true;
-      btn.textContent = "Publishing...";
+      btn.textContent = _editKey ? "Saving..." : "Publishing...";
+
+      if (_editKey) {
+        var patch = {
+          title:          title,
+          description:    desc,
+          category:       category,
+          date:           date,
+          location:       location || null,
+          max_volunteers: maxVol ? parseInt(maxVol) : null,
+          status:         status,
+          org_name:       _orgName
+        };
+
+        var saveEdit = location
+          ? HH.Geocode.resolve(location).then(function (coord) {
+              if (coord) {
+                patch.latitude  = coord.lat;
+                patch.longitude = coord.lng;
+              }
+              return HH.db.ref("opportunities/" + _editKey).update(patch);
+            })
+          : HH.db.ref("opportunities/" + _editKey).update(patch);
+
+        saveEdit
+          .then(function () {
+            btn.disabled    = false;
+            btn.textContent = "Save changes";
+            showMsg("success", "Opportunity updated.");
+            setTimeout(function () {
+              window.location.href = "manage-opportunities.html";
+            }, 900);
+          })
+          .catch(function (err) {
+            btn.disabled    = false;
+            btn.textContent = "Save changes";
+            showMsg("error", "Failed to save: " + err.message);
+          });
+        return;
+      }
 
       var key    = HH.db.ref("opportunities").push().key;
 
@@ -356,6 +434,12 @@
         .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
     }
 
+  </script>
+
+  <script src="../js/nav-menu.js"></script>
+  <script>
+    HH.NavMenu.init({ role: "org", settingsPath: "settings.html",
+                      mountSelector: ".profile-menu-mount" });
   </script>
 </body>
 </html>

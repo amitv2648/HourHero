@@ -168,13 +168,9 @@
 </head>
 <body>
 
-  <nav class="top-nav">
-    <a href="dashboard.html" class="top-nav-logo">HourHero</a>
-    <div class="top-nav-title">Install</div>
-    <div class="top-nav-right"></div>
-  </nav>
+  <div id="vol-chrome-root"></div>
 
-  <main class="page-with-nav">
+<main class="page-with-sidebar">
     <div class="page-content">
 
       <div class="install-hero">
@@ -425,6 +421,13 @@
       HH.db.ref("users/" + _uid + "/preferences/has_installed").set(true);
     }
 
+  </script>
+
+  <script src="../js/nav-menu.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/volunteer-chrome.js"></script>
+  <script>
+    HH.VolunteerChrome.mount("install");
   </script>
 </body>
 </html>

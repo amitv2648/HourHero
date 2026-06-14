@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HourHero — Privacy Policy</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <style>
+    body { background: var(--bg-page); min-height: 100vh; }
+    .policy-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-card);
+    }
+    .policy-nav a { text-decoration: none; color: var(--color-primary); font-weight: 800; }
+    .policy-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+    .policy-wrap h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    .policy-updated {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-bottom: 2rem;
+    }
+    .policy-wrap h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 1.75rem 0 0.5rem;
+    }
+    .policy-wrap p, .policy-wrap li {
+      color: var(--text-secondary);
+      line-height: 1.65;
+      font-size: 0.95rem;
+    }
+    .policy-wrap ul { padding-left: 1.25rem; margin: 0.5rem 0 1rem; }
+  </style>
+</head>
+<body>
+
+  <nav class="policy-nav">
+    <a href="index.html">HourHero</a>
+    <button type="button" class="theme-toggle-btn" id="public-theme-toggle"
+            aria-label="Toggle dark mode" title="Toggle theme"></button>
+  </nav>
+
+  <main class="policy-wrap">
+    <h1>Privacy Policy</h1>
+    <p class="policy-updated">Last updated: June 2025</p>
+
+    <p>
+      HourHero helps students log volunteer hours and connect with organizations.
+      This policy describes what information we collect and how we use it.
+    </p>
+
+    <h2>Information we collect</h2>
+    <ul>
+      <li>Account details such as your name and email address when you sign up.</li>
+      <li>Volunteer activity including logged hours, submissions, and joined opportunities.</li>
+      <li>Organization details and opportunities posted by organization accounts.</li>
+    </ul>
+
+    <h2>How we use your information</h2>
+    <ul>
+      <li>To provide the HourHero service, including verifying volunteer hours.</li>
+      <li>To display leaderboards, badges, and organization dashboards.</li>
+      <li>To send account-related emails such as password resets when you request them.</li>
+    </ul>
+
+    <h2>Data storage</h2>
+    <p>
+      Your data is stored securely using Firebase Authentication and Firebase Realtime Database.
+      We do not sell your personal information to third parties.
+    </p>
+
+    <h2>Your choices</h2>
+    <p>
+      You can update your display name and email in Settings. You may delete your account
+      at any time from the account menu; this permanently removes your profile and associated data.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions about this policy? Contact us through the link on the HourHero landing page.
+    </p>
+  </main>
+
+  <script>
+    HH.Theme.bindPublicToggle("public-theme-toggle");
+  </script>
+</body>
+</html>

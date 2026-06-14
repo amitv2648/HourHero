@@ -206,14 +206,10 @@
 </head>
 <body>
 
-  <nav class="top-nav">
-    <a href="dashboard.html" class="top-nav-logo">HourHero</a>
-    <div class="top-nav-title">Settings</div>
-    <div class="top-nav-right"></div>
-  </nav>
+  <div id="vol-chrome-root"></div>
 
-  <main class="page-with-nav">
-    <div class="page-content">
+  <main class="page-with-sidebar">
+    <div class="page-content" style="max-width:560px;padding:0;">
 
       <!-- Profile header -->
       <div class="profile-header">
@@ -364,7 +360,7 @@
           <div>
             <div class="settings-row-label">Privacy policy</div>
           </div>
-          <a href="#" class="btn btn-sm btn-ghost">View</a>
+          <a href="../privacy-policy.html" class="btn btn-sm btn-ghost">View</a>
         </div>
 
       </div>
@@ -444,41 +440,6 @@
 
     </div>
   </main>
-
-  <nav class="bottom-nav">
-    <a href="dashboard.html" class="bottom-nav-item">
-      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
-        <rect x="3" y="3" width="7" height="7" rx="1"/>
-        <rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/>
-        <rect x="14" y="14" width="7" height="7" rx="1"/>
-      </svg><span>Home</span>
-    </a>
-    <a href="log-hours.html" class="bottom-nav-item">
-      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
-      </svg><span>Log</span>
-    </a>
-    <a href="opportunities.html" class="bottom-nav-item">
-      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8"/>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg><span>Explore</span>
-    </a>
-    <a href="badges.html" class="bottom-nav-item">
-      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
-        <circle cx="12" cy="8" r="6"/>
-        <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
-      </svg><span>Badges</span>
-    </a>
-    <a href="settings.html" class="bottom-nav-item active">
-      <svg class="bottom-nav-icon" viewBox="0 0 24 24">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg><span>Profile</span>
-    </a>
-  </nav>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -678,4 +639,59 @@
         })
 
         // Step 4 — clear the role cache so no stale data remains
-        .then(function() {
+        .then(function () {
+          HH._clearCachedRole(_uid);
+          return HH.auth.currentUser.delete();
+        })
+        .then(function () {
+          window.location.replace(HH.Router.PATHS.landing);
+        })
+        .catch(function (e) {
+          btn.disabled  = false;
+          btn.innerHTML = "Yes, permanently delete my account";
+          errEl.textContent = e.code === "auth/wrong-password"
+            ? "Incorrect password."
+            : (e.message || "Delete failed.");
+        });
+    }
+
+
+    function showMsg(type, text) {
+      var el = document.getElementById("settings-message");
+      var bg = type === "error"
+        ? "var(--color-danger-light)"  : "var(--color-success-light)";
+      var co = type === "error"
+        ? "var(--color-danger-text)"   : "var(--color-success-text)";
+      var bd = type === "error"
+        ? "var(--color-danger-border)" : "var(--color-success-border)";
+      el.innerHTML =
+        '<div style="background:' + bg + ';color:' + co +
+        ';border:1px solid ' + bd +
+        ';border-radius:var(--radius-md);padding:0.7rem 0.9rem;' +
+        'font-size:0.875rem;font-weight:500;">' +
+          escHtml(text) + '</div>';
+      setTimeout(function () { el.innerHTML = ""; }, 4000);
+    }
+
+    function ini(name) {
+      var p = (name || "?").trim().split(" ");
+      return p.length === 1
+        ? p[0].charAt(0).toUpperCase()
+        : (p[0].charAt(0) + p[1].charAt(0)).toUpperCase();
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+  </script>
+  <script src="../js/nav-menu.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/volunteer-chrome.js"></script>
+  <script>
+    HH.VolunteerChrome.mount("settings");
+  </script>
+</body>
+</html>

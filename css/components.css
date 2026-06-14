@@ -477,3 +477,282 @@
 }
 .toggle-wrap input:checked ~ .toggle-track               { background: var(--color-primary); }
 .toggle-wrap input:checked ~ .toggle-track .toggle-thumb { transform: translateX(20px); }
+
+
+/* ============================================================
+   PUBLIC THEME TOGGLE (landing, auth, privacy)
+============================================================ */
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.theme-toggle-btn:hover {
+  background: var(--color-gray-100);
+  color: var(--text-primary);
+}
+
+
+/* ============================================================
+   PROFILE MENU (top-right ribbon)
+============================================================ */
+.nav-menu-wrap {
+  position: relative;
+}
+
+.nav-avatar-btn {
+  border: none;
+  font-family: inherit;
+}
+
+.nav-menu-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-2);
+  z-index: 600;
+}
+.nav-menu-dropdown.open { display: block; }
+
+.nav-menu-theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+.nav-menu-theme-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nav-menu-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: var(--space-1) 0;
+}
+
+.nav-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-3);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+}
+.nav-menu-item:hover {
+  background: var(--color-gray-100);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+.nav-menu-item-danger { color: var(--color-danger-text); }
+.nav-menu-item-danger:hover { background: var(--color-danger-light); }
+
+.app-profile-corner {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 450;
+}
+@media (max-width: 640px) {
+  .app-profile-corner { display: none; }
+}
+
+
+/* ============================================================
+   DELETE ACCOUNT MODAL
+============================================================ */
+.hh-delete-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+.hh-delete-modal.open { display: flex; }
+
+.hh-delete-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.hh-delete-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-card);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-lg);
+}
+
+.hh-delete-modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-danger-text);
+  margin-bottom: var(--space-2);
+}
+
+.hh-delete-modal-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: var(--space-3);
+}
+
+.hh-delete-modal-list {
+  margin: 0 0 var(--space-4);
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+  color: var(--color-danger-text);
+  line-height: 1.55;
+}
+
+.hh-delete-modal-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.hh-delete-modal-error {
+  font-size: 0.82rem;
+  color: var(--color-danger-text);
+  min-height: 18px;
+  margin-top: var(--space-2);
+}
+
+.hh-delete-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+
+/* ============================================================
+   MOBILE NAV (volunteer + org)
+============================================================ */
+.app-mobile-nav {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  background: var(--bg-nav);
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+  z-index: 500;
+}
+
+@media (max-width: 640px) {
+  .app-mobile-nav { display: flex; }
+  .vol-sidebar,
+  .org-sidebar     { display: none; }
+}
+
+.app-mobile-nav-logo {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.5px;
+}
+
+.app-mobile-nav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.app-mobile-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+.app-mobile-dropdown {
+  display: none;
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  right: 0;
+  background: var(--bg-nav);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 499;
+  padding: var(--space-3);
+  max-height: calc(100vh - var(--nav-height));
+  overflow-y: auto;
+}
+.app-mobile-dropdown.open { display: block; }
+
+.app-mobile-dropdown a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+}
+.app-mobile-dropdown a:hover {
+  background: var(--color-gray-100);
+  text-decoration: none;
+}
+.app-mobile-dropdown a.active {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+
+/* Alias volunteer sidebar to org sidebar styles */
+.vol-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 220px;
+  height: 100vh;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6) var(--space-3);
+  z-index: 400;
+  overflow-y: auto;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HourHero — Sign In or Create Account</title>
   <meta name="theme-color" content="#4F46E5" />
+  <script src="js/theme.js"></script>
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/components.css" />
@@ -15,7 +16,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #F3F4F6;
+      background: var(--bg-page);
       padding: 1.5rem;
     }
 
@@ -25,28 +26,31 @@
     }
 
     .auth-brand {
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
       margin-bottom: 2rem;
     }
 
     .auth-brand a {
       font-size: 1.6rem;
       font-weight: 800;
-      color: #4F46E5;
+      color: var(--color-primary);
       text-decoration: none;
       letter-spacing: -0.5px;
     }
 
     .auth-card {
-      background: #ffffff;
-      border: 1px solid #E5E7EB;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: 16px;
       padding: 2rem 2rem 2.5rem;
     }
 
     .auth-tabs {
       display: flex;
-      background: #F3F4F6;
+      background: var(--color-gray-100);
       border-radius: 8px;
       padding: 3px;
       margin-bottom: 1.75rem;
@@ -58,7 +62,7 @@
       padding: 0.55rem;
       font-size: 0.9rem;
       font-weight: 600;
-      color: #6B7280;
+      color: var(--text-muted);
       border-radius: 6px;
       cursor: pointer;
       border: none;
@@ -67,21 +71,21 @@
     }
 
     .auth-tab.active {
-      background: #ffffff;
-      color: #111827;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
     }
 
     .auth-heading {
       font-size: 1.3rem;
       font-weight: 700;
-      color: #111827;
+      color: var(--text-primary);
       margin-bottom: 0.3rem;
     }
 
     .auth-subheading {
       font-size: 0.88rem;
-      color: #6B7280;
+      color: var(--text-secondary);
       margin-bottom: 1.5rem;
     }
 
@@ -94,7 +98,7 @@
       display: block;
       font-size: 0.85rem;
       font-weight: 600;
-      color: #374151;
+      color: var(--text-primary);
       margin-bottom: 0.35rem;
     }
 
@@ -102,16 +106,16 @@
       width: 100%;
       padding: 0.65rem 0.85rem;
       font-size: 0.95rem;
-      color: #111827;
-      background: #ffffff;
-      border: 1.5px solid #D1D5DB;
+      color: var(--text-primary);
+      background: var(--bg-input);
+      border: 1.5px solid var(--border-color);
       border-radius: 8px;
       box-sizing: border-box;
       transition: border-color 0.15s;
       outline: none;
     }
 
-    .form-input:focus { border-color: #4F46E5; }
+    .form-input:focus { border-color: var(--color-primary); }
 
     .role-selector {
       display: grid;
@@ -135,18 +139,18 @@
       text-align: center;
       font-size: 0.88rem;
       font-weight: 600;
-      color: #374151;
-      background: #F9FAFB;
-      border: 1.5px solid #D1D5DB;
+      color: var(--text-primary);
+      background: var(--color-gray-50);
+      border: 1.5px solid var(--border-color);
       border-radius: 8px;
       cursor: pointer;
       transition: border-color 0.15s, background 0.15s, color 0.15s;
     }
 
     .role-option input:checked + .role-label {
-      border-color: #4F46E5;
-      background: #EEF2FF;
-      color: #4338CA;
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
     }
 
     .role-emoji {
@@ -157,7 +161,7 @@
 
     .forgot-link {
       font-size: 0.82rem;
-      color: #4F46E5;
+      color: var(--color-primary);
       text-decoration: none;
       display: block;
       text-align: right;
@@ -173,7 +177,7 @@
       font-size: 1rem;
       font-weight: 700;
       color: #ffffff;
-      background: #4F46E5;
+      background: var(--color-primary);
       border: none;
       border-radius: 8px;
       cursor: pointer;
@@ -185,8 +189,8 @@
       gap: 8px;
     }
 
-    .btn-auth:hover:not(:disabled) { background: #4338CA; }
-    .btn-auth:disabled { background: #A5B4FC; cursor: not-allowed; }
+    .btn-auth:hover:not(:disabled) { background: var(--color-primary-dark); }
+    .btn-auth:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .auth-message {
       display: none;
@@ -199,27 +203,27 @@
 
     .auth-message.error {
       display: block;
-      background: #FEF2F2;
-      color: #B91C1C;
-      border: 1px solid #FECACA;
+      background: var(--color-danger-light);
+      color: var(--color-danger-text);
+      border: 1px solid var(--color-danger-border);
     }
 
     .auth-message.success {
       display: block;
-      background: #F0FDF4;
-      color: #15803D;
-      border: 1px solid #BBF7D0;
+      background: var(--color-success-light);
+      color: var(--color-success-text);
+      border: 1px solid var(--color-success-border);
     }
 
     .auth-switch {
       text-align: center;
       margin-top: 1.25rem;
       font-size: 0.875rem;
-      color: #6B7280;
+      color: var(--text-secondary);
     }
 
     .auth-switch a {
-      color: #4F46E5;
+      color: var(--color-primary);
       font-weight: 600;
       text-decoration: none;
     }
@@ -260,7 +264,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: #ffffff;
+      background: var(--bg-page);
       z-index: 9999;
       flex-direction: column;
       align-items: center;
@@ -273,21 +277,21 @@
     .redirect-logo {
       font-size: 1.6rem;
       font-weight: 800;
-      color: #4F46E5;
+      color: var(--color-primary);
       letter-spacing: -0.5px;
     }
 
     .redirect-msg {
       font-size: 0.9rem;
-      color: #6B7280;
+      color: var(--text-secondary);
       font-weight: 500;
     }
 
     .redirect-spinner {
       width: 32px;
       height: 32px;
-      border: 3px solid #EEF2FF;
-      border-top-color: #4F46E5;
+      border: 3px solid var(--color-primary-light);
+      border-top-color: var(--color-primary);
       border-radius: 50%;
       animation: spin 0.9s linear infinite;
     }
@@ -308,6 +312,8 @@
 
     <div class="auth-brand">
       <a href="index.html">HourHero</a>
+      <button type="button" class="theme-toggle-btn" id="public-theme-toggle"
+              aria-label="Toggle dark mode" title="Toggle theme"></button>
     </div>
 
     <div class="auth-card">
@@ -433,7 +439,6 @@
 
   </div>
 
-  <script src="js/theme.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -446,6 +451,7 @@
 
     // If already logged in, skip this page
     HH.Router.initPublicPage();
+    HH.Theme.bindPublicToggle("public-theme-toggle");
 
 
     // Pre-fill from URL params

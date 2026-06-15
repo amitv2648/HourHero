@@ -791,7 +791,11 @@
       }).catch(function(err) {
         removeTyping();
         document.getElementById("chat-send-btn").disabled = false;
-        botMsg("Sorry, I had trouble connecting. Please check your internet and try again.\n(" + err.message + ")");
+        botMsg(
+          "Sorry, I had trouble connecting. Make sure you started the app with " +
+          "npm start and opened http://localhost:" + (location.port || "3000") +
+          " (not the HTML file directly).\n\n(" + err.message + ")"
+        );
       });
     }
 

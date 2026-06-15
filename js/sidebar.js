@@ -1,6 +1,7 @@
 // ============================================================
 // HourHero — js/sidebar.js
 // Collapsible sidebar for volunteer + organization modes
+// Toggle sits on the vertical divider between sidebar and content.
 // ============================================================
 
 (function () {
@@ -10,6 +11,8 @@
     volunteer: "hh_sidebar_collapsed_volunteer",
     org:       "hh_sidebar_collapsed_org"
   };
+
+  var TOGGLE_ID = "sidebar-edge-toggle";
 
   (function applyStoredStateEarly() {
     var path = window.location.pathname || "";
@@ -28,7 +31,7 @@
   }());
 
   var CHEVRON =
-    '<svg class="sidebar-toggle-icon" width="18" height="18" viewBox="0 0 24 24" ' +
+    '<svg class="sidebar-edge-toggle-icon" width="16" height="16" viewBox="0 0 24 24" ' +
     'fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" ' +
     'stroke-linejoin="round" aria-hidden="true">' +
     '<polyline points="15 18 9 12 15 6"/>' +
@@ -49,7 +52,7 @@
       localStorage.setItem(STORAGE[mode], collapsed ? "1" : "0");
     } catch (e) {}
 
-    var btn = document.querySelector(".app-sidebar .sidebar-toggle");
+    var btn = document.getElementById(TOGGLE_ID);
     if (btn) {
       btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
       btn.setAttribute(
@@ -60,27 +63,29 @@
     }
   }
 
-  function ensureHeader(sidebar) {
-    var header = sidebar.querySelector(".sidebar-header");
-    var logo   = sidebar.querySelector(".org-sidebar-logo");
+  function ensureLogoHeader(sidebar) {
+    var logo = sidebar.querySelector(".org-sidebar-logo");
+    if (!logo) return;
 
-    if (!header) {
-      header = document.createElement("div");
-      header.className = "sidebar-header";
-      if (logo) {
-        logo.parentNode.insertBefore(header, logo);
-        header.appendChild(logo);
-      }
-      sidebar.insertBefore(header, sidebar.firstChild);
-    }
+    if (sidebar.querySelector(".sidebar-header")) return;
 
-    if (!header.querySelector(".sidebar-toggle")) {
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "sidebar-toggle";
-      btn.innerHTML = CHEVRON;
-      header.appendChild(btn);
-    }
+    var header = document.createElement("div");
+    header.className = "sidebar-header";
+    logo.parentNode.insertBefore(header, logo);
+    header.appendChild(logo);
+  }
+
+  function ensureEdgeToggle() {
+    var btn = document.getElementById(TOGGLE_ID);
+    if (btn) return btn;
+
+    btn = document.createElement("button");
+    btn.type = "button";
+    btn.id = TOGGLE_ID;
+    btn.className = "sidebar-edge-toggle";
+    btn.innerHTML = CHEVRON;
+    document.body.appendChild(btn);
+    return btn;
   }
 
   HH.Sidebar = {
@@ -90,11 +95,16 @@
       if (!sidebar) return;
 
       sidebar.classList.add("app-sidebar");
+      ensureLogoHeader(sidebar);
 
-      ensureHeader(sidebar);
+      var headerToggle = sidebar.querySelector(".sidebar-toggle");
+      if (headerToggle) headerToggle.remove();
 
-      var btn = sidebar.querySelector(".sidebar-toggle");
-      if (!btn || btn._hhSidebarBound) return;
+      var btn = ensureEdgeToggle();
+      if (btn._hhSidebarBound) {
+        setCollapsed(mode, isCollapsed(mode));
+        return;
+      }
       btn._hhSidebarBound = true;
 
       setCollapsed(mode, isCollapsed(mode));

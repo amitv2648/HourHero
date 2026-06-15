@@ -13,13 +13,22 @@ function loadEnv() {
   var envPath     = path.join(ROOT, ".env");
   var examplePath = path.join(ROOT, ".env.example");
 
+  function applyEnvFile(filePath) {
+    var raw = fs.readFileSync(filePath, "utf8");
+    if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+    var parsed = dotenv.parse(raw);
+    Object.keys(parsed).forEach(function (key) {
+      process.env[key] = parsed[key];
+    });
+  }
+
   if (fs.existsSync(envPath)) {
-    dotenv.config({ path: envPath });
+    applyEnvFile(envPath);
     return ".env";
   }
 
   if (fs.existsSync(examplePath)) {
-    dotenv.config({ path: examplePath });
+    applyEnvFile(examplePath);
     console.log(
       "Note: No .env file found — loaded settings from .env.example.\n" +
       "       Create a .env file (copy .env.example) so your API key is not committed to git."
@@ -155,8 +164,8 @@ app.post("/api/chat", function (req, res) {
   if (!apiKey || apiKey === "your-gemini-api-key-here") {
     return res.status(503).json({
       error:
-        "GEMINI_API_KEY is missing. Get a free key at https://aistudio.google.com/apikey " +
-        "then put it in a file named .env (not only .env.example): GEMINI_API_KEY=your-key"
+        "GEMINI_API_KEY is missing. Run the app with npm start, add your key to .env " +
+        "(get a free key at https://aistudio.google.com/apikey), then restart the server."
     });
   }
 
@@ -226,7 +235,18 @@ app.post("/api/chat", function (req, res) {
           console.warn("Gemini model " + fallbacks[i] + " failed: " + msg);
           return tryNext(i + 1);
         }
+        console.error("Gemini API error (" + result.status + "): " + msg);
         return res.status(result.status).json({ error: msg });
+      }
+
+      var blockReason =
+        data.promptFeedback &&
+        data.promptFeedback.blockReason;
+
+      if (blockReason) {
+        return res.status(400).json({
+          error: "Request blocked by Gemini: " + blockReason
+        });
       }
 
       var parts =
@@ -273,16 +293,60 @@ function mergeConsecutiveRoles(contents) {
 
 app.use(express.static(ROOT));
 
+app.get("/api/health", function (req, res) {
+  var key = process.env.GEMINI_API_KEY || "";
+  res.json({
+    ok: true,
+    geminiConfigured: !!(key && key !== "your-gemini-api-key-here"),
+    geminiModel: GEMINI_MODEL,
+    envFile: loadedFrom || null
+  });
+});
+
+function verifyGeminiKeyOnStartup() {
+  var apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey === "your-gemini-api-key-here") return Promise.resolve();
+
+  var url =
+    "https://generativelanguage.googleapis.com/v1beta/models/" +
+    encodeURIComponent(GEMINI_MODEL) +
+    ":generateContent?key=" +
+    encodeURIComponent(apiKey);
+
+  return fetch(url, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({
+      contents: [{ role: "user", parts: [{ text: "ping" }] }]
+    })
+  })
+    .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+    .then(function (result) {
+      if (result.ok && result.d.candidates && result.d.candidates[0]) {
+        console.log("Gemini API key verified successfully.");
+        return;
+      }
+      var msg = (result.d.error && result.d.error.message) || "Unknown error";
+      console.log("Warning: Gemini API key test failed — " + msg);
+      console.log("       Get or refresh your key at https://aistudio.google.com/apikey");
+    })
+    .catch(function (err) {
+      console.log("Warning: Could not reach Gemini API — " + err.message);
+    });
+}
+
 app.listen(PORT, function () {
   console.log("HourHero running at http://localhost:" + PORT);
+  console.log("Open the app at that URL (do not open HTML files directly).");
   if (loadedFrom) {
     console.log("Env loaded from: " + loadedFrom);
   }
   if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "your-gemini-api-key-here") {
     console.log("Warning: GEMINI_API_KEY not set — AI chat will not work.");
-    console.log("Free key: https://aistudio.google.com/apikey → save in .env");
+    console.log("Free key: https://aistudio.google.com/apikey → save in .env → restart server");
   } else {
     console.log("AI chat: Google Gemini (default model: " + GEMINI_MODEL + ")");
+    verifyGeminiKeyOnStartup();
   }
   if (!getMailTransport()) {
     console.log("Warning: SMTP not configured — opportunity deletion emails will not send.");

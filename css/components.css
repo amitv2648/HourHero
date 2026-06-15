@@ -106,12 +106,7 @@ html.sidebar-collapsed {
 }
 
 .sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
   margin-bottom: var(--space-6);
-  min-height: 28px;
 }
 
 .org-sidebar-logo {
@@ -119,47 +114,49 @@ html.sidebar-collapsed {
   color: var(--color-primary);
   padding: 0 var(--space-3);
   letter-spacing: -0.5px;
-  flex: 1;
-  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
-  transition: opacity 0.15s ease;
 }
 
-.sidebar-toggle {
+/* Toggle on the vertical divider between sidebar and main content */
+.sidebar-edge-toggle {
+  position: fixed;
+  top: 50%;
+  left: calc(var(--sidebar-width) - 14px);
+  transform: translateY(-50%);
+  z-index: 450;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   background: var(--bg-card);
   color: var(--text-secondary);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: left 0.22s ease, background 0.15s, color 0.15s, border-color 0.15s;
 }
-.sidebar-toggle:hover {
+
+.sidebar-edge-toggle:hover {
   background: var(--color-gray-100);
   color: var(--color-primary);
   border-color: var(--color-primary-mid);
 }
 
-.sidebar-toggle-icon {
+.sidebar-edge-toggle-icon {
   transition: transform 0.22s ease;
   flex-shrink: 0;
 }
 
-html.sidebar-collapsed .sidebar-toggle-icon {
+html.sidebar-collapsed .sidebar-edge-toggle-icon {
   transform: rotate(180deg);
 }
 
-html.sidebar-collapsed .sidebar-header {
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
+@media (max-width: 640px) {
+  .sidebar-edge-toggle { display: none; }
 }
 
 html.sidebar-collapsed .org-sidebar-logo {

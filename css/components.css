@@ -201,6 +201,8 @@ html.sidebar-collapsed .app-sidebar {
   padding: var(--space-8);
   min-height: 100vh;
   transition: margin-left 0.22s ease;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .org-page-content {
@@ -208,6 +210,15 @@ html.sidebar-collapsed .app-sidebar {
   padding: var(--space-8);
   min-height: 100vh;
   transition: margin-left 0.22s ease;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Fixed full-viewport panels (e.g. opportunities map layout) */
+.opps-layout,
+.layout-sidebar-offset {
+  left: var(--sidebar-width);
+  transition: left 0.22s ease;
 }
 
 .org-sidebar-label {
@@ -245,6 +256,8 @@ html.sidebar-collapsed .app-sidebar {
   .app-sidebar { display: none; }
   .org-main,
   .org-page-content { margin-left: 0; padding: var(--space-4); padding-top: calc(var(--nav-height) + var(--space-4)); }
+  .opps-layout,
+  .layout-sidebar-offset { left: 0; }
 }
 
 

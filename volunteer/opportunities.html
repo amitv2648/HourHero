@@ -10,14 +10,15 @@
   <style>
     body { background: var(--color-gray-100); overflow: hidden; }
 
-    /* Two-column layout fills viewport between top and bottom nav */
+    /* Two-column layout fills viewport beside the sidebar */
     .opps-layout {
       display: flex;
       position: fixed;
-      top: var(--nav-height);
+      top: 0;
       bottom: 0;
-      left: 0;
+      left: var(--sidebar-width);
       right: 0;
+      transition: left 0.22s ease;
     }
 
     /* LEFT PANEL */
@@ -234,14 +235,15 @@
       text-align: center;
     }
 
-    /* Mobile: stacked layout */
-    @media (max-width: 680px) {
+    /* Mobile: stacked layout (sidebar hidden via global CSS at 640px) */
+    @media (max-width: 640px) {
       body { overflow: auto; }
 
       .opps-layout {
         position: static;
         flex-direction: column;
         height: auto;
+        left: 0;
         margin-top: var(--nav-height);
         margin-bottom: 0;
       }

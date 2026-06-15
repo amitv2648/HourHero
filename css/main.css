@@ -422,6 +422,8 @@ h1, h2, h3, h4, h5, h6 {
   padding: var(--space-8);
   min-height: 100vh;
   transition: margin-left 0.22s ease;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 @media (max-width: 640px) {

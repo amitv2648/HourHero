@@ -599,62 +599,200 @@
         var rowsHtml = "";
         if (!list.length) {
           rowsHtml =
-            "<tr><td colspan=\"6\" style=\"text-align:center;color:#6B7280;padding:1.5rem;\">" +
+            "<tr><td colspan=\"8\" style=\"text-align:center;color:#6B7280;padding:2rem;font-style:italic;\">" +
             "No volunteer hour entries yet.</td></tr>";
         } else {
-          list.forEach(function (s) {
+          list.forEach(function (s, index) {
+            var entryNum = index + 1;
             var dateStr = s.date
               ? new Date(s.date + "T12:00:00").toLocaleDateString("en-US",
                   { month: "short", day: "numeric", year: "numeric" })
               : "—";
-            var status = (s.status || "pending");
-            status = status.charAt(0).toUpperCase() + status.slice(1);
+            var startTime = s.start_time || "—";
+            var endTime = s.end_time || "—";
+            var duration = s.duration ? parseFloat(s.duration).toFixed(1) + "h" : "—";
+            var hours = parseFloat(s.hours || 0).toFixed(2);
+            var activity = s.description || "—";
             rowsHtml +=
               "<tr>" +
+                "<td style=\"text-align:center;font-weight:600;\">" + entryNum + "</td>" +
                 "<td>" + reportEsc(dateStr) + "</td>" +
-                "<td>" + reportEsc(s.opportunity_title || "Volunteer hours") + "</td>" +
                 "<td>" + reportEsc(s.org_name || "—") + "</td>" +
-                "<td style=\"text-align:right;\">" + (parseFloat(s.hours || 0).toFixed(2)) + "</td>" +
-                "<td>" + reportEsc(status) + "</td>" +
-                "<td>" + reportEsc(s.description || "") + "</td>" +
+                "<td>" + reportEsc(startTime) + "</td>" +
+                "<td>" + reportEsc(endTime) + "</td>" +
+                "<td style=\"text-align:center;\">" + reportEsc(duration) + "</td>" +
+                "<td>" + reportEsc(activity) + "</td>" +
+                "<td style=\"text-align:right;font-weight:600;\">" + hours + "</td>" +
               "</tr>";
           });
         }
 
         var html =
           "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"/>" +
+          "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>" +
           "<title>HourHero Volunteer Report — " + reportEsc(name) + "</title>" +
           "<style>" +
-            "body{font-family:Georgia,'Times New Roman',serif;color:#111;max-width:900px;margin:2rem auto;padding:0 1.5rem;}" +
-            "h1{font-size:1.6rem;margin-bottom:0.25rem;}" +
-            ".meta{color:#4B5563;font-size:0.95rem;margin-bottom:1.5rem;line-height:1.6;}" +
-            ".summary{display:flex;gap:2rem;margin-bottom:1.5rem;font-size:0.95rem;}" +
-            "table{width:100%;border-collapse:collapse;font-size:0.9rem;}" +
-            "th,td{border:1px solid #D1D5DB;padding:0.55rem 0.65rem;text-align:left;vertical-align:top;}" +
-            "th{background:#F3F4F6;font-weight:700;}" +
+            "@page { size: letter; margin: 0.75in; }" +
+            "* { box-sizing: border-box; }" +
+            "body{" +
+              "font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;" +
+              "color:#1F2937;" +
+              "max-width:960px;" +
+              "margin:0 auto;" +
+              "padding:0;" +
+              "line-height:1.5;" +
+              "background:#fff;" +
+            "}" +
+            ".container {" +
+              "padding: 2rem 1.5rem;" +
+              "max-width: 100%;" +
+            "}" +
+            "h1{" +
+              "font-size:1.75rem;" +
+              "font-weight:800;" +
+              "margin-bottom:0.5rem;" +
+              "color:#111827;" +
+              "letter-spacing:-0.5px;" +
+            "}" +
+            ".meta{" +
+              "color:#4B5563;" +
+              "font-size:0.9rem;" +
+              "margin-bottom:1.5rem;" +
+              "line-height:1.7;" +
+              "border-bottom:1px solid #E5E7EB;" +
+              "padding-bottom:1.5rem;" +
+            "}" +
+            ".meta-row{" +
+              "margin-bottom:0.35rem;" +
+            "}" +
+            ".meta-label{" +
+              "font-weight:600;" +
+              "color:#374151;" +
+              "display:inline-block;" +
+              "min-width:100px;" +
+            "}" +
+            ".summary{" +
+              "display:flex;" +
+              "gap:3rem;" +
+              "margin-bottom:2rem;" +
+              "padding:1rem 1.25rem;" +
+              "background:#F9FAFB;" +
+              "border:1px solid #E5E7EB;" +
+              "border-radius:8px;" +
+              "font-size:0.9rem;" +
+            "}" +
+            ".summary-item{" +
+              "flex:1;" +
+            "}" +
+            ".summary-label{" +
+              "font-weight:600;" +
+              "color:#6B7280;" +
+              "font-size:0.8rem;" +
+              "text-transform:uppercase;" +
+              "letter-spacing:0.5px;" +
+              "margin-bottom:0.25rem;" +
+            "}" +
+            ".summary-value{" +
+              "font-size:1.5rem;" +
+              "font-weight:700;" +
+              "color:#111827;" +
+            "}" +
+            "table{" +
+              "width:100%;" +
+              "border-collapse:collapse;" +
+              "font-size:0.85rem;" +
+              "margin-bottom:2rem;" +
+              "page-break-inside:auto;" +
+            "}" +
+            "thead{" +
+              "display:table-header-group;" +
+            "}" +
+            "tbody{" +
+              "display:table-row-group;" +
+            "}" +
+            "tr{" +
+              "page-break-inside:avoid;" +
+              "page-break-after:auto;" +
+            "}" +
+            "th{" +
+              "background:#F3F4F6;" +
+              "font-weight:700;" +
+              "color:#374151;" +
+              "padding:0.75rem 0.6rem;" +
+              "text-align:left;" +
+              "border:1px solid #D1D5DB;" +
+              "font-size:0.8rem;" +
+              "text-transform:uppercase;" +
+              "letter-spacing:0.3px;" +
+            "}" +
+            "td{" +
+              "padding:0.65rem 0.6rem;" +
+              "border:1px solid #D1D5DB;" +
+              "vertical-align:middle;" +
+              "color:#374151;" +
+            "}" +
             "tr:nth-child(even){background:#FAFAFA;}" +
-            ".footer{margin-top:2rem;font-size:0.8rem;color:#6B7280;border-top:1px solid #E5E7EB;padding-top:1rem;}" +
+            "tr:hover{background:#F3F4F6;}" +
+            ".col-entry{width:60px;text-align:center;}" +
+            ".col-date{width:100px;}" +
+            ".col-org{width:140px;}" +
+            ".col-start{width:80px;}" +
+            ".col-end{width:80px;}" +
+            ".col-duration{width:80px;text-align:center;}" +
+            ".col-activity{min-width:180px;}" +
+            ".col-hours{width:80px;text-align:right;}" +
+            ".footer{" +
+              "margin-top:2rem;" +
+              "padding-top:1.5rem;" +
+              "border-top:1px solid #E5E7EB;" +
+              "font-size:0.8rem;" +
+              "color:#6B7280;" +
+              "text-align:center;" +
+            "}" +
+            "@media print{" +
+              "body{margin:0;padding:0;}" +
+              ".container{padding:0;}" +
+              "table{page-break-inside:auto;}" +
+              "tr{page-break-inside:avoid;page-break-after:auto;}" +
+              "thead{display:table-header-group;}" +
+              ".summary{page-break-inside:avoid;}" +
+              ".footer{page-break-before:always;}" +
+            "}" +
           "</style></head><body>" +
-          "<h1>HourHero Volunteer Service Report</h1>" +
+          "<div class=\"container\">" +
+          "<h1>Volunteer Service Report</h1>" +
           "<div class=\"meta\">" +
-            "<div><strong>Volunteer:</strong> " + reportEsc(name) + "</div>" +
-            (email ? "<div><strong>Email:</strong> " + reportEsc(email) + "</div>" : "") +
-            "<div><strong>Generated:</strong> " + reportEsc(generated) + "</div>" +
+            "<div class=\"meta-row\"><span class=\"meta-label\">Volunteer:</span> " + reportEsc(name) + "</div>" +
+            (email ? "<div class=\"meta-row\"><span class=\"meta-label\">Email:</span> " + reportEsc(email) + "</div>" : "") +
+            "<div class=\"meta-row\"><span class=\"meta-label\">Generated:</span> " + reportEsc(generated) + "</div>" +
           "</div>" +
           "<div class=\"summary\">" +
-            "<div><strong>Total approved hours:</strong> " + approvedHrs.toFixed(1) + "</div>" +
-            "<div><strong>Total entries:</strong> " + list.length + "</div>" +
+            "<div class=\"summary-item\">" +
+              "<div class=\"summary-label\">Total Approved Hours</div>" +
+              "<div class=\"summary-value\">" + approvedHrs.toFixed(1) + "</div>" +
+            "</div>" +
+            "<div class=\"summary-item\">" +
+              "<div class=\"summary-label\">Total Entries</div>" +
+              "<div class=\"summary-value\">" + list.length + "</div>" +
+            "</div>" +
           "</div>" +
           "<table>" +
             "<thead><tr>" +
-              "<th>Date</th><th>Opportunity</th><th>Organization</th>" +
-              "<th>Hours</th><th>Status</th><th>Description</th>" +
+              "<th class=\"col-entry\">Entry #</th>" +
+              "<th class=\"col-date\">Date</th>" +
+              "<th class=\"col-org\">Organization</th>" +
+              "<th class=\"col-start\">Start Time</th>" +
+              "<th class=\"col-end\">End Time</th>" +
+              "<th class=\"col-duration\">Total Duration</th>" +
+              "<th class=\"col-activity\">Activity</th>" +
+              "<th class=\"col-hours\">Hours</th>" +
             "</tr></thead>" +
             "<tbody>" + rowsHtml + "</tbody>" +
           "</table>" +
-          "<div class=\"footer\">Generated by HourHero. Approved hours on file: " +
-            totalHours.toFixed(1) + ".</div>" +
-          "</body></html>";
+          "<div class=\"footer\">" +
+            "Generated by HourHero • Approved hours on file: " + totalHours.toFixed(1) +
+          "</div>" +
+          "</div></body></html>";
 
         var blob = new Blob([html], { type: "text/html;charset=utf-8" });
         var url  = URL.createObjectURL(blob);

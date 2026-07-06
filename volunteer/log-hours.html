@@ -340,6 +340,127 @@
                       rows="3"></textarea>
           </div>
 
+          <!-- Achievement Builder -->
+          <div class="achievement-builder" id="achievement-builder">
+            <div class="achievement-builder-header" onclick="toggleAchievementBuilder()">
+              <div class="achievement-builder-title">
+                <svg class="achievement-builder-icon" viewBox="0 0 24 24">
+                  <polyline points="9 11 12 14 22 4"></polyline>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                Achievement Builder
+                <span class="form-label-optional">(optional)</span>
+              </div>
+              <svg class="achievement-builder-toggle" viewBox="0 0 24 24">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+            <div class="achievement-builder-body">
+              <div class="achievement-section">
+                <label class="achievement-label">Reflection</label>
+                <div class="achievement-hint">What did you do during this volunteer experience?</div>
+                <textarea class="achievement-textarea" id="ach-reflection"
+                          placeholder="Describe your volunteer experience in detail..."
+                          rows="4" oninput="scheduleAutosave()"></textarea>
+              </div>
+
+              <div class="achievement-section">
+                <label class="achievement-label">Skills Used</label>
+                <div class="achievement-hint">Select skills you used during this experience</div>
+                <div class="achievement-tags-container" id="skills-container">
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Communication</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Leadership</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Teamwork</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Teaching</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Problem Solving</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Time Management</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Customer Service</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Technology</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Engineering</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Healthcare</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Organization</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Public Speaking</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Creativity</span>
+                  <span class="achievement-tag" onclick="toggleSkill(this)">Event Planning</span>
+                </div>
+                <div class="achievement-custom-tag-input" style="margin-top:var(--space-2);">
+                  <input type="text" id="custom-skill-input" placeholder="Add custom skill..."
+                         onkeypress="handleCustomSkill(event)" />
+                </div>
+              </div>
+
+              <div class="achievement-section">
+                <label class="achievement-label">Leadership Demonstrated</label>
+                <div class="achievement-hint">Describe any leadership you demonstrated</div>
+                <textarea class="achievement-textarea" id="ach-leadership"
+                          placeholder="Describe leadership roles or initiatives..."
+                          rows="3" oninput="scheduleAutosave()"></textarea>
+              </div>
+
+              <div class="achievement-section">
+                <label class="achievement-label">Challenge Faced</label>
+                <div class="achievement-hint">What challenge did you overcome?</div>
+                <textarea class="achievement-textarea" id="ach-challenge"
+                          placeholder="Describe challenges and how you overcame them..."
+                          rows="3" oninput="scheduleAutosave()"></textarea>
+              </div>
+
+              <div class="achievement-section">
+                <label class="achievement-label">Community Impact</label>
+                <div class="achievement-hint">How did your work positively impact others?</div>
+                <textarea class="achievement-textarea" id="ach-impact"
+                          placeholder="Describe the positive impact of your work..."
+                          rows="3" oninput="scheduleAutosave()"></textarea>
+              </div>
+
+              <div class="achievement-section">
+                <label class="achievement-label">Personal Growth</label>
+                <div class="achievement-hint">What did you learn from this experience?</div>
+                <textarea class="achievement-textarea" id="ach-growth"
+                          placeholder="Describe skills you developed or lessons learned..."
+                          rows="3" oninput="scheduleAutosave()"></textarea>
+              </div>
+
+              <div class="achievement-section">
+                <label class="achievement-label">Achievement Tags</label>
+                <div class="achievement-hint">Select achievement categories</div>
+                <div class="achievement-tags-container" id="tags-container">
+                  <span class="achievement-tag" onclick="toggleTag(this)">Leadership</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Community Service</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Education</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Environmental Service</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Technology</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Healthcare</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Engineering</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Animals</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Fundraising</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Mentoring</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">STEM</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Youth</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Food Bank</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Senior Care</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Accessibility</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Disaster Relief</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Nonprofit</span>
+                  <span class="achievement-tag" onclick="toggleTag(this)">Volunteer</span>
+                </div>
+                <div class="achievement-custom-tag-input" style="margin-top:var(--space-2);">
+                  <input type="text" id="custom-tag-input" placeholder="Add custom tag..."
+                         onkeypress="handleCustomTag(event)" />
+                </div>
+              </div>
+
+              <div style="margin-top:var(--space-3);">
+                <span class="achievement-save-indicator" id="save-indicator">
+                  <svg style="width:14px;height:14px;" viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  Saved
+                </span>
+              </div>
+            </div>
+          </div>
+
           <button class="btn btn-primary btn-full"
                   id="btn-submit" onclick="handleSubmit()">
             Submit for approval
@@ -425,6 +546,7 @@
       loadJoinedOpps(uid);
       listenSubmissions(uid);
       initChat();
+      loadAchievementDraft();
     });
 
 
@@ -526,6 +648,178 @@
       var isOverride = document.getElementById("override-attendance").checked;
       document.getElementById("sel-start").disabled = !isOverride;
       document.getElementById("sel-end").disabled = !isOverride;
+    }
+
+    // Achievement Builder functions
+    function toggleAchievementBuilder() {
+      var builder = document.getElementById("achievement-builder");
+      builder.classList.toggle("open");
+    }
+
+    var _selectedSkills = [];
+    var _selectedTags = [];
+    var _autosaveTimer = null;
+
+    function toggleSkill(el) {
+      var skill = el.textContent;
+      var idx = _selectedSkills.indexOf(skill);
+      if (idx >= 0) {
+        _selectedSkills.splice(idx, 1);
+        el.classList.remove("selected");
+      } else {
+        _selectedSkills.push(skill);
+        el.classList.add("selected");
+      }
+      scheduleAutosave();
+    }
+
+    function toggleTag(el) {
+      var tag = el.textContent;
+      var idx = _selectedTags.indexOf(tag);
+      if (idx >= 0) {
+        _selectedTags.splice(idx, 1);
+        el.classList.remove("selected");
+      } else {
+        _selectedTags.push(tag);
+        el.classList.add("selected");
+      }
+      scheduleAutosave();
+    }
+
+    function handleCustomSkill(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        var input = document.getElementById("custom-skill-input");
+        var skill = input.value.trim();
+        if (skill && _selectedSkills.indexOf(skill) < 0) {
+          _selectedSkills.push(skill);
+          var container = document.getElementById("skills-container");
+          var span = document.createElement("span");
+          span.className = "achievement-tag selected";
+          span.textContent = skill;
+          span.onclick = function() { toggleSkill(this); };
+          container.insertBefore(span, container.lastElementChild);
+          input.value = "";
+          scheduleAutosave();
+        }
+      }
+    }
+
+    function handleCustomTag(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        var input = document.getElementById("custom-tag-input");
+        var tag = input.value.trim();
+        if (tag && _selectedTags.indexOf(tag) < 0) {
+          _selectedTags.push(tag);
+          var container = document.getElementById("tags-container");
+          var span = document.createElement("span");
+          span.className = "achievement-tag selected";
+          span.textContent = tag;
+          span.onclick = function() { toggleTag(this); };
+          container.insertBefore(span, container.lastElementChild);
+          input.value = "";
+          scheduleAutosave();
+        }
+      }
+    }
+
+    function scheduleAutosave() {
+      if (_autosaveTimer) clearTimeout(_autosaveTimer);
+      _autosaveTimer = setTimeout(function() {
+        saveAchievementDraft();
+      }, 3000);
+    }
+
+    function saveAchievementDraft() {
+      var draft = {
+        reflection: document.getElementById("ach-reflection").value,
+        skills_used: _selectedSkills,
+        leadership_demonstrated: document.getElementById("ach-leadership").value,
+        challenge_faced: document.getElementById("ach-challenge").value,
+        community_impact: document.getElementById("ach-impact").value,
+        personal_growth: document.getElementById("ach-growth").value,
+        achievement_tags: _selectedTags
+      };
+      localStorage.setItem("hh_achievement_draft", JSON.stringify(draft));
+      showSaveIndicator();
+    }
+
+    function showSaveIndicator() {
+      var indicator = document.getElementById("save-indicator");
+      indicator.classList.add("visible");
+      setTimeout(function() {
+        indicator.classList.remove("visible");
+      }, 2000);
+    }
+
+    function loadAchievementDraft() {
+      var draft = localStorage.getItem("hh_achievement_draft");
+      if (draft) {
+        try {
+          var data = JSON.parse(draft);
+          document.getElementById("ach-reflection").value = data.reflection || "";
+          document.getElementById("ach-leadership").value = data.leadership_demonstrated || "";
+          document.getElementById("ach-challenge").value = data.challenge_faced || "";
+          document.getElementById("ach-impact").value = data.community_impact || "";
+          document.getElementById("ach-growth").value = data.personal_growth || "";
+          _selectedSkills = data.skills_used || [];
+          _selectedTags = data.achievement_tags || [];
+          renderSelectedSkills();
+          renderSelectedTags();
+        } catch(e) {
+          console.error("Failed to load achievement draft:", e);
+        }
+      }
+    }
+
+    function renderSelectedSkills() {
+      var container = document.getElementById("skills-container");
+      var tags = container.querySelectorAll(".achievement-tag");
+      tags.forEach(function(tag) {
+        if (_selectedSkills.indexOf(tag.textContent) >= 0) {
+          tag.classList.add("selected");
+        } else {
+          tag.classList.remove("selected");
+        }
+      });
+    }
+
+    function renderSelectedTags() {
+      var container = document.getElementById("tags-container");
+      var tags = container.querySelectorAll(".achievement-tag");
+      tags.forEach(function(tag) {
+        if (_selectedTags.indexOf(tag.textContent) >= 0) {
+          tag.classList.add("selected");
+        } else {
+          tag.classList.remove("selected");
+        }
+      });
+    }
+
+    function clearAchievementDraft() {
+      localStorage.removeItem("hh_achievement_draft");
+      _selectedSkills = [];
+      _selectedTags = [];
+      document.getElementById("ach-reflection").value = "";
+      document.getElementById("ach-leadership").value = "";
+      document.getElementById("ach-challenge").value = "";
+      document.getElementById("ach-impact").value = "";
+      document.getElementById("ach-growth").value = "";
+      renderSelectedSkills();
+      renderSelectedTags();
+    }
+
+    function getAchievementData() {
+      return {
+        reflection: document.getElementById("ach-reflection").value,
+        skills_used: _selectedSkills,
+        leadership_demonstrated: document.getElementById("ach-leadership").value,
+        challenge_faced: document.getElementById("ach-challenge").value,
+        community_impact: document.getElementById("ach-impact").value,
+        personal_growth: document.getElementById("ach-growth").value,
+        achievement_tags: _selectedTags
+      };
     }
 
     function switchTab(tab, btn) {
@@ -639,6 +933,7 @@
           return HH.db.ref("users/" + _uid).once("value").then(function(usnap) {
             var udata = usnap.exists() ? usnap.val() : {};
             var duration = parseFloat((diff / 60).toFixed(1));
+            var achievementData = getAchievementData();
             var record = {
               submission_id: key, volunteer_id: _uid,
               volunteer_name: udata.name || "Volunteer",
@@ -649,7 +944,14 @@
             duration: duration,
             hours: parseFloat(hours.toFixed(2)),
             description: desc, status: "pending",
-            submitted_at: HH.TIMESTAMP
+            submitted_at: HH.TIMESTAMP,
+            reflection: achievementData.reflection || "",
+            skills_used: achievementData.skills_used || [],
+            leadership_demonstrated: achievementData.leadership_demonstrated || "",
+            challenge_faced: achievementData.challenge_faced || "",
+            community_impact: achievementData.community_impact || "",
+            personal_growth: achievementData.personal_growth || "",
+            achievement_tags: achievementData.achievement_tags || []
             };
             return HH.db.ref("users/" + _uid + "/pending_count").once("value")
               .then(function(pc) {
@@ -667,6 +969,7 @@
           document.getElementById("sel-end").value   = "";
           document.getElementById("sel-desc").value  = "";
           document.getElementById("hours-display").textContent = "0.0 h";
+          clearAchievementDraft();
         })
         .catch(function(err) {
           btn.disabled = false; btn.textContent = "Submit for approval";

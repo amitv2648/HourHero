@@ -385,6 +385,15 @@
           <span class="activity-title">Recent activity</span>
           <a href="log-hours.html" class="activity-link">View all</a>
         </div>
+        <div class="search-controls" style="padding:0 var(--space-5);margin-top:var(--space-3);">
+          <input type="text" class="search-input" id="search-input" placeholder="Search by skill, tag, organization..." oninput="filterActivity()">
+          <select class="search-select" id="search-date-filter" onchange="filterActivity()">
+            <option value="">All dates</option>
+            <option value="today">Today</option>
+            <option value="week">This week</option>
+            <option value="month">This month</option>
+          </select>
+        </div>
         <div class="activity-body" id="activity-list">
           <div class="list-item">
             <div class="skeleton" style="width:38px;height:38px;border-radius:8px;flex-shrink:0;"></div>
@@ -405,12 +414,34 @@
 
     </div>
   </main>
+
+  <!-- Reflection Edit Modal -->
+  <div class="modal-overlay" id="reflection-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Edit Reflection</h2>
+        <button class="modal-close" onclick="closeReflectionModal()">
+          <svg viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div id="reflection-modal-body"></div>
+      <div style="margin-top:var(--space-4);display:flex;gap:var(--space-3);justify-content:flex-end;">
+        <button class="btn btn-secondary" onclick="closeReflectionModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveReflection()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/router.js"></script>
+  <script src="../node_modules/html2pdf.js/dist/html2pdf.bundle.min.js"></script>
   <script>
     HH.Router.protect("volunteer");
 
@@ -511,43 +542,97 @@
         (needed - pts) + " pts to go";
     }
 
+    var _allActivityItems = [];
+
     function loadActivity(uid) {
       HH.listenSubmissionsForVolunteer(uid, function(items) {
-          var container = document.getElementById("activity-list");
-          if (!items.length) {
-            container.innerHTML =
-              '<div class="empty-state" style="padding:2rem 1rem;">' +
-                '<p style="color:var(--color-gray-400);font-size:0.875rem;">No activity yet.</p>' +
-              '</div>';
-            return;
-          }
-          items.sort(function(a,b) { return (b.submitted_at||0)-(a.submitted_at||0); });
-          items = items.slice(0, 5);
-
-          var html = "";
-          items.forEach(function(s) {
-            var bc = "badge-" + (s.status || "pending");
-            var bl = (s.status || "pending");
-            bl = bl.charAt(0).toUpperCase() + bl.slice(1);
-            var ds = s.date ? new Date(s.date).toLocaleDateString("en-US",{month:"short",day:"numeric"}) : "";
-            html +=
-              '<div class="list-item">' +
-                '<div class="list-item-icon">' +
-                  '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/>' +
-                  '<polyline points="12 6 12 12 16 14"/></svg>' +
-                '</div>' +
-                '<div class="list-item-main">' +
-                  '<div class="list-item-title">' + esc(s.opportunity_title||"Volunteer hours") + '</div>' +
-                  '<div class="list-item-sub">' + esc(s.org_name||"") + (ds?" &middot; "+ds:"") + '</div>' +
-                '</div>' +
-                '<div class="list-item-end">' +
-                  '<div class="list-item-hours">' + (s.hours||0) + 'h</div>' +
-                  '<div class="badge ' + bc + '" style="margin-top:4px;">' + bl + '</div>' +
-                '</div>' +
-              '</div>';
-          });
-          container.innerHTML = html;
+          _allActivityItems = items;
+          renderActivity(items);
       });
+    }
+
+    function renderActivity(items) {
+      var container = document.getElementById("activity-list");
+      if (!items.length) {
+        container.innerHTML =
+          '<div class="empty-state" style="padding:2rem 1rem;">' +
+            '<p style="color:var(--color-gray-400);font-size:0.875rem;">No activity yet.</p>' +
+          '</div>';
+        return;
+      }
+      items.sort(function(a,b) { return (b.submitted_at||0)-(a.submitted_at||0); });
+      items = items.slice(0, 5);
+
+      var html = "";
+      items.forEach(function(s) {
+        var bc = "badge-" + (s.status || "pending");
+        var bl = (s.status || "pending");
+        bl = bl.charAt(0).toUpperCase() + bl.slice(1);
+        var ds = s.date ? new Date(s.date).toLocaleDateString("en-US",{month:"short",day:"numeric"}) : "";
+        var hasReflection = s.reflection || (s.skills_used && s.skills_used.length) ||
+                          s.leadership_demonstrated || s.challenge_faced ||
+                          s.community_impact || s.personal_growth ||
+                          (s.achievement_tags && s.achievement_tags.length);
+        var reflectionBadge = hasReflection ?
+          '<span class="reflection-indicator" style="margin-left:8px;">Reflection</span>' : '';
+        html +=
+          '<div class="list-item" onclick="openReflectionModal(\'' + s._key + '\')" style="cursor:pointer;">' +
+            '<div class="list-item-icon">' +
+              '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/>' +
+              '<polyline points="12 6 12 12 16 14"/></svg>' +
+            '</div>' +
+            '<div class="list-item-main">' +
+              '<div class="list-item-title">' + esc(s.opportunity_title||"Volunteer hours") + reflectionBadge + '</div>' +
+              '<div class="list-item-sub">' + esc(s.org_name||"") + (ds?" &middot; "+ds:"") + '</div>' +
+            '</div>' +
+            '<div class="list-item-end">' +
+              '<div class="list-item-hours">' + (s.hours||0) + 'h</div>' +
+              '<div class="badge ' + bc + '" style="margin-top:4px;">' + bl + '</div>' +
+            '</div>' +
+          '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function filterActivity() {
+      var searchText = document.getElementById("search-input").value.toLowerCase();
+      var dateFilter = document.getElementById("search-date-filter").value;
+      
+      var filtered = _allActivityItems.filter(function(s) {
+        var matchesSearch = true;
+        var matchesDate = true;
+        
+        if (searchText) {
+          var skills = (s.skills_used || []).join(" ").toLowerCase();
+          var tags = (s.achievement_tags || []).join(" ").toLowerCase();
+          var org = (s.org_name || "").toLowerCase();
+          var reflection = (s.reflection || "").toLowerCase();
+          var searchStr = skills + " " + tags + " " + org + " " + reflection;
+          matchesSearch = searchStr.indexOf(searchText) >= 0;
+        }
+        
+        if (dateFilter) {
+          var today = new Date();
+          today.setHours(0,0,0,0);
+          var itemDate = s.date ? new Date(s.date + "T12:00:00") : null;
+          
+          if (dateFilter === "today") {
+            matchesDate = itemDate && itemDate.toDateString() === today.toDateString();
+          } else if (dateFilter === "week") {
+            var weekAgo = new Date(today);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            matchesDate = itemDate && itemDate >= weekAgo;
+          } else if (dateFilter === "month") {
+            var monthAgo = new Date(today);
+            monthAgo.setMonth(monthAgo.getMonth() - 1);
+            matchesDate = itemDate && itemDate >= monthAgo;
+          }
+        }
+        
+        return matchesSearch && matchesDate;
+      });
+      
+      renderActivity(filtered);
     }
 
     function maybeShowInstall(uid) {
@@ -628,185 +713,71 @@
         }
 
         var html =
-          "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"/>" +
-          "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>" +
-          "<title>HourHero Volunteer Report — " + reportEsc(name) + "</title>" +
-          "<style>" +
-            "@page { size: letter; margin: 0.75in; }" +
-            "* { box-sizing: border-box; }" +
-            "body{" +
-              "font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;" +
-              "color:#1F2937;" +
-              "max-width:960px;" +
-              "margin:0 auto;" +
-              "padding:0;" +
-              "line-height:1.5;" +
-              "background:#fff;" +
-            "}" +
-            ".container {" +
-              "padding: 2rem 1.5rem;" +
-              "max-width: 100%;" +
-            "}" +
-            "h1{" +
-              "font-size:1.75rem;" +
-              "font-weight:800;" +
-              "margin-bottom:0.5rem;" +
-              "color:#111827;" +
-              "letter-spacing:-0.5px;" +
-            "}" +
-            ".meta{" +
-              "color:#4B5563;" +
-              "font-size:0.9rem;" +
-              "margin-bottom:1.5rem;" +
-              "line-height:1.7;" +
-              "border-bottom:1px solid #E5E7EB;" +
-              "padding-bottom:1.5rem;" +
-            "}" +
-            ".meta-row{" +
-              "margin-bottom:0.35rem;" +
-            "}" +
-            ".meta-label{" +
-              "font-weight:600;" +
-              "color:#374151;" +
-              "display:inline-block;" +
-              "min-width:100px;" +
-            "}" +
-            ".summary{" +
-              "display:flex;" +
-              "gap:3rem;" +
-              "margin-bottom:2rem;" +
-              "padding:1rem 1.25rem;" +
-              "background:#F9FAFB;" +
-              "border:1px solid #E5E7EB;" +
-              "border-radius:8px;" +
-              "font-size:0.9rem;" +
-            "}" +
-            ".summary-item{" +
-              "flex:1;" +
-            "}" +
-            ".summary-label{" +
-              "font-weight:600;" +
-              "color:#6B7280;" +
-              "font-size:0.8rem;" +
-              "text-transform:uppercase;" +
-              "letter-spacing:0.5px;" +
-              "margin-bottom:0.25rem;" +
-            "}" +
-            ".summary-value{" +
-              "font-size:1.5rem;" +
-              "font-weight:700;" +
-              "color:#111827;" +
-            "}" +
-            "table{" +
-              "width:100%;" +
-              "border-collapse:collapse;" +
-              "font-size:0.85rem;" +
-              "margin-bottom:2rem;" +
-              "page-break-inside:auto;" +
-            "}" +
-            "thead{" +
-              "display:table-header-group;" +
-            "}" +
-            "tbody{" +
-              "display:table-row-group;" +
-            "}" +
-            "tr{" +
-              "page-break-inside:avoid;" +
-              "page-break-after:auto;" +
-            "}" +
-            "th{" +
-              "background:#F3F4F6;" +
-              "font-weight:700;" +
-              "color:#374151;" +
-              "padding:0.75rem 0.6rem;" +
-              "text-align:left;" +
-              "border:1px solid #D1D5DB;" +
-              "font-size:0.8rem;" +
-              "text-transform:uppercase;" +
-              "letter-spacing:0.3px;" +
-            "}" +
-            "td{" +
-              "padding:0.65rem 0.6rem;" +
-              "border:1px solid #D1D5DB;" +
-              "vertical-align:middle;" +
-              "color:#374151;" +
-            "}" +
-            "tr:nth-child(even){background:#FAFAFA;}" +
-            "tr:hover{background:#F3F4F6;}" +
-            ".col-entry{width:60px;text-align:center;}" +
-            ".col-date{width:100px;}" +
-            ".col-org{width:140px;}" +
-            ".col-start{width:80px;}" +
-            ".col-end{width:80px;}" +
-            ".col-duration{width:80px;text-align:center;}" +
-            ".col-activity{min-width:180px;}" +
-            ".col-hours{width:80px;text-align:right;}" +
-            ".footer{" +
-              "margin-top:2rem;" +
-              "padding-top:1.5rem;" +
-              "border-top:1px solid #E5E7EB;" +
-              "font-size:0.8rem;" +
-              "color:#6B7280;" +
-              "text-align:center;" +
-            "}" +
-            "@media print{" +
-              "body{margin:0;padding:0;}" +
-              ".container{padding:0;}" +
-              "table{page-break-inside:auto;}" +
-              "tr{page-break-inside:avoid;page-break-after:auto;}" +
-              "thead{display:table-header-group;}" +
-              ".summary{page-break-inside:avoid;}" +
-              ".footer{page-break-before:always;}" +
-            "}" +
-          "</style></head><body>" +
-          "<div class=\"container\">" +
-          "<h1>Volunteer Service Report</h1>" +
-          "<div class=\"meta\">" +
-            "<div class=\"meta-row\"><span class=\"meta-label\">Volunteer:</span> " + reportEsc(name) + "</div>" +
-            (email ? "<div class=\"meta-row\"><span class=\"meta-label\">Email:</span> " + reportEsc(email) + "</div>" : "") +
-            "<div class=\"meta-row\"><span class=\"meta-label\">Generated:</span> " + reportEsc(generated) + "</div>" +
+          "<div style=\"font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;color:#1F2937;line-height:1.5;background:#fff;padding:2rem 1.5rem;\">" +
+          "<h1 style=\"font-size:1.75rem;font-weight:800;margin-bottom:0.5rem;color:#111827;letter-spacing:-0.5px;\">Volunteer Service Report</h1>" +
+          "<div style=\"color:#4B5563;font-size:0.9rem;margin-bottom:1.5rem;line-height:1.7;border-bottom:1px solid #E5E7EB;padding-bottom:1.5rem;\">" +
+            "<div style=\"margin-bottom:0.35rem;\"><span style=\"font-weight:600;color:#374151;display:inline-block;min-width:100px;\">Volunteer:</span> " + reportEsc(name) + "</div>" +
+            (email ? "<div style=\"margin-bottom:0.35rem;\"><span style=\"font-weight:600;color:#374151;display:inline-block;min-width:100px;\">Email:</span> " + reportEsc(email) + "</div>" : "") +
+            "<div style=\"margin-bottom:0.35rem;\"><span style=\"font-weight:600;color:#374151;display:inline-block;min-width:100px;\">Generated:</span> " + reportEsc(generated) + "</div>" +
           "</div>" +
-          "<div class=\"summary\">" +
-            "<div class=\"summary-item\">" +
-              "<div class=\"summary-label\">Total Approved Hours</div>" +
-              "<div class=\"summary-value\">" + approvedHrs.toFixed(1) + "</div>" +
+          "<div style=\"display:flex;gap:3rem;margin-bottom:2rem;padding:1rem 1.25rem;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;font-size:0.9rem;\">" +
+            "<div style=\"flex:1;\">" +
+              "<div style=\"font-weight:600;color:#6B7280;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.25rem;\">Total Approved Hours</div>" +
+              "<div style=\"font-size:1.5rem;font-weight:700;color:#111827;\">" + approvedHrs.toFixed(1) + "</div>" +
             "</div>" +
-            "<div class=\"summary-item\">" +
-              "<div class=\"summary-label\">Total Entries</div>" +
-              "<div class=\"summary-value\">" + list.length + "</div>" +
+            "<div style=\"flex:1;\">" +
+              "<div style=\"font-weight:600;color:#6B7280;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.25rem;\">Total Entries</div>" +
+              "<div style=\"font-size:1.5rem;font-weight:700;color:#111827;\">" + list.length + "</div>" +
             "</div>" +
           "</div>" +
-          "<table>" +
+          "<table style=\"width:100%;border-collapse:collapse;font-size:0.85rem;margin-bottom:2rem;\">" +
             "<thead><tr>" +
-              "<th class=\"col-entry\">Entry #</th>" +
-              "<th class=\"col-date\">Date</th>" +
-              "<th class=\"col-org\">Organization</th>" +
-              "<th class=\"col-start\">Start Time</th>" +
-              "<th class=\"col-end\">End Time</th>" +
-              "<th class=\"col-duration\">Total Duration</th>" +
-              "<th class=\"col-activity\">Activity</th>" +
-              "<th class=\"col-hours\">Hours</th>" +
+              "<th style=\"background:#F3F4F6;font-weight:700;color:#374151;padding:0.75rem 0.6rem;text-align:left;border:1px solid #D1D5DB;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.3px;width:60px;text-align:center;\">Entry #</th>" +
+              "<th style=\"background:#F3F4F6;font-weight:700;color:#374151;padding:0.75rem 0.6rem;text-align:left;border:1px solid #D1D5DB;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.3px;width:100px;\">Date</th>" +
+              "<th style=\"background:#F3F4F6;font-weight:700;color:#374151;padding:0.75rem 0.6rem;text-align:left;border:1px solid #D1D5DB;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.3px;width:140px;\">Organization</th>" +
+              "<th style=\"background:#F3F4F6;font-weight:700;color:#374151;padding:0.75rem 0.6rem;text-align:left;border:1px solid #D1D5DB;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.3px;width:80px;\">Start Time</th>" +
+              "<th style=\"background:#F3F4F6;font-weight:700;color:#374151;padding:0.75rem 0.6rem;text-align:left;border:1px solid #D1D5DB;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.3px;width:80px;\">End Time</th>" +
+              "<th style=\"background:#F3F4F6;font-weight:700;color:#374151;padding:0.75rem 0.6rem;text-align:left;border:1px solid #D1D5DB;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.3px;width:80px;text-align:center;\">Total Duration</th>" +
+              "<th style=\"background:#F3F4F6;font-weight:700;color:#374151;padding:0.75rem 0.6rem;text-align:left;border:1px solid #D1D5DB;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.3px;min-width:180px;\">Activity</th>" +
+              "<th style=\"background:#F3F4F6;font-weight:700;color:#374151;padding:0.75rem 0.6rem;text-align:left;border:1px solid #D1D5DB;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.3px;width:80px;text-align:right;\">Hours</th>" +
             "</tr></thead>" +
             "<tbody>" + rowsHtml + "</tbody>" +
           "</table>" +
-          "<div class=\"footer\">" +
+          "<div style=\"margin-top:2rem;padding-top:1.5rem;border-top:1px solid #E5E7EB;font-size:0.8rem;color:#6B7280;text-align:center;\">" +
             "Generated by HourHero • Approved hours on file: " + totalHours.toFixed(1) +
           "</div>" +
-          "</div></body></html>";
+          "</div>";
 
-        var blob = new Blob([html], { type: "text/html;charset=utf-8" });
-        var url  = URL.createObjectURL(blob);
-        var a    = document.createElement("a");
+        var element = document.createElement("div");
+        element.innerHTML = html;
+        document.body.appendChild(element);
+
+        var today = new Date();
+        var dateStr = today.toISOString().split("T")[0];
         var slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "volunteer";
-        a.href     = url;
-        a.download = "hourhero-volunteer-report-" + slug + ".html";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        var filename = "HourHero_Volunteer_Report_" + slug + "_" + dateStr + ".pdf";
+
+        var opt = {
+          margin:       [0.75, 0.75, 0.75, 0.75],
+          filename:     filename,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+          jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+          pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf().set(opt).from(element).save().then(function() {
+          document.body.removeChild(element);
+        }).catch(function(err) {
+          console.error("PDF generation error:", err);
+          document.body.removeChild(element);
+          alert("Could not generate PDF. Please try again.");
+        }).finally(function() {
+          btn.disabled = false;
+          btn.innerHTML = prevText;
+        });
       }).catch(function () {
         alert("Could not generate your report. Please try again.");
-      }).finally(function () {
         btn.disabled = false;
         btn.innerHTML = prevText;
       });
@@ -818,6 +789,175 @@
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
+    }
+
+    var _currentReflectionKey = null;
+    var _selectedSkillsEdit = [];
+    var _selectedTagsEdit = [];
+
+    function openReflectionModal(submissionKey) {
+      _currentReflectionKey = submissionKey;
+      HH.db.ref("submissions/" + submissionKey).once("value").then(function(snap) {
+        if (!snap.exists()) return;
+        var s = snap.val();
+        _selectedSkillsEdit = s.skills_used || [];
+        _selectedTagsEdit = s.achievement_tags || [];
+        
+        var body = document.getElementById("reflection-modal-body");
+        body.innerHTML = buildReflectionForm(s);
+        document.getElementById("reflection-modal").classList.add("open");
+        renderSelectedSkillsEdit();
+        renderSelectedTagsEdit();
+      });
+    }
+
+    function closeReflectionModal() {
+      document.getElementById("reflection-modal").classList.remove("open");
+      _currentReflectionKey = null;
+      _selectedSkillsEdit = [];
+      _selectedTagsEdit = [];
+    }
+
+    function buildReflectionForm(s) {
+      return `
+        <div class="achievement-section">
+          <label class="achievement-label">Reflection</label>
+          <textarea class="achievement-textarea" id="edit-reflection"
+                    rows="4">${esc(s.reflection || "")}</textarea>
+        </div>
+        <div class="achievement-section">
+          <label class="achievement-label">Skills Used</label>
+          <div class="achievement-tags-container" id="edit-skills-container">
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Communication</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Leadership</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Teamwork</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Teaching</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Problem Solving</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Time Management</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Customer Service</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Technology</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Engineering</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Healthcare</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Organization</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Public Speaking</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Creativity</span>
+            <span class="achievement-tag" onclick="toggleSkillEdit(this)">Event Planning</span>
+          </div>
+        </div>
+        <div class="achievement-section">
+          <label class="achievement-label">Leadership Demonstrated</label>
+          <textarea class="achievement-textarea" id="edit-leadership"
+                    rows="3">${esc(s.leadership_demonstrated || "")}</textarea>
+        </div>
+        <div class="achievement-section">
+          <label class="achievement-label">Challenge Faced</label>
+          <textarea class="achievement-textarea" id="edit-challenge"
+                    rows="3">${esc(s.challenge_faced || "")}</textarea>
+        </div>
+        <div class="achievement-section">
+          <label class="achievement-label">Community Impact</label>
+          <textarea class="achievement-textarea" id="edit-impact"
+                    rows="3">${esc(s.community_impact || "")}</textarea>
+        </div>
+        <div class="achievement-section">
+          <label class="achievement-label">Personal Growth</label>
+          <textarea class="achievement-textarea" id="edit-growth"
+                    rows="3">${esc(s.personal_growth || "")}</textarea>
+        </div>
+        <div class="achievement-section">
+          <label class="achievement-label">Achievement Tags</label>
+          <div class="achievement-tags-container" id="edit-tags-container">
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Leadership</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Community Service</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Education</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Environmental Service</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Technology</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Healthcare</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Engineering</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Animals</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Fundraising</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Mentoring</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">STEM</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Youth</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Food Bank</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Senior Care</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Accessibility</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Disaster Relief</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Nonprofit</span>
+            <span class="achievement-tag" onclick="toggleTagEdit(this)">Volunteer</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleSkillEdit(el) {
+      var skill = el.textContent;
+      var idx = _selectedSkillsEdit.indexOf(skill);
+      if (idx >= 0) {
+        _selectedSkillsEdit.splice(idx, 1);
+        el.classList.remove("selected");
+      } else {
+        _selectedSkillsEdit.push(skill);
+        el.classList.add("selected");
+      }
+    }
+
+    function toggleTagEdit(el) {
+      var tag = el.textContent;
+      var idx = _selectedTagsEdit.indexOf(tag);
+      if (idx >= 0) {
+        _selectedTagsEdit.splice(idx, 1);
+        el.classList.remove("selected");
+      } else {
+        _selectedTagsEdit.push(tag);
+        el.classList.add("selected");
+      }
+    }
+
+    function renderSelectedSkillsEdit() {
+      var container = document.getElementById("edit-skills-container");
+      if (!container) return;
+      var tags = container.querySelectorAll(".achievement-tag");
+      tags.forEach(function(tag) {
+        if (_selectedSkillsEdit.indexOf(tag.textContent) >= 0) {
+          tag.classList.add("selected");
+        } else {
+          tag.classList.remove("selected");
+        }
+      });
+    }
+
+    function renderSelectedTagsEdit() {
+      var container = document.getElementById("edit-tags-container");
+      if (!container) return;
+      var tags = container.querySelectorAll(".achievement-tag");
+      tags.forEach(function(tag) {
+        if (_selectedTagsEdit.indexOf(tag.textContent) >= 0) {
+          tag.classList.add("selected");
+        } else {
+          tag.classList.remove("selected");
+        }
+      });
+    }
+
+    function saveReflection() {
+      if (!_currentReflectionKey) return;
+      
+      var updates = {};
+      updates["submissions/" + _currentReflectionKey + "/reflection"] = document.getElementById("edit-reflection").value;
+      updates["submissions/" + _currentReflectionKey + "/skills_used"] = _selectedSkillsEdit;
+      updates["submissions/" + _currentReflectionKey + "/leadership_demonstrated"] = document.getElementById("edit-leadership").value;
+      updates["submissions/" + _currentReflectionKey + "/challenge_faced"] = document.getElementById("edit-challenge").value;
+      updates["submissions/" + _currentReflectionKey + "/community_impact"] = document.getElementById("edit-impact").value;
+      updates["submissions/" + _currentReflectionKey + "/personal_growth"] = document.getElementById("edit-growth").value;
+      updates["submissions/" + _currentReflectionKey + "/achievement_tags"] = _selectedTagsEdit;
+      
+      HH.db.ref().update(updates).then(function() {
+        closeReflectionModal();
+        alert("Reflection saved successfully!");
+      }).catch(function(err) {
+        alert("Failed to save reflection: " + err.message);
+      });
     }
 
     function ini(n) {

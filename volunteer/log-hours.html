@@ -294,7 +294,7 @@
 
           <div class="form-group">
             <label class="form-label" for="sel-opp">Opportunity</label>
-            <select class="form-select" id="sel-opp">
+            <select class="form-select" id="sel-opp" onchange="populateFromOpportunity()">
               <option value="">— Select an opportunity —</option>
             </select>
             <div class="form-hint">
@@ -311,16 +311,23 @@
           <div class="time-row">
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" for="sel-start">Start</label>
-              <input class="form-input" type="time" id="sel-start" oninput="calcHours()"/>
+              <input class="form-input" type="time" id="sel-start" oninput="calcHours()" disabled/>
             </div>
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" for="sel-end">End</label>
-              <input class="form-input" type="time" id="sel-end" oninput="calcHours()"/>
+              <input class="form-input" type="time" id="sel-end" oninput="calcHours()" disabled/>
             </div>
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label">Hours</label>
               <div class="hours-display" id="hours-display">0.0 h</div>
             </div>
+          </div>
+
+          <div class="form-group" style="margin-top:var(--space-3);padding:var(--space-3);background:var(--color-gray-50);border:1px solid var(--color-gray-200);border-radius:var(--radius-md);">
+            <label style="display:flex;align-items:center;gap:var(--space-2);cursor:pointer;font-size:0.875rem;">
+              <input type="checkbox" id="override-attendance" onchange="toggleAttendanceOverride()" style="width:18px;height:18px;cursor:pointer;" />
+              <span>My participation time differed from the scheduled opportunity.</span>
+            </label>
           </div>
 
           <div class="form-group" style="margin-top:var(--space-4);">
@@ -466,7 +473,11 @@
             _joinedOpps[id] = {
               title:    o.title    || "Untitled",
               org_id:   o.org_id   || "",
-              org_name: o.org_name || ""
+              org_name: o.org_name || "",
+              date:     o.date     || "",
+              start_time: o.start_time || "",
+              end_time:   o.end_time   || "",
+              duration:   o.duration   || 0
             };
             var opt = document.createElement("option");
             opt.value       = id;
@@ -488,6 +499,33 @@
 
     function toMin(t) {
       var p = t.split(":"); return parseInt(p[0]) * 60 + parseInt(p[1]);
+    }
+
+    // Auto-populate form when opportunity is selected
+    function populateFromOpportunity() {
+      var oppId = document.getElementById("sel-opp").value;
+      if (!oppId || !_joinedOpps[oppId]) {
+        document.getElementById("sel-date").value = new Date().toISOString().split("T")[0];
+        document.getElementById("sel-start").value = "";
+        document.getElementById("sel-end").value = "";
+        calcHours();
+        return;
+      }
+      
+      var opp = _joinedOpps[oppId];
+      document.getElementById("sel-date").value = opp.date || new Date().toISOString().split("T")[0];
+      document.getElementById("sel-start").value = opp.start_time || "";
+      document.getElementById("sel-end").value = opp.end_time || "";
+      document.getElementById("override-attendance").checked = false;
+      toggleAttendanceOverride();
+      calcHours();
+    }
+
+    // Toggle attendance override checkbox
+    function toggleAttendanceOverride() {
+      var isOverride = document.getElementById("override-attendance").checked;
+      document.getElementById("sel-start").disabled = !isOverride;
+      document.getElementById("sel-end").disabled = !isOverride;
     }
 
     function switchTab(tab, btn) {
@@ -598,23 +636,29 @@
               "You already have an entry for this opportunity on this date.");
           }
           var key = HH.db.ref("submissions").push().key;
-          var record = {
-            submission_id: key, volunteer_id: _uid,
+          return HH.db.ref("users/" + _uid).once("value").then(function(usnap) {
+            var udata = usnap.exists() ? usnap.val() : {};
+            var duration = parseFloat((diff / 60).toFixed(1));
+            var record = {
+              submission_id: key, volunteer_id: _uid,
+              volunteer_name: udata.name || "Volunteer",
+              volunteer_email: udata.email || "",
             opportunity_id: oppId, opportunity_title: opp.title||"",
             org_id: opp.org_id||"", org_name: opp.org_name||"",
             date: date, start_time: start, end_time: end,
+            duration: duration,
             hours: parseFloat(hours.toFixed(2)),
             description: desc, status: "pending",
             submitted_at: HH.TIMESTAMP
-          };
-          return HH.db.ref("users/" + _uid + "/pending_count").once("value")
-            .then(function(pc) {
-              var u = {};
-              u["submissions/" + key]               = record;
-              u["users/" + _uid + "/pending_count"] = (pc.val()||0) + 1;
-              return HH.db.ref().update(u);
-            });
-        })
+            };
+            return HH.db.ref("users/" + _uid + "/pending_count").once("value")
+              .then(function(pc) {
+                var u = {};
+                u["submissions/" + key]               = record;
+                u["users/" + _uid + "/pending_count"] = (pc.val()||0) + 1;
+                return HH.db.ref().update(u);
+              });
+          })
         .then(function() {
           if (!btn.disabled) return;
           btn.disabled = false; btn.textContent = "Submit for approval";

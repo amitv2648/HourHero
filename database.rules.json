@@ -3,18 +3,7 @@
     "users": {
       "$uid": {
         ".read": "auth != null",
-        ".write": "auth != null && auth.uid == $uid",
-        "total_hours": {
-          ".write": "auth != null && (auth.uid == $uid || root.child('organizations').child(auth.uid).exists())"
-        },
-        "pending_count": {
-          ".write": "auth != null && (auth.uid == $uid || root.child('organizations').child(auth.uid).exists())"
-        },
-        "joined_opportunities": {
-          "$oppId": {
-            ".write": "auth != null && (auth.uid == $uid || root.child('opportunities').child($oppId).child('org_id').val() == auth.uid)"
-          }
-        }
+        ".write": "auth != null && auth.uid == $uid"
       }
     },
     "organizations": {
@@ -43,16 +32,7 @@
     "submissions": {
       ".read": "auth != null",
       "$subId": {
-        ".write": "auth != null && ((!data.exists() && newData.child('volunteer_id').val() == auth.uid) || (data.exists() && data.child('org_id').val() == auth.uid) || root.child('submissions').child($subId).child('org_id').val() == auth.uid)",
-        "status": {
-          ".write": "auth != null && root.child('submissions').child($subId).child('org_id').val() == auth.uid"
-        },
-        "reviewed_at": {
-          ".write": "auth != null && root.child('submissions').child($subId).child('org_id').val() == auth.uid"
-        },
-        "rejection_note": {
-          ".write": "auth != null && root.child('submissions').child($subId).child('org_id').val() == auth.uid"
-        }
+        ".write": "auth != null && (newData.child('volunteer_id').val() == auth.uid || data.child('org_id').val() == auth.uid)"
       }
     }
   }

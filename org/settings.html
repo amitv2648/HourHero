@@ -304,6 +304,29 @@
       </div>
 
 
+      <!-- Delete Account Modal -->
+      <div id="delete-account-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;flex-direction:column;">
+        <div style="background:var(--color-white);border-radius:var(--radius-lg);padding:2rem;max-width:500px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+          <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:0.5rem;color:var(--color-danger);">Delete Organization</h2>
+          <p style="font-size:0.875rem;color:var(--color-gray-600);margin-bottom:1rem;line-height:1.5;">This will permanently delete:</p>
+          <ul style="font-size:0.875rem;color:var(--color-gray-600);margin-bottom:1.5rem;margin-left:1.5rem;line-height:1.8;">
+            <li><strong id="modal-opp-count">0</strong> opportunity/opportunities</li>
+            <li><strong id="modal-vol-count">0</strong> volunteer registrations</li>
+            <li>All submission records</li>
+          </ul>
+          <p style="font-size:0.875rem;color:var(--color-gray-600);margin-bottom:1.5rem;line-height:1.5;">Volunteers will be notified by email that your organization has closed.</p>
+          <p style="font-size:0.875rem;color:var(--color-danger-text);background:var(--color-danger-light);border:1px solid var(--color-danger-border);border-radius:var(--radius-md);padding:0.75rem;margin-bottom:1.5rem;">WARNING: This action cannot be undone.</p>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.875rem;margin-bottom:0.5rem;font-weight:600;">Enter your password to confirm:</label>
+            <input type="password" id="delete-password" placeholder="Your password" style="width:100%;padding:0.75rem;border:1px solid var(--color-gray-300);border-radius:var(--radius-md);font-size:0.875rem;box-sizing:border-box;" />
+          </div>
+          <div style="display:flex;gap:var(--space-2);justify-content:flex-end;">
+            <button type="button" class="btn btn-outline" onclick="closeDeleteAccountModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" onclick="confirmDeleteAccount()">Delete</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Danger zone -->
       <div class="settings-section">
         <div class="settings-section-title">Danger zone</div>
@@ -315,7 +338,7 @@
             </div>
           </div>
           <button class="btn btn-sm btn-danger"
-                  onclick="confirmDelete()">Delete</button>
+                  onclick="openDeleteAccountModal()">Delete</button>
         </div>
       </div>
 
@@ -333,6 +356,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
+  <script src="../js/org-deletion.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/router.js"></script>
 
@@ -444,6 +468,73 @@
         .set(prefs);
     }
 
+
+    var _deleteOppCount = 0;
+    var _deleteVolCount = 0;
+    
+    function openDeleteAccountModal() {
+      HH.listenOpportunitiesForOrg(_uid, function(opps) {
+        _deleteOppCount = opps.length;
+        var totalVols = {};
+        opps.forEach(function(opp) {
+          var participants = opp.participants || {};
+          Object.keys(participants).forEach(function(volId) {
+            totalVols[volId] = true;
+          });
+        });
+        _deleteVolCount = Object.keys(totalVols).length;
+        document.getElementById("modal-opp-count").textContent = _deleteOppCount;
+        document.getElementById("modal-vol-count").textContent = _deleteVolCount;
+        document.getElementById("delete-password").value = "";
+        document.getElementById("delete-account-modal").style.display = "flex";
+      });
+    }
+    
+    function closeDeleteAccountModal() {
+      document.getElementById("delete-account-modal").style.display = "none";
+      document.getElementById("delete-password").value = "";
+    }
+    
+    function confirmDeleteAccount() {
+      var pass = document.getElementById("delete-password").value;
+      if (!pass) return showMsg("error", "Please enter your password.");
+      
+      var credential = firebase.auth.EmailAuthProvider.credential(_profile.email, pass);
+      HH.auth.currentUser.reauthenticateWithCredential(credential)
+        .then(function() {
+          closeDeleteAccountModal();
+          return HH.deleteOrganization(_uid);
+        })
+        .then(function(result) {
+          return HH.notifyOrgDeleted({
+            volunteers: result.volunteers,
+            org_name: result.org_name
+          }).then(function(notifyResult) {
+            return HH.logAuditEvent("organization_deleted", _uid, {
+              org_name: result.org_name,
+              opportunity_count: result.opportunity_count,
+              volunteers: result.volunteers,
+              emails_sent: notifyResult.sent,
+              emails_total: result.volunteers.length
+            });
+          });
+        })
+        .then(function() {
+          return HH.auth.currentUser.delete();
+        })
+        .then(function() {
+          window.location.replace(HH.Router.PATHS.landing);
+        })
+        .catch(function(e) {
+          if (e.code === "auth/wrong-password") {
+            showMsg("error", "Incorrect password.");
+          } else if (e.code === "auth/user-mismatch") {
+            showMsg("error", "Password does not match this account.");
+          } else {
+            showMsg("error", e.message || "Error deleting organization.");
+          }
+        });
+    }
 
     function confirmDelete() {
       if (!confirm(

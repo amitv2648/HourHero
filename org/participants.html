@@ -233,11 +233,53 @@
       });
 
       HH.listenSubmissionsForOrg(uid, function (list) {
-        _submissions = list;
-        renderParticipants();
+        enrichSubmissionsWithVolunteerNames(list).then(function(enriched) {
+          _submissions = enriched;
+          renderParticipants();
+        });
       });
     }
 
+    function enrichSubmissionsWithVolunteerNames(submissions) {
+      var missingNames = {};
+      submissions.forEach(function(s) {
+        if (!s.volunteer_name && s.volunteer_id) {
+          missingNames[s.volunteer_id] = true;
+        }
+      });
+      
+      var volIds = Object.keys(missingNames);
+      if (!volIds.length) {
+        return Promise.resolve(submissions);
+      }
+      
+      var promises = volIds.map(function(volId) {
+        return HH.db.ref("users/" + volId).once("value").then(function(snap) {
+          if (snap.exists()) {
+            var user = snap.val();
+            return { volId: volId, name: user.name || "Volunteer", email: user.email || "" };
+          }
+          return { volId: volId, name: "Volunteer", email: "" };
+        }).catch(function() {
+          return { volId: volId, name: "Volunteer", email: "" };
+        });
+      });
+      
+      return Promise.all(promises).then(function(volunteers) {
+        var volMap = {};
+        volunteers.forEach(function(v) {
+          volMap[v.volId] = v;
+        });
+        
+        return submissions.map(function(s) {
+          if (!s.volunteer_name && s.volunteer_id && volMap[s.volunteer_id]) {
+            s.volunteer_name = volMap[s.volunteer_id].name;
+            s.volunteer_email = volMap[s.volunteer_id].email;
+          }
+          return s;
+        });
+      });
+    }
 
     function renderParticipants() {
       var filter = document.getElementById("opp-filter").value;

@@ -8,7 +8,11 @@
   <link rel="stylesheet" href="../css/components.css" />
   <style>
     body { background: var(--color-gray-100); }
-    
+    .org-main { margin-left:220px; padding:var(--space-8); min-height:100vh; }
+    @media(max-width:640px){
+      .org-main { margin-left:0; padding:var(--space-4);
+                  padding-top:calc(var(--nav-height) + var(--space-4)); }
+    }
     .form-card {
       background: var(--color-white);
       border: 1px solid var(--color-gray-200);
@@ -26,9 +30,6 @@
 </head>
 <body>
 
-  <div class="app-profile-corner">
-    <div class="profile-menu-mount"></div>
-  </div>
   <!-- Sidebar -->
   <aside class="org-sidebar">
     <div class="org-sidebar-logo">HourHero</div>
@@ -175,6 +176,24 @@
 
       <div class="form-row">
         <div class="form-group">
+          <label class="form-label" for="opp-start-time">Start Time *</label>
+          <input class="form-input" type="time" id="opp-start-time" oninput="updateDuration()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="opp-end-time">End Time *</label>
+          <input class="form-input" type="time" id="opp-end-time" oninput="updateDuration()" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Duration</label>
+        <div style="background:var(--color-primary-light);border:1.5px solid var(--color-primary-mid);border-radius:var(--radius-md);padding:0.625rem 0.875rem;font-size:0.95rem;font-weight:700;color:var(--color-primary);text-align:center;">
+          <span id="opp-duration">—</span> hours
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
           <label class="form-label" for="opp-location">
             Location
             <span class="form-label-optional">(optional)</span>
@@ -228,10 +247,10 @@
 
     var _uid     = null;
     var _orgName = "";
-    var _editKey = null;
 
     HH.Router.onReady(function (uid) {
       _uid = uid;
+      // Set min date to today
       document.getElementById("opp-date").min =
         new Date().toISOString().split("T")[0];
 
@@ -239,52 +258,39 @@
         .once("value")
         .then(function (s) { _orgName = s.val() || ""; });
 
+      // Show mobile topnav on small screens
       if (window.innerWidth <= 640) {
         document.getElementById("mobile-topnav").style.display = "flex";
       }
-
-      var params = new URLSearchParams(window.location.search);
-      _editKey = params.get("edit");
-      if (_editKey) {
-        loadForEdit(_editKey);
-      }
     });
-
-
-    function loadForEdit(key) {
-      HH.db.ref("opportunities/" + key).once("value").then(function (snap) {
-        if (!snap.exists()) {
-          return showMsg("error", "Opportunity not found.");
-        }
-        var o = snap.val();
-        if (o.org_id !== _uid) {
-          return showMsg("error", "You cannot edit this opportunity.");
-        }
-
-        document.getElementById("opp-title").value    = o.title || "";
-        document.getElementById("opp-desc").value     = o.description || "";
-        document.getElementById("opp-category").value = o.category || "";
-        document.getElementById("opp-date").value     = o.date || "";
-        document.getElementById("opp-location").value = o.location || "";
-        document.getElementById("opp-max").value      = o.max_volunteers || "";
-        document.getElementById("opp-status").value   = o.status || "open";
-
-        updateCharCount("opp-title", "count-title", 80);
-        updateCharCount("opp-desc", "count-desc", 600);
-
-        document.querySelector(".org-main h1").textContent = "Edit opportunity";
-        document.querySelector(".org-main p").textContent =
-          "Update the details below. Changes are visible to volunteers immediately.";
-        document.getElementById("btn-publish").textContent = "Save changes";
-      }).catch(function (err) {
-        showMsg("error", "Could not load opportunity: " + err.message);
-      });
-    }
 
 
     function updateCharCount(inputId, countId, max) {
       var len = document.getElementById(inputId).value.length;
       document.getElementById(countId).textContent = len;
+    }
+
+    function updateDuration() {
+      var startTime = document.getElementById("opp-start-time").value;
+      var endTime = document.getElementById("opp-end-time").value;
+      var durationEl = document.getElementById("opp-duration");
+      
+      if (!startTime || !endTime) {
+        durationEl.textContent = "—";
+        return;
+      }
+      
+      var startMin = parseInt(startTime.split(":")[0]) * 60 + parseInt(startTime.split(":")[1]);
+      var endMin = parseInt(endTime.split(":")[0]) * 60 + parseInt(endTime.split(":")[1]);
+      var diff = endMin - startMin;
+      
+      if (diff <= 0) {
+        durationEl.textContent = "—";
+        return;
+      }
+      
+      var hours = (diff / 60).toFixed(1);
+      durationEl.textContent = hours;
     }
 
 
@@ -293,6 +299,8 @@
       var desc     = document.getElementById("opp-desc").value.trim();
       var category = document.getElementById("opp-category").value;
       var date     = document.getElementById("opp-date").value;
+      var startTime = document.getElementById("opp-start-time").value;
+      var endTime = document.getElementById("opp-end-time").value;
       var location = document.getElementById("opp-location").value.trim();
       var maxVol   = document.getElementById("opp-max").value;
       var status   = document.getElementById("opp-status").value;
@@ -303,49 +311,20 @@
       if (!desc)     return showMsg("error", "Please enter a description.");
       if (!category) return showMsg("error", "Please select a category.");
       if (!date)     return showMsg("error", "Please select a date.");
+      if (!startTime) return showMsg("error", "Please enter a start time.");
+      if (!endTime)   return showMsg("error", "Please enter an end time.");
+      
+      var startMin = parseInt(startTime.split(":")[0]) * 60 + parseInt(startTime.split(":")[1]);
+      var endMin = parseInt(endTime.split(":")[0]) * 60 + parseInt(endTime.split(":")[1]);
+      var diff = endMin - startMin;
+      
+      if (diff <= 0) return showMsg("error", "End time must be after start time.");
+      
+      var duration = parseFloat((diff / 60).toFixed(1));
 
       var btn = document.getElementById("btn-publish");
       btn.disabled    = true;
-      btn.textContent = _editKey ? "Saving..." : "Publishing...";
-
-      if (_editKey) {
-        var patch = {
-          title:          title,
-          description:    desc,
-          category:       category,
-          date:           date,
-          location:       location || null,
-          max_volunteers: maxVol ? parseInt(maxVol) : null,
-          status:         status,
-          org_name:       _orgName
-        };
-
-        var saveEdit = location
-          ? HH.Geocode.resolve(location).then(function (coord) {
-              if (coord) {
-                patch.latitude  = coord.lat;
-                patch.longitude = coord.lng;
-              }
-              return HH.db.ref("opportunities/" + _editKey).update(patch);
-            })
-          : HH.db.ref("opportunities/" + _editKey).update(patch);
-
-        saveEdit
-          .then(function () {
-            btn.disabled    = false;
-            btn.textContent = "Save changes";
-            showMsg("success", "Opportunity updated.");
-            setTimeout(function () {
-              window.location.href = "manage-opportunities.html";
-            }, 900);
-          })
-          .catch(function (err) {
-            btn.disabled    = false;
-            btn.textContent = "Save changes";
-            showMsg("error", "Failed to save: " + err.message);
-          });
-        return;
-      }
+      btn.textContent = "Publishing...";
 
       var key    = HH.db.ref("opportunities").push().key;
 
@@ -364,6 +343,9 @@
         description:  desc,
         category:     category,
         date:         date,
+        start_time:   startTime,
+        end_time:     endTime,
+        duration:     duration,
         location:     location || null,
         max_volunteers: maxVol ? parseInt(maxVol) : null,
         status:       status,
@@ -388,12 +370,13 @@
           showMsg("success",
             "Opportunity published! Volunteers can now find and join it.");
           // Reset form
-          ["opp-title","opp-desc","opp-location","opp-max"].forEach(function(id){
+          ["opp-title","opp-desc","opp-location","opp-max","opp-start-time","opp-end-time"].forEach(function(id){
             document.getElementById(id).value = "";
           });
           document.getElementById("opp-category").value = "";
           document.getElementById("opp-date").value     = "";
           document.getElementById("opp-status").value   = "open";
+          document.getElementById("opp-duration").textContent = "—";
           document.getElementById("count-title").textContent = "0";
           document.getElementById("count-desc").textContent  = "0";
         })
@@ -431,14 +414,5 @@
     }
 
   </script>
-
-  <script src="../js/nav-menu.js"></script>
-  <script>
-    HH.NavMenu.init({ role: "org", settingsPath: "settings.html",
-                      mountSelector: ".profile-menu-mount" });
-  </script>
-
-  <script src="../js/sidebar.js"></script>
-  <script>HH.Sidebar.init("org");</script>
 </body>
 </html>

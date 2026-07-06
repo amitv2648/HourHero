@@ -159,6 +159,78 @@ app.post("/api/notify-opportunity-deleted", function (req, res) {
     });
 });
 
+function buildOrgDeletedEmail(name, orgName) {
+  var safeName = name || "Volunteer";
+  var safeOrg  = orgName || "an organization";
+
+  var text =
+    "Hi " + safeName + ",\n\n" +
+    "We're sorry to let you know that the organization \"" + safeOrg +
+    "\" has removed its account from HourHero.\n\n" +
+    "All volunteer opportunities from this organization have been cancelled. " +
+    "Your registrations have been automatically removed.\n\n" +
+    "Thank you for supporting your community. Browse other opportunities in HourHero anytime.\n\n" +
+    "— HourHero";
+
+  var html =
+    "<div style=\"font-family:system-ui,sans-serif;max-width:520px;color:#111;\">" +
+      "<p>Hi " + escapeHtml(safeName) + ",</p>" +
+      "<p>We're sorry to let you know that the organization <strong>" + escapeHtml(safeOrg) +
+      "</strong> has removed its account from HourHero.</p>" +
+      "<p>All volunteer opportunities from this organization have been cancelled. " +
+      "Your registrations have been automatically removed.</p>" +
+      "<p>Thank you for supporting your community. Browse other opportunities in HourHero anytime.</p>" +
+      "<p style=\"color:#6B7280;font-size:0.9rem;\">— HourHero</p>" +
+    "</div>";
+
+  return {
+    subject: "Update: \"" + safeOrg + "\" has closed its account",
+    text:    text,
+    html:    html
+  };
+}
+
+app.post("/api/notify-org-deleted", function (req, res) {
+  var transport = getMailTransport();
+  var volunteers = req.body.volunteers || [];
+  var orgName    = req.body.orgName || "the organization";
+
+  if (!volunteers.length) {
+    return res.json({ ok: true, sent: 0, skipped: false });
+  }
+
+  if (!transport) {
+    return res.json({
+      ok:      true,
+      sent:    0,
+      skipped: true,
+      reason:  "SMTP not configured"
+    });
+  }
+
+  var from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  var jobs = volunteers.map(function (v) {
+    if (!v.email) return Promise.resolve(null);
+    var content = buildOrgDeletedEmail(v.name, orgName);
+    return transport.sendMail({
+      from:    from,
+      to:      v.email,
+      subject: content.subject,
+      text:    content.text,
+      html:    content.html
+    });
+  });
+
+  Promise.all(jobs)
+    .then(function (results) {
+      var sent = results.filter(Boolean).length;
+      res.json({ ok: true, sent: sent, skipped: false });
+    })
+    .catch(function (err) {
+      res.status(500).json({ error: err.message || "Failed to send email" });
+    });
+});
+
 app.post("/api/chat", function (req, res) {
   var apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey === "your-gemini-api-key-here") {
@@ -349,7 +421,7 @@ app.listen(PORT, function () {
     verifyGeminiKeyOnStartup();
   }
   if (!getMailTransport()) {
-    console.log("Warning: SMTP not configured — opportunity deletion emails will not send.");
+    console.log("Warning: SMTP not configured — opportunity deletion/organization deletion emails will not send.");
     console.log("Add SMTP_HOST, SMTP_USER, SMTP_PASS (and optional SMTP_FROM) to .env");
   } else {
     console.log("Email: SMTP configured for volunteer notifications");

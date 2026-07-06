@@ -174,6 +174,20 @@
 
     <div id="manage-message" style="margin-bottom:var(--space-3);"></div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;flex-direction:column;">
+      <div style="background:var(--color-white);border-radius:var(--radius-lg);padding:2rem;max-width:500px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+        <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:0.5rem;color:var(--color-danger);">Delete Opportunity</h2>
+        <p style="font-size:0.875rem;color:var(--color-gray-600);margin-bottom:1.5rem;line-height:1.5;"><strong>Opportunity:</strong> <span id="modal-opp-title" style="font-weight:600;"></span></p>
+        <p style="font-size:0.875rem;color:var(--color-gray-600);margin-bottom:1.5rem;line-height:1.5;"><strong>Impact:</strong> <span id="modal-vol-count" style="font-weight:600;"></span> volunteer(s) will be removed from this opportunity and notified by email.</p>
+        <p style="font-size:0.875rem;color:var(--color-danger-text);background:var(--color-danger-light);border:1px solid var(--color-danger-border);border-radius:var(--radius-md);padding:0.75rem;margin-bottom:1.5rem;">⚠️ This action cannot be undone.</p>
+        <div style="display:flex;gap:var(--space-2);justify-content:flex-end;">
+          <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
+          <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+        </div>
+      </div>
+    </div>
+
     <div class="manage-card" id="manage-list">
       <!-- Skeleton -->
       <div class="manage-row">
@@ -276,7 +290,7 @@
                 toggleLabel +
               '</button>' +
               '<button class="btn btn-sm btn-danger"' +
-                ' onclick="deleteOpp(\'' + escHtml(o._key) + '\')">' +
+                ' onclick="openDeleteModal(\'\' + escHtml(o._key) + '\')">\' +
                 'Delete' +
               '</button>' +
             '</div>' +
@@ -296,12 +310,27 @@
     }
 
 
-    function deleteOpp(key) {
-      if (!confirm(
-        "Delete this opportunity? Enrolled volunteers will be removed and notified by email. " +
-        "This cannot be undone."
-      )) return;
-
+    var _deleteKey = null;
+    
+    function openDeleteModal(key) {
+      var opp = _opps.find(function(o) { return o._key === key; });
+      if (!opp) return;
+      _deleteKey = key;
+      var count = opp.participants ? Object.keys(opp.participants).length : 0;
+      document.getElementById("modal-opp-title").textContent = opp.title || "Untitled";
+      document.getElementById("modal-vol-count").textContent = count;
+      document.getElementById("delete-modal").style.display = "flex";
+    }
+    
+    function closeDeleteModal() {
+      document.getElementById("delete-modal").style.display = "none";
+      _deleteKey = null;
+    }
+    
+    function confirmDelete() {
+      var key = _deleteKey;
+      if (!key) return;
+      closeDeleteModal();
       HH.deleteOpportunity(_uid, key)
         .then(function (result) {
           showMsg("success", "Opportunity deleted.");

@@ -1,0 +1,22 @@
+      <!-- Delete Account Modal -->
+      <div id="delete-account-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;flex-direction:column;">
+        <div style="background:var(--color-white);border-radius:var(--radius-lg);padding:2rem;max-width:500px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+          <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:0.5rem;color:var(--color-danger);">Delete Organization</h2>
+          <p style="font-size:0.875rem;color:var(--color-gray-600);margin-bottom:1rem;line-height:1.5;">This will permanently delete:</p>
+          <ul style="font-size:0.875rem;color:var(--color-gray-600);margin-bottom:1.5rem;margin-left:1.5rem;line-height:1.8;">
+            <li><strong id="modal-opp-count">0</strong> opportunity/opportunities</li>
+            <li><strong id="modal-vol-count">0</strong> volunteer registrations</li>
+            <li>All submission records</li>
+          </ul>
+          <p style="font-size:0.875rem;color:var(--color-gray-600);margin-bottom:1.5rem;line-height:1.5;">Volunteers will be notified by email that your organization has closed.</p>
+          <p style="font-size:0.875rem;color:var(--color-danger-text);background:var(--color-danger-light);border:1px solid var(--color-danger-border);border-radius:var(--radius-md);padding:0.75rem;margin-bottom:1.5rem;">WARNING: This action cannot be undone.</p>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.875rem;margin-bottom:0.5rem;font-weight:600;">Enter your password to confirm:</label>
+            <input type="password" id="delete-password" placeholder="Your password" style="width:100%;padding:0.75rem;border:1px solid var(--color-gray-300);border-radius:var(--radius-md);font-size:0.875rem;box-sizing:border-box;" />
+          </div>
+          <div style="display:flex;gap:var(--space-2);justify-content:flex-end;">
+            <button type="button" class="btn btn-outline" onclick="closeDeleteAccountModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" onclick="confirmDeleteAccount()">Delete</button>
+          </div>
+        </div>
+      </div>

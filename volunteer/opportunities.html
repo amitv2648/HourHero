@@ -633,11 +633,18 @@
       var btn = event.target;
       btn.disabled = true; btn.textContent = "Joining...";
 
-      var updates = {};
-      updates["opportunities/" + oppId + "/participants/" + _uid] = true;
-      updates["users/" + _uid + "/joined_opportunities/" + oppId]  = true;
-
-      HH.db.ref().update(updates)
+      HH.db.ref("users/" + _uid).once("value").then(function(snap) {
+        var volName = snap.exists() ? (snap.val().name || "Volunteer") : "Volunteer";
+        var volEmail = snap.exists() ? (snap.val().email || "") : "";
+        var updates = {};
+        updates["opportunities/" + oppId + "/participants/" + _uid] = {
+          volunteer_name: volName,
+          volunteer_email: volEmail,
+          joined_at: HH.TIMESTAMP
+        };
+        updates["users/" + _uid + "/joined_opportunities/" + oppId] = true;
+        return HH.db.ref().update(updates);
+      })
         .then(function() {
           _joinedIds[oppId] = true;
           renderList();

@@ -74,15 +74,22 @@ function getMailTransport() {
   return mailTransport;
 }
 
-function buildOpportunityDeletedEmail(name, opportunityTitle, orgName) {
+function buildOpportunityDeletedEmail(name, opportunityTitle, orgName, opportunityDate) {
   var safeName = name || "Volunteer";
   var safeOpp  = opportunityTitle || "an opportunity";
   var safeOrg  = orgName || "the organization";
+  var safeDate = opportunityDate || "";
 
   var text =
     "Hi " + safeName + ",\n\n" +
     "We're sorry to let you know that \"" + safeOpp + "\" posted by " + safeOrg +
-    " has been removed from HourHero.\n\n" +
+    " has been removed from HourHero.\n\n";
+
+  if (safeDate) {
+    text += "This opportunity was scheduled for " + safeDate + ".\n\n";
+  }
+
+  text +=
     "You have been unenrolled from this opportunity. If you already logged hours, " +
     "your existing submissions are unchanged.\n\n" +
     "Browse other opportunities in HourHero anytime.\n\n" +
@@ -93,7 +100,13 @@ function buildOpportunityDeletedEmail(name, opportunityTitle, orgName) {
       "<p>Hi " + escapeHtml(safeName) + ",</p>" +
       "<p>We're sorry to let you know that <strong>" + escapeHtml(safeOpp) +
       "</strong> posted by <strong>" + escapeHtml(safeOrg) +
-      "</strong> has been removed from HourHero.</p>" +
+      "</strong> has been removed from HourHero.</p>";
+
+  if (safeDate) {
+    html += "<p>This opportunity was scheduled for <strong>" + escapeHtml(safeDate) + "</strong>.</p>";
+  }
+
+  html +=
       "<p>You have been unenrolled from this opportunity. If you already logged hours, " +
       "your existing submissions are unchanged.</p>" +
       "<p>Browse other opportunities in HourHero anytime.</p>" +
@@ -122,12 +135,14 @@ app.post("/api/notify-opportunity-deleted", function (req, res) {
   var volunteers        = req.body.volunteers || [];
   var opportunityTitle  = req.body.opportunityTitle || "an opportunity";
   var orgName           = req.body.orgName || "the organization";
+  var opportunityDate   = req.body.opportunityDate || "";
 
   if (!volunteers.length) {
     return res.json({ ok: true, sent: 0, skipped: false });
   }
 
   if (!transport) {
+    console.log("SMTP not configured - skipping email notifications for opportunity deletion");
     return res.json({
       ok:      true,
       sent:    0,
@@ -139,7 +154,7 @@ app.post("/api/notify-opportunity-deleted", function (req, res) {
   var from = process.env.SMTP_FROM || process.env.SMTP_USER;
   var jobs = volunteers.map(function (v) {
     if (!v.email) return Promise.resolve(null);
-    var content = buildOpportunityDeletedEmail(v.name, opportunityTitle, orgName);
+    var content = buildOpportunityDeletedEmail(v.name, opportunityTitle, orgName, opportunityDate);
     return transport.sendMail({
       from:    from,
       to:      v.email,
@@ -152,9 +167,11 @@ app.post("/api/notify-opportunity-deleted", function (req, res) {
   Promise.all(jobs)
     .then(function (results) {
       var sent = results.filter(Boolean).length;
+      console.log("Opportunity deletion emails sent: " + sent + " of " + volunteers.length);
       res.json({ ok: true, sent: sent, skipped: false });
     })
     .catch(function (err) {
+      console.error("Failed to send opportunity deletion emails:", err);
       res.status(500).json({ error: err.message || "Failed to send email" });
     });
 });

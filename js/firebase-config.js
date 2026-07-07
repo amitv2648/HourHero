@@ -249,12 +249,13 @@ HH.deleteOpportunity = function (orgUid, oppKey) {
 
     var meta = {
       title:   opp.title || "Untitled opportunity",
-      orgName: opp.org_name || ""
+      orgName: opp.org_name || "",
+      date:    opp.date || ""
     };
 
     return HH.db.ref().update(updates).then(function () {
       if (!participantIds.length) {
-        return { volunteers: [], title: meta.title, orgName: meta.orgName };
+        return { volunteers: [], title: meta.title, orgName: meta.orgName, date: meta.date };
       }
 
       return Promise.all(participantIds.map(function (volId) {
@@ -269,7 +270,8 @@ HH.deleteOpportunity = function (orgUid, oppKey) {
         return {
           volunteers: volunteers.filter(function (v) { return v.email; }),
           title:      meta.title,
-          orgName:    meta.orgName
+          orgName:    meta.orgName,
+          date:       meta.date
         };
       });
     });

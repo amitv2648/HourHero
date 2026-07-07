@@ -523,16 +523,22 @@
           return HH.auth.currentUser.delete();
         })
         .then(function() {
+          // Auth account deleted successfully - redirect to landing
           window.location.replace(HH.Router.PATHS.landing);
         })
         .catch(function(e) {
+          // Handle specific Firebase Auth errors
           if (e.code === "auth/wrong-password") {
             showMsg("error", "Incorrect password.");
-          } else if (e.code === "auth/user-mismatch") {
-            showMsg("error", "Password does not match this account.");
+          } else if (e.code === "auth/requires-recent-login") {
+            showMsg("error", "For security, please sign out and sign back in before deleting your account.");
+          } else if (e.code === "auth/user-not-found") {
+            showMsg("error", "Account not found. You may have already been deleted.");
           } else {
             showMsg("error", e.message || "Error deleting organization.");
           }
+          
+          console.error("Organization deletion error:", e);
         });
     }
 

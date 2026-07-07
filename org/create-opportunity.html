@@ -247,6 +247,7 @@
 
     var _uid     = null;
     var _orgName = "";
+    var _editKey = null; // Set when editing existing opportunity
 
     HH.Router.onReady(function (uid) {
       _uid = uid;
@@ -261,6 +262,13 @@
       // Show mobile topnav on small screens
       if (window.innerWidth <= 640) {
         document.getElementById("mobile-topnav").style.display = "flex";
+      }
+
+      // Check if we're in edit mode
+      var urlParams = new URLSearchParams(window.location.search);
+      _editKey = urlParams.get("edit");
+      if (_editKey) {
+        loadOpportunityForEdit(_editKey);
       }
     });
 
@@ -293,6 +301,44 @@
       durationEl.textContent = hours;
     }
 
+    function loadOpportunityForEdit(key) {
+      HH.db.ref("opportunities/" + key).once("value").then(function(snap) {
+        if (!snap.exists()) {
+          showMsg("error", "Opportunity not found.");
+          return;
+        }
+        var opp = snap.val();
+        
+        // Update page title
+        document.querySelector("h1").textContent = "Edit opportunity";
+        document.querySelector("p").textContent = "Make changes to your opportunity below. Click Save to update.";
+        
+        // Update button text
+        var btn = document.getElementById("btn-publish");
+        btn.textContent = "Save changes";
+        
+        // Populate all fields
+        document.getElementById("opp-title").value = opp.title || "";
+        document.getElementById("opp-desc").value = opp.description || "";
+        document.getElementById("opp-category").value = opp.category || "";
+        document.getElementById("opp-date").value = opp.date || "";
+        document.getElementById("opp-start-time").value = opp.start_time || "";
+        document.getElementById("opp-end-time").value = opp.end_time || "";
+        document.getElementById("opp-location").value = opp.location || "";
+        document.getElementById("opp-max").value = opp.max_volunteers || "";
+        document.getElementById("opp-status").value = opp.status || "open";
+        
+        // Update character counts
+        document.getElementById("count-title").textContent = (opp.title || "").length;
+        document.getElementById("count-desc").textContent = (opp.description || "").length;
+        
+        // Update duration display
+        updateDuration();
+      }).catch(function(err) {
+        showMsg("error", "Failed to load opportunity: " + err.message);
+      });
+    }
+
 
     function publishOpportunity() {
       var title    = document.getElementById("opp-title").value.trim();
@@ -323,17 +369,11 @@
       var duration = parseFloat((diff / 60).toFixed(1));
 
       var btn = document.getElementById("btn-publish");
+      var isEdit = !!_editKey;
       btn.disabled    = true;
-      btn.textContent = "Publishing...";
+      btn.textContent = isEdit ? "Saving..." : "Publishing...";
 
-      var key    = HH.db.ref("opportunities").push().key;
-
-      function saveRecord(record) {
-        var updates = {};
-        updates["opportunities/" + key]                             = record;
-        updates["organizations/" + _uid + "/opportunities/" + key] = true;
-        return HH.db.ref().update(updates);
-      }
+      var key = isEdit ? _editKey : HH.db.ref("opportunities").push().key;
 
       var record = {
         opp_id:       key,
@@ -348,10 +388,43 @@
         duration:     duration,
         location:     location || null,
         max_volunteers: maxVol ? parseInt(maxVol) : null,
-        status:       status,
-        participants: {},
-        created_at:   HH.TIMESTAMP
+        status:       status
       };
+
+      // In edit mode, preserve existing participants and created_at
+      if (isEdit) {
+        HH.db.ref("opportunities/" + key).once("value").then(function(snap) {
+          if (snap.exists()) {
+            var existing = snap.val();
+            record.participants = existing.participants || {};
+            record.created_at = existing.created_at;
+          }
+          finalizePublish(record);
+        }).catch(function(err) {
+          btn.disabled    = false;
+          btn.textContent = isEdit ? "Save changes" : "Publish opportunity";
+          showMsg("error", "Failed to load existing data: " + err.message);
+        });
+      } else {
+        record.participants = {};
+        record.created_at = HH.TIMESTAMP;
+        finalizePublish(record);
+      }
+    }
+
+    function finalizePublish(record) {
+      var btn = document.getElementById("btn-publish");
+      var isEdit = !!_editKey;
+      var location = record.location;
+
+      function saveRecord(record) {
+        var updates = {};
+        updates["opportunities/" + record.opp_id] = record;
+        if (!isEdit) {
+          updates["organizations/" + _uid + "/opportunities/" + record.opp_id] = true;
+        }
+        return HH.db.ref().update(updates);
+      }
 
       var publishPromise = location
         ? HH.Geocode.resolve(location).then(function (coord) {
@@ -366,24 +439,32 @@
       publishPromise
         .then(function () {
           btn.disabled    = false;
-          btn.textContent = "Publish opportunity";
+          btn.textContent = isEdit ? "Save changes" : "Publish opportunity";
           showMsg("success",
-            "Opportunity published! Volunteers can now find and join it.");
-          // Reset form
-          ["opp-title","opp-desc","opp-location","opp-max","opp-start-time","opp-end-time"].forEach(function(id){
-            document.getElementById(id).value = "";
-          });
-          document.getElementById("opp-category").value = "";
-          document.getElementById("opp-date").value     = "";
-          document.getElementById("opp-status").value   = "open";
-          document.getElementById("opp-duration").textContent = "—";
-          document.getElementById("count-title").textContent = "0";
-          document.getElementById("count-desc").textContent  = "0";
+            isEdit ? "Opportunity updated successfully!" : "Opportunity published! Volunteers can now find and join it.");
+          
+          if (isEdit) {
+            // In edit mode, redirect back to manage opportunities after a short delay
+            setTimeout(function() {
+              window.location.href = "manage-opportunities.html";
+            }, 1500);
+          } else {
+            // Reset form for create mode
+            ["opp-title","opp-desc","opp-location","opp-max","opp-start-time","opp-end-time"].forEach(function(id){
+              document.getElementById(id).value = "";
+            });
+            document.getElementById("opp-category").value = "";
+            document.getElementById("opp-date").value     = "";
+            document.getElementById("opp-status").value   = "open";
+            document.getElementById("opp-duration").textContent = "—";
+            document.getElementById("count-title").textContent = "0";
+            document.getElementById("count-desc").textContent  = "0";
+          }
         })
         .catch(function (err) {
           btn.disabled    = false;
-          btn.textContent = "Publish opportunity";
-          showMsg("error", "Failed to publish: " + err.message);
+          btn.textContent = isEdit ? "Save changes" : "Publish opportunity";
+          showMsg("error", (isEdit ? "Failed to update" : "Failed to publish") + ": " + err.message);
         });
     }
 

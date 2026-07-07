@@ -644,14 +644,25 @@
           return HH.auth.currentUser.delete();
         })
         .then(function () {
+          // Auth account deleted successfully - redirect to landing
           window.location.replace(HH.Router.PATHS.landing);
         })
         .catch(function (e) {
           btn.disabled  = false;
           btn.innerHTML = "Yes, permanently delete my account";
-          errEl.textContent = e.code === "auth/wrong-password"
-            ? "Incorrect password."
-            : (e.message || "Delete failed.");
+          
+          // Handle specific Firebase Auth errors
+          if (e.code === "auth/wrong-password") {
+            errEl.textContent = "Incorrect password.";
+          } else if (e.code === "auth/requires-recent-login") {
+            errEl.textContent = "For security, please sign out and sign back in before deleting your account.";
+          } else if (e.code === "auth/user-not-found") {
+            errEl.textContent = "Account not found. You may have already been deleted.";
+          } else {
+            errEl.textContent = e.message || "Delete failed. Please try again.";
+          }
+          
+          console.error("Account deletion error:", e);
         });
     }
 

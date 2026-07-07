@@ -290,7 +290,7 @@
                 toggleLabel +
               '</button>' +
               '<button class="btn btn-sm btn-danger"' +
-                ' onclick="openDeleteModal(\'\' + escHtml(o._key) + '\')">\' +
+                ' onclick="openDeleteModal(\'' + escHtml(o._key) + '\')">' +
                 'Delete' +
               '</button>' +
             '</div>' +
@@ -338,7 +338,8 @@
             return HH.notifyOpportunityDeleted({
               volunteers:        result.volunteers,
               opportunityTitle:  result.title,
-              orgName:           result.orgName
+              orgName:           result.orgName,
+              opportunityDate:   result.date
             }).then(function (notifyResult) {
               if (notifyResult.sent > 0) {
                 showMsg("success",
@@ -349,7 +350,8 @@
                   "Opportunity deleted. Email is not configured on the server — " +
                   "volunteers were unenrolled but not emailed.");
               }
-            }).catch(function () {
+            }).catch(function (err) {
+              console.error("Email notification failed:", err);
               showMsg("success",
                 "Opportunity deleted. Volunteers were unenrolled, but email notification failed.");
             });

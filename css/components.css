@@ -900,10 +900,13 @@ html.sidebar-collapsed .app-sidebar {
 .achievement-builder-toggle {
   width: 24px;
   height: 24px;
+  transition: transform var(--transition-normal);
+}
+
+.achievement-builder-toggle polyline {
   stroke: var(--text-muted);
   fill: none;
   stroke-width: 2;
-  transition: transform var(--transition-normal);
 }
 
 .achievement-builder.open .achievement-builder-toggle {

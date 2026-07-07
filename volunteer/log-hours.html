@@ -938,20 +938,20 @@
               submission_id: key, volunteer_id: _uid,
               volunteer_name: udata.name || "Volunteer",
               volunteer_email: udata.email || "",
-            opportunity_id: oppId, opportunity_title: opp.title||"",
-            org_id: opp.org_id||"", org_name: opp.org_name||"",
-            date: date, start_time: start, end_time: end,
-            duration: duration,
-            hours: parseFloat(hours.toFixed(2)),
-            description: desc, status: "pending",
-            submitted_at: HH.TIMESTAMP,
-            reflection: achievementData.reflection || "",
-            skills_used: achievementData.skills_used || [],
-            leadership_demonstrated: achievementData.leadership_demonstrated || "",
-            challenge_faced: achievementData.challenge_faced || "",
-            community_impact: achievementData.community_impact || "",
-            personal_growth: achievementData.personal_growth || "",
-            achievement_tags: achievementData.achievement_tags || []
+              opportunity_id: oppId, opportunity_title: opp.title||"",
+              org_id: opp.org_id||"", org_name: opp.org_name||"",
+              date: date, start_time: start, end_time: end,
+              duration: duration,
+              hours: parseFloat(hours.toFixed(2)),
+              description: desc, status: "pending",
+              submitted_at: HH.TIMESTAMP,
+              reflection: achievementData.reflection || "",
+              skills_used: achievementData.skills_used || [],
+              leadership_demonstrated: achievementData.leadership_demonstrated || "",
+              challenge_faced: achievementData.challenge_faced || "",
+              community_impact: achievementData.community_impact || "",
+              personal_growth: achievementData.personal_growth || "",
+              achievement_tags: achievementData.achievement_tags || []
             };
             return HH.db.ref("users/" + _uid + "/pending_count").once("value")
               .then(function(pc) {
@@ -959,23 +959,24 @@
                 u["submissions/" + key]               = record;
                 u["users/" + _uid + "/pending_count"] = (pc.val()||0) + 1;
                 return HH.db.ref().update(u);
+              })
+              .then(function() {
+                if (!btn.disabled) return;
+                btn.disabled = false; btn.textContent = "Submit for approval";
+                showFormMsg("success","Submitted! Waiting for the organization to review.");
+                document.getElementById("sel-start").value = "";
+                document.getElementById("sel-end").value   = "";
+                document.getElementById("sel-desc").value  = "";
+                document.getElementById("hours-display").textContent = "0.0 h";
+                clearAchievementDraft();
               });
-          })
-        .then(function() {
-          if (!btn.disabled) return;
-          btn.disabled = false; btn.textContent = "Submit for approval";
-          showFormMsg("success","Submitted! Waiting for the organization to review.");
-          document.getElementById("sel-start").value = "";
-          document.getElementById("sel-end").value   = "";
-          document.getElementById("sel-desc").value  = "";
-          document.getElementById("hours-display").textContent = "0.0 h";
-          clearAchievementDraft();
+          });
         })
         .catch(function(err) {
           btn.disabled = false; btn.textContent = "Submit for approval";
           showFormMsg("error","Submit failed: " + err.message);
         });
-      }
+    }
 
     function showFormMsg(type, text) {
       var bg = type==="error" ? "var(--color-danger-light)"   : "var(--color-success-light)";

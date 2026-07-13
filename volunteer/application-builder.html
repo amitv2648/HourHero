@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HourHero — Application Builder</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    body { background: var(--bg-page); }
+
+    .page-header {
+      margin-bottom: var(--space-4);
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      margin-bottom: var(--space-1);
+    }
+
+    .page-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    /* Generator buttons */
+    .generator-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+
+    .generator-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      text-align: center;
+      cursor: pointer;
+      opacity: 1;
+      transition: border-color .15s, box-shadow .15s, opacity .15s;
+    }
+
+    .generator-btn:hover {
+      border-color: var(--color-primary-mid);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .generator-btn.disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .generator-btn.disabled:hover {
+      border-color: var(--border-color);
+      box-shadow: none;
+    }
+
+    .generator-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--color-gray-100);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-2);
+    }
+
+    .generator-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-secondary);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .generator-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .generator-coming {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: var(--space-1);
+    }
+
+    /* View toggling */
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    /* Validation message */
+    .validation-message {
+      background: var(--color-danger-light);
+      border: 1px solid var(--color-danger-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      display: none;
+    }
+
+    .validation-message.show {
+      display: block;
+    }
+
+    .validation-message-text {
+      font-size: 0.875rem;
+      color: var(--color-danger-text);
+      font-weight: 500;
+    }
+
+    /* Workspace styles */
+    .workspace-header {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin-bottom: var(--space-4);
+    }
+
+    .workspace-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      margin-bottom: var(--space-1);
+    }
+
+    .workspace-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .workspace-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin-bottom: var(--space-4);
+    }
+
+    .workspace-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .workspace-experience-card {
+      background: var(--bg-page);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-3);
+      position: relative;
+    }
+
+    .workspace-experience-remove {
+      position: absolute;
+      top: var(--space-3);
+      right: var(--space-3);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      transition: background .15s, color .15s;
+    }
+
+    .workspace-experience-remove:hover {
+      background: var(--color-danger-light);
+      color: var(--color-danger-text);
+    }
+
+    .workspace-experience-remove svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .workspace-experience-org {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--space-1);
+      padding-right: 32px;
+    }
+
+    .workspace-experience-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+      padding-right: 32px;
+    }
+
+    .workspace-experience-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+    }
+
+    .workspace-experience-hours {
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .workspace-experience-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .workspace-skill-tag {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      border-radius: var(--radius-full);
+      font-weight: 600;
+    }
+
+    .workspace-experience-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-top: var(--space-2);
+    }
+
+    .workspace-achievement-tag {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      background: var(--color-success-light);
+      color: var(--color-success-text);
+      border-radius: var(--radius-full);
+      font-weight: 600;
+    }
+
+    /* Customization options */
+    .customization-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .customization-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .customization-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .customization-select {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .customization-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    /* Workspace actions */
+    .workspace-actions {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-top: var(--space-4);
+    }
+
+    .generate-btn {
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      padding: var(--space-3) var(--space-5);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .generate-btn:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+    }
+
+    .generate-btn:disabled {
+      background: var(--color-gray-200);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .generate-btn-caption {
+      font-size: 0.7rem;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+
+    /* Search and filters */
+    .controls-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      align-items: center;
+    }
+
+    .search-wrapper {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      background: var(--bg-page);
+      color: var(--text-primary);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .filter-select {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    /* Experience cards */
+    .experience-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    .experience-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      transition: border-color .15s, box-shadow .15s;
+      position: relative;
+    }
+
+    .experience-card:hover {
+      border-color: var(--color-primary-mid);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .experience-checkbox {
+      position: absolute;
+      top: var(--space-4);
+      right: var(--space-4);
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: var(--color-primary);
+    }
+
+    .experience-org {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--space-1);
+    }
+
+    .experience-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+      padding-right: 28px;
+    }
+
+    .experience-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-3);
+    }
+
+    .experience-hours {
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .experience-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-3);
+      line-height: 1.5;
+    }
+
+    .experience-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+
+    .skill-tag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      border-radius: var(--radius-full);
+      font-weight: 600;
+    }
+
+    .experience-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .achievement-tag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      background: var(--color-success-light);
+      color: var(--color-success-text);
+      border-radius: var(--radius-full);
+      font-weight: 600;
+    }
+
+    .experience-reflection {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--border-color);
+      font-style: italic;
+    }
+
+    /* Sticky summary panel */
+    .summary-panel {
+      position: sticky;
+      bottom: var(--space-4);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-md);
+      z-index: 10;
+    }
+
+    .summary-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3);
+    }
+
+    .summary-stat {
+      text-align: center;
+    }
+
+    .summary-stat-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+
+    .summary-stat-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: var(--space-8) var(--space-4);
+    }
+
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--color-gray-100);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-4);
+    }
+
+    .empty-icon svg {
+      width: 40px;
+      height: 40px;
+      stroke: var(--text-muted);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .empty-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .empty-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-4);
+    }
+
+    @media (max-width: 768px) {
+      .controls-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .experience-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .customization-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .workspace-actions {
+        flex-direction: column;
+      }
+
+      .generate-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="vol-chrome-root"></div>
+
+  <main class="page-with-sidebar">
+    <div class="page-content">
+
+      <div class="page-header">
+        <h1 class="page-title">Application Builder</h1>
+        <p class="page-subtitle">Select your volunteer experiences to build resumes, scholarship applications, and more.</p>
+      </div>
+
+      <!-- Selection view -->
+      <div class="view-section active" id="selection-view">
+        <!-- Generator buttons -->
+        <div class="generator-grid">
+          <div class="generator-btn" onclick="openWorkspace('resume')">
+            <div class="generator-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            </div>
+            <div class="generator-label">Resume</div>
+          </div>
+          <div class="generator-btn" onclick="openWorkspace('scholarship')">
+            <div class="generator-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <div class="generator-label">Scholarship</div>
+          </div>
+          <div class="generator-btn" onclick="openWorkspace('college')">
+            <div class="generator-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <div class="generator-label">College Application</div>
+          </div>
+          <div class="generator-btn" onclick="openWorkspace('internship')">
+            <div class="generator-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <div class="generator-label">Internship</div>
+          </div>
+          <div class="generator-btn" onclick="openWorkspace('linkedin')">
+            <div class="generator-icon">
+              <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </div>
+            <div class="generator-label">LinkedIn</div>
+          </div>
+          <div class="generator-btn" onclick="openWorkspace('essay')">
+            <div class="generator-icon">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <div class="generator-label">Essay Ideas</div>
+          </div>
+          <div class="generator-btn" onclick="openWorkspace('commonapp')">
+            <div class="generator-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            </div>
+            <div class="generator-label">Common App</div>
+          </div>
+        </div>
+
+        <!-- Validation message -->
+        <div class="validation-message" id="validation-message">
+          <div class="validation-message-text">Please select at least one approved volunteer experience before continuing.</div>
+        </div>
+
+        <!-- Search and filters -->
+        <div class="controls-bar">
+          <div class="search-wrapper">
+            <input type="text" class="search-input" id="search-input" placeholder="Search by organization, opportunity, activity, skills, reflection, tags..." oninput="applyFilters()">
+          </div>
+          <select class="filter-select" id="filter-org" onchange="applyFilters()">
+            <option value="">All Organizations</option>
+          </select>
+          <select class="filter-select" id="filter-date" onchange="applyFilters()">
+            <option value="">All Dates</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
+          </select>
+          <select class="filter-select" id="filter-category" onchange="applyFilters()">
+            <option value="">All Categories</option>
+            <option value="leadership">Leadership</option>
+            <option value="technology">Technology</option>
+            <option value="engineering">Engineering</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="community">Community Service</option>
+            <option value="teaching">Teaching</option>
+            <option value="environmental">Environmental Service</option>
+            <option value="communication">Communication</option>
+          </select>
+          <select class="filter-select" id="sort-by" onchange="applyFilters()">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="most-hours">Most Hours</option>
+            <option value="least-hours">Least Hours</option>
+            <option value="org-az">Organization (A-Z)</option>
+          </select>
+        </div>
+
+        <!-- Experience cards -->
+        <div class="experience-grid" id="experience-grid">
+          <div class="skeleton" style="height:200px;border-radius:var(--radius-lg);"></div>
+          <div class="skeleton" style="height:200px;border-radius:var(--radius-lg);"></div>
+          <div class="skeleton" style="height:200px;border-radius:var(--radius-lg);"></div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state hidden" id="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h2 class="empty-title">No completed volunteer experiences yet</h2>
+          <p class="empty-subtitle">Log your volunteer hours to start building your application materials.</p>
+          <a href="log-hours.html" class="btn btn-primary">Log Volunteer Hours</a>
+        </div>
+
+        <!-- Selection summary panel -->
+        <div class="summary-panel hidden" id="summary-panel">
+          <div class="summary-title">Selected Experiences</div>
+          <div class="summary-stats">
+            <div class="summary-stat">
+              <div class="summary-stat-value" id="summary-count">0</div>
+              <div class="summary-stat-label">Experiences</div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat-value" id="summary-hours">0</div>
+              <div class="summary-stat-label">Total Hours</div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat-value" id="summary-orgs">0</div>
+              <div class="summary-stat-label">Organizations</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workspace view -->
+      <div class="view-section" id="workspace-view">
+        <div class="workspace-header">
+          <h1 class="workspace-title" id="workspace-title">Resume Builder</h1>
+          <p class="workspace-subtitle">Customize your selected experiences and generate your application materials.</p>
+        </div>
+
+        <!-- Selected experiences -->
+        <div class="workspace-section">
+          <h2 class="workspace-section-title">Selected Experiences</h2>
+          <div id="workspace-experiences">
+            <!-- Experience cards will be rendered here -->
+          </div>
+          <div class="summary-stats" style="margin-top: var(--space-4);">
+            <div class="summary-stat">
+              <div class="summary-stat-value" id="ws-summary-count">0</div>
+              <div class="summary-stat-label">Experiences</div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat-value" id="ws-summary-hours">0</div>
+              <div class="summary-stat-label">Total Hours</div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat-value" id="ws-summary-orgs">0</div>
+              <div class="summary-stat-label">Organizations</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customization options -->
+        <div class="workspace-section">
+          <h2 class="workspace-section-title">Customization Options</h2>
+          <div class="customization-grid">
+            <div class="customization-group">
+              <label class="customization-label">Tone</label>
+              <select class="customization-select" id="tone-select" onchange="autosaveDraft()">
+                <option value="professional">Professional</option>
+                <option value="leadership">Leadership</option>
+                <option value="technical">Technical</option>
+                <option value="community">Community Service</option>
+                <option value="academic">Academic</option>
+              </select>
+            </div>
+            <div class="customization-group">
+              <label class="customization-label">Length</label>
+              <select class="customization-select" id="length-select" onchange="autosaveDraft()">
+                <option value="short">Short</option>
+                <option value="medium">Medium</option>
+                <option value="detailed">Detailed</option>
+              </select>
+            </div>
+            <div class="customization-group">
+              <label class="customization-label">Audience</label>
+              <select class="customization-select" id="audience-select" onchange="autosaveDraft()">
+                <option value="resume-reviewer">Resume Reviewer</option>
+                <option value="college-admissions">College Admissions</option>
+                <option value="scholarship-committee">Scholarship Committee</option>
+                <option value="internship-recruiter">Internship Recruiter</option>
+                <option value="employer">Employer</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workspace actions -->
+        <div class="workspace-actions">
+          <button class="btn btn-secondary" onclick="saveDraft()">Save Draft</button>
+          <button class="btn btn-outline" onclick="clearDraft()">Clear Draft</button>
+          <button class="btn btn-outline" onclick="backToSelection()">Back to Experience Selection</button>
+          <button class="generate-btn" disabled>
+            Generate
+            <span class="generate-btn-caption">Available in Phase 5.3</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/router.js"></script>
+  <script src="../js/nav-menu.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script src="../js/volunteer-chrome.js"></script>
+
+  <script>
+    HH.Router.protect("volunteer");
+
+    var _uid = null;
+    var _allExperiences = [];
+    var _selectedExperiences = new Set();
+    var _organizations = new Set();
+    var _currentGenerator = null;
+    var _draftData = null;
+
+    HH.Router.onReady(function(uid) {
+      _uid = uid;
+      HH.VolunteerChrome.mount("application-builder");
+      loadProfile(uid);
+      loadExperiences(uid);
+      restoreDraft();
+    });
+
+    function loadProfile(uid) {
+      HH.db.ref("users/" + uid).once("value").then(function(snap) {
+        if (!snap.exists()) return;
+        var profile = snap.val();
+        if (window.HH && HH.NavMenu) HH.NavMenu.setInitials(ini(profile.name || "HH"));
+      });
+    }
+
+    function ini(name) {
+      if (!name) return "HH";
+      var parts = name.trim().split(" ");
+      if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
+    function loadExperiences(uid) {
+      HH.listSubmissionsForVolunteer(uid).then(function(list) {
+        _allExperiences = list.filter(function(s) {
+          return s.status === "approved";
+        });
+        
+        // Extract unique organizations for filter
+        _organizations = new Set();
+        _allExperiences.forEach(function(s) {
+          if (s.org_name) _organizations.add(s.org_name);
+        });
+        
+        // Populate organization filter
+        var orgSelect = document.getElementById("filter-org");
+        orgSelect.innerHTML = '<option value="">All Organizations</option>';
+        Array.from(_organizations).sort().forEach(function(org) {
+          var option = document.createElement("option");
+          option.value = org;
+          option.textContent = org;
+          orgSelect.appendChild(option);
+        });
+        
+        applyFilters();
+      }).catch(function(err) {
+        console.error("Failed to load experiences:", err);
+        document.getElementById("experience-grid").innerHTML =
+          '<div class="empty-state"><p style="color:var(--text-muted);">Failed to load experiences.</p></div>';
+      });
+    }
+
+    function applyFilters() {
+      var search = document.getElementById("search-input").value.toLowerCase();
+      var orgFilter = document.getElementById("filter-org").value;
+      var dateFilter = document.getElementById("filter-date").value;
+      var categoryFilter = document.getElementById("filter-category").value;
+      var sortBy = document.getElementById("sort-by").value;
+      
+      var filtered = _allExperiences.filter(function(s) {
+        // Search filter
+        if (search) {
+          var skills = (s.skills_used || []).join(" ").toLowerCase();
+          var tags = (s.achievement_tags || []).join(" ").toLowerCase();
+          var org = (s.org_name || "").toLowerCase();
+          var title = (s.opportunity_title || "").toLowerCase();
+          var desc = (s.description || "").toLowerCase();
+          var reflection = (s.reflection || "").toLowerCase();
+          var searchStr = skills + " " + tags + " " + org + " " + title + " " + desc + " " + reflection;
+          if (searchStr.indexOf(search) === -1) return false;
+        }
+        
+        // Organization filter
+        if (orgFilter && s.org_name !== orgFilter) return false;
+        
+        // Date filter
+        if (dateFilter) {
+          var today = new Date();
+          today.setHours(0, 0, 0, 0);
+          var itemDate = s.date ? new Date(s.date + "T12:00:00") : null;
+          if (!itemDate) return false;
+          
+          if (dateFilter === "week") {
+            var weekAgo = new Date(today);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            if (itemDate < weekAgo) return false;
+          } else if (dateFilter === "month") {
+            var monthAgo = new Date(today);
+            monthAgo.setMonth(monthAgo.getMonth() - 1);
+            if (itemDate < monthAgo) return false;
+          } else if (dateFilter === "quarter") {
+            var quarterAgo = new Date(today);
+            quarterAgo.setMonth(quarterAgo.getMonth() - 3);
+            if (itemDate < quarterAgo) return false;
+          } else if (dateFilter === "year") {
+            var yearAgo = new Date(today);
+            yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+            if (itemDate < yearAgo) return false;
+          }
+        }
+        
+        // Category filter (check if category appears in skills or tags)
+        if (categoryFilter) {
+          var skills = (s.skills_used || []).map(function(s) { return s.toLowerCase(); });
+          var tags = (s.achievement_tags || []).map(function(t) { return t.toLowerCase(); });
+          var all = skills.concat(tags);
+          if (all.indexOf(categoryFilter) === -1) return false;
+        }
+        
+        return true;
+      });
+      
+      // Sort
+      filtered.sort(function(a, b) {
+        if (sortBy === "newest") {
+          return (b.submitted_at || 0) - (a.submitted_at || 0);
+        } else if (sortBy === "oldest") {
+          return (a.submitted_at || 0) - (b.submitted_at || 0);
+        } else if (sortBy === "most-hours") {
+          return (b.hours || 0) - (a.hours || 0);
+        } else if (sortBy === "least-hours") {
+          return (a.hours || 0) - (b.hours || 0);
+        } else if (sortBy === "org-az") {
+          var orgA = (a.org_name || "").toLowerCase();
+          var orgB = (b.org_name || "").toLowerCase();
+          return orgA < orgB ? -1 : orgA > orgB ? 1 : 0;
+        }
+        return 0;
+      });
+      
+      renderExperiences(filtered);
+    }
+
+    function renderExperiences(experiences) {
+      var container = document.getElementById("experience-grid");
+      var emptyState = document.getElementById("empty-state");
+      
+      if (!experiences.length) {
+        container.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        updateSummary();
+        return;
+      }
+      
+      emptyState.classList.add("hidden");
+      
+      var html = "";
+      experiences.forEach(function(s) {
+        var dateStr = s.date
+          ? new Date(s.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+          : "";
+        var isSelected = _selectedExperiences.has(s._key);
+        
+        var skillsHtml = "";
+        if (s.skills_used && s.skills_used.length) {
+          skillsHtml = '<div class="experience-skills">' +
+            s.skills_used.slice(0, 4).map(function(skill) {
+              return '<span class="skill-tag">' + esc(skill) + '</span>';
+            }).join("") +
+          '</div>';
+        }
+        
+        var tagsHtml = "";
+        if (s.achievement_tags && s.achievement_tags.length) {
+          tagsHtml = '<div class="experience-tags">' +
+            s.achievement_tags.slice(0, 3).map(function(tag) {
+              return '<span class="achievement-tag">' + esc(tag) + '</span>';
+            }).join("") +
+          '</div>';
+        }
+        
+        var reflectionHtml = "";
+        if (s.reflection) {
+          var preview = s.reflection.length > 150 ? s.reflection.substring(0, 150) + "..." : s.reflection;
+          reflectionHtml = '<div class="experience-reflection">"' + esc(preview) + '"</div>';
+        }
+        
+        html +=
+          '<div class="experience-card">' +
+            '<input type="checkbox" class="experience-checkbox" ' +
+              'id="check-' + s._key + '" ' +
+              (isSelected ? 'checked' : '') +
+              ' onchange="toggleSelection(\'' + s._key + '\')">' +
+            '<div class="experience-org">' + esc(s.org_name || "Organization") + '</div>' +
+            '<div class="experience-title">' + esc(s.opportunity_title || "Volunteer Experience") + '</div>' +
+            '<div class="experience-meta">' +
+              '<span>' + dateStr + '</span>' +
+              '<span>&middot;</span>' +
+              '<span class="experience-hours">' + (s.hours || 0).toFixed(1) + ' hours</span>' +
+            '</div>' +
+            '<div class="experience-desc">' + esc(s.description || "") + '</div>' +
+            skillsHtml +
+            tagsHtml +
+            reflectionHtml +
+          '</div>';
+      });
+      
+      container.innerHTML = html;
+      updateSummary();
+    }
+
+    function toggleSelection(key) {
+      if (_selectedExperiences.has(key)) {
+        _selectedExperiences.delete(key);
+      } else {
+        _selectedExperiences.add(key);
+      }
+      updateSummary();
+    }
+
+    function updateSummary() {
+      var panel = document.getElementById("summary-panel");
+      
+      if (_selectedExperiences.size === 0) {
+        panel.classList.add("hidden");
+        return;
+      }
+      
+      panel.classList.remove("hidden");
+      
+      var selected = _allExperiences.filter(function(s) {
+        return _selectedExperiences.has(s._key);
+      });
+      
+      var totalHours = selected.reduce(function(sum, s) {
+        return sum + (parseFloat(s.hours) || 0);
+      }, 0);
+      
+      var orgs = new Set();
+      selected.forEach(function(s) {
+        if (s.org_name) orgs.add(s.org_name);
+      });
+      
+      document.getElementById("summary-count").textContent = selected.length;
+      document.getElementById("summary-hours").textContent = totalHours.toFixed(1);
+      document.getElementById("summary-orgs").textContent = orgs.size;
+    }
+
+    function esc(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    // Workspace functions
+    function openWorkspace(generatorType) {
+      if (_selectedExperiences.size === 0) {
+        var validationMsg = document.getElementById("validation-message");
+        validationMsg.classList.add("show");
+        setTimeout(function() {
+          validationMsg.classList.remove("show");
+        }, 5000);
+        return;
+      }
+
+      _currentGenerator = generatorType;
+      
+      var titles = {
+        resume: "Resume Builder",
+        scholarship: "Scholarship Application Builder",
+        college: "College Application Builder",
+        internship: "Internship Application Builder",
+        linkedin: "LinkedIn Profile Builder",
+        essay: "Essay Ideas Generator",
+        commonapp: "Common App Essay Builder"
+      };
+      
+      document.getElementById("workspace-title").textContent = titles[generatorType] || "Application Builder";
+      
+      document.getElementById("selection-view").classList.remove("active");
+      document.getElementById("workspace-view").classList.add("active");
+      
+      renderWorkspaceExperiences();
+      updateWorkspaceSummary();
+      
+      // Reset customization options to defaults
+      document.getElementById("tone-select").value = "professional";
+      document.getElementById("length-select").value = "medium";
+      document.getElementById("audience-select").value = "resume-reviewer";
+      
+      autosaveDraft();
+    }
+
+    function renderWorkspaceExperiences() {
+      var container = document.getElementById("workspace-experiences");
+      var selected = _allExperiences.filter(function(s) {
+        return _selectedExperiences.has(s._key);
+      });
+      
+      if (!selected.length) {
+        container.innerHTML = '<p style="color:var(--text-muted);font-size:0.875rem;">No experiences selected.</p>';
+        return;
+      }
+      
+      var html = "";
+      selected.forEach(function(s) {
+        var dateStr = s.date
+          ? new Date(s.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+          : "";
+        
+        var skillsHtml = "";
+        if (s.skills_used && s.skills_used.length) {
+          skillsHtml = '<div class="workspace-experience-skills">' +
+            s.skills_used.slice(0, 5).map(function(skill) {
+              return '<span class="workspace-skill-tag">' + esc(skill) + '</span>';
+            }).join("") +
+          '</div>';
+        }
+        
+        var tagsHtml = "";
+        if (s.achievement_tags && s.achievement_tags.length) {
+          tagsHtml = '<div class="workspace-experience-tags">' +
+            s.achievement_tags.slice(0, 4).map(function(tag) {
+              return '<span class="workspace-achievement-tag">' + esc(tag) + '</span>';
+            }).join("") +
+          '</div>';
+        }
+        
+        html +=
+          '<div class="workspace-experience-card">' +
+            '<button class="workspace-experience-remove" onclick="removeExperience(\'' + s._key + '\')" title="Remove">' +
+              '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+            '</button>' +
+            '<div class="workspace-experience-org">' + esc(s.org_name || "Organization") + '</div>' +
+            '<div class="workspace-experience-title">' + esc(s.opportunity_title || "Volunteer Experience") + '</div>' +
+            '<div class="workspace-experience-meta">' +
+              '<span>' + dateStr + '</span>' +
+              '<span>&middot;</span>' +
+              '<span class="workspace-experience-hours">' + (s.hours || 0).toFixed(1) + ' hours</span>' +
+            '</div>' +
+            skillsHtml +
+            tagsHtml +
+          '</div>';
+      });
+      
+      container.innerHTML = html;
+    }
+
+    function updateWorkspaceSummary() {
+      var selected = _allExperiences.filter(function(s) {
+        return _selectedExperiences.has(s._key);
+      });
+      
+      var totalHours = selected.reduce(function(sum, s) {
+        return sum + (parseFloat(s.hours) || 0);
+      }, 0);
+      
+      var orgs = new Set();
+      selected.forEach(function(s) {
+        if (s.org_name) orgs.add(s.org_name);
+      });
+      
+      document.getElementById("ws-summary-count").textContent = selected.length;
+      document.getElementById("ws-summary-hours").textContent = totalHours.toFixed(1);
+      document.getElementById("ws-summary-orgs").textContent = orgs.size;
+    }
+
+    function removeExperience(key) {
+      _selectedExperiences.delete(key);
+      renderWorkspaceExperiences();
+      updateWorkspaceSummary();
+      updateSummary();
+      autosaveDraft();
+      
+      if (_selectedExperiences.size === 0) {
+        backToSelection();
+      }
+    }
+
+    function backToSelection() {
+      document.getElementById("workspace-view").classList.remove("active");
+      document.getElementById("selection-view").classList.add("active");
+      _currentGenerator = null;
+      autosaveDraft();
+    }
+
+    // Draft functions
+    function autosaveDraft() {
+      if (!_currentGenerator) return;
+      
+      var draft = {
+        generatorType: _currentGenerator,
+        selectedExperiences: Array.from(_selectedExperiences),
+        tone: document.getElementById("tone-select").value,
+        length: document.getElementById("length-select").value,
+        audience: document.getElementById("audience-select").value,
+        timestamp: Date.now()
+      };
+      
+      _draftData = draft;
+      localStorage.setItem("hh_app_builder_draft", JSON.stringify(draft));
+    }
+
+    function saveDraft() {
+      autosaveDraft();
+      alert("Draft saved successfully!");
+    }
+
+    function clearDraft() {
+      localStorage.removeItem("hh_app_builder_draft");
+      _draftData = null;
+      alert("Draft cleared!");
+    }
+
+    function restoreDraft() {
+      var draftStr = localStorage.getItem("hh_app_builder_draft");
+      if (!draftStr) return;
+      
+      try {
+        var draft = JSON.parse(draftStr);
+        _draftData = draft;
+        
+        // Restore selected experiences
+        _selectedExperiences = new Set(draft.selectedExperiences || []);
+        
+        // Update checkboxes in selection view
+        var checkboxes = document.querySelectorAll(".experience-checkbox");
+        checkboxes.forEach(function(cb) {
+          var key = cb.id.replace("check-", "");
+          cb.checked = _selectedExperiences.has(key);
+        });
+        
+        updateSummary();
+        
+        // If there's a generator type, restore the workspace
+        if (draft.generatorType && _selectedExperiences.size > 0) {
+          _currentGenerator = draft.generatorType;
+          
+          var titles = {
+            resume: "Resume Builder",
+            scholarship: "Scholarship Application Builder",
+            college: "College Application Builder",
+            internship: "Internship Application Builder",
+            linkedin: "LinkedIn Profile Builder",
+            essay: "Essay Ideas Generator",
+            commonapp: "Common App Essay Builder"
+          };
+          
+          document.getElementById("workspace-title").textContent = titles[draft.generatorType] || "Application Builder";
+          
+          document.getElementById("selection-view").classList.remove("active");
+          document.getElementById("workspace-view").classList.add("active");
+          
+          renderWorkspaceExperiences();
+          updateWorkspaceSummary();
+          
+          // Restore customization options
+          document.getElementById("tone-select").value = draft.tone || "professional";
+          document.getElementById("length-select").value = draft.length || "medium";
+          document.getElementById("audience-select").value = draft.audience || "resume-reviewer";
+        }
+      } catch (err) {
+        console.error("Failed to restore draft:", err);
+      }
+    }
+  </script>
+
+</body>
+</html>

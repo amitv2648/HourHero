@@ -801,15 +801,43 @@
           </div>
         </div>
 
+        <!-- AI Writing Assistant -->
+        <div class="workspace-section">
+          <h2 class="workspace-section-title">AI Writing Assistant</h2>
+          <div style="margin-bottom: var(--space-3);">
+            <label class="customization-label" style="display:block;margin-bottom:var(--space-2);">Describe what you want to generate</label>
+            <textarea 
+              class="form-textarea" 
+              id="ai-prompt-input" 
+              placeholder="e.g., Write resume bullet points for these experiences, Turn these into a scholarship response, Make these bullets stronger..."
+              rows="3"
+              style="width:100%;resize:vertical;"
+            ></textarea>
+          </div>
+          <button class="btn btn-primary" id="insert-btn" onclick="insertAIContent()">
+            <span id="insert-btn-text">Insert AI Content</span>
+            <span id="insert-loading" class="mini-spin" style="display:none;"></span>
+          </button>
+        </div>
+
+        <!-- Text Editor -->
+        <div class="workspace-section">
+          <h2 class="workspace-section-title">Document Editor</h2>
+          <textarea 
+            class="form-textarea" 
+            id="document-editor" 
+            placeholder="Your generated content will appear here. You can also type or paste your own content."
+            rows="20"
+            style="width:100%;resize:vertical;font-family:inherit;line-height:1.6;"
+            oninput="autosaveDraft()"
+          ></textarea>
+        </div>
+
         <!-- Workspace actions -->
         <div class="workspace-actions">
           <button class="btn btn-secondary" onclick="saveDraft()">Save Draft</button>
           <button class="btn btn-outline" onclick="clearDraft()">Clear Draft</button>
           <button class="btn btn-outline" onclick="backToSelection()">Back to Experience Selection</button>
-          <button class="generate-btn" disabled>
-            Generate
-            <span class="generate-btn-caption">Available in Phase 5.3</span>
-          </button>
         </div>
       </div>
 
@@ -1226,6 +1254,8 @@
         tone: document.getElementById("tone-select").value,
         length: document.getElementById("length-select").value,
         audience: document.getElementById("audience-select").value,
+        documentContent: document.getElementById("document-editor").value,
+        aiPrompt: document.getElementById("ai-prompt-input").value,
         timestamp: Date.now()
       };
       
@@ -1290,10 +1320,198 @@
           document.getElementById("tone-select").value = draft.tone || "professional";
           document.getElementById("length-select").value = draft.length || "medium";
           document.getElementById("audience-select").value = draft.audience || "resume-reviewer";
+
+          // Restore document content and AI prompt
+          document.getElementById("document-editor").value = draft.documentContent || "";
+          document.getElementById("ai-prompt-input").value = draft.aiPrompt || "";
         }
       } catch (err) {
         console.error("Failed to restore draft:", err);
       }
+    }
+
+    // AI Integration
+    function insertAIContent() {
+      var prompt = document.getElementById("ai-prompt-input").value.trim();
+      if (!prompt) {
+        alert("Please describe what you want to generate.");
+        return;
+      }
+
+      var selected = _allExperiences.filter(function(s) {
+        return _selectedExperiences.has(s._key);
+      });
+
+      if (!selected.length) {
+        alert("Please select at least one experience.");
+        return;
+      }
+
+      var tone = document.getElementById("tone-select").value;
+      var length = document.getElementById("length-select").value;
+      var audience = document.getElementById("audience-select").value;
+      var existingContent = document.getElementById("document-editor").value;
+
+      // Build system prompt for AI
+      var systemPrompt = buildAISystemPrompt(selected, tone, length, audience, _currentGenerator);
+
+      // Build user message with context
+      var userMessage = buildAIUserMessage(selected, prompt, existingContent, tone, length, audience, _currentGenerator);
+
+      // Disable button and show loading
+      var btn = document.getElementById("insert-btn");
+      var btnText = document.getElementById("insert-btn-text");
+      var loading = document.getElementById("insert-loading");
+      btn.disabled = true;
+      btnText.textContent = "Generating...";
+      loading.style.display = "inline-block";
+
+      // Call AI API
+      callAI(systemPrompt, userMessage)
+        .then(function(generatedText) {
+          // Insert at cursor position
+          insertAtCursor(generatedText);
+
+          // Clear prompt input
+          document.getElementById("ai-prompt-input").value = "";
+
+          // Autosave
+          autosaveDraft();
+        })
+        .catch(function(err) {
+          alert("Failed to generate content: " + err.message);
+        })
+        .finally(function() {
+          btn.disabled = false;
+          btnText.textContent = "Insert AI Content";
+          loading.style.display = "none";
+        });
+    }
+
+    function buildAISystemPrompt(experiences, tone, length, audience, generatorType) {
+      var toneDescriptions = {
+        professional: "professional, polished, and business-appropriate",
+        leadership: "focused on leadership, initiative, and impact",
+        technical: "emphasizing technical skills and methodologies",
+        community: "highlighting community service and social impact",
+        academic: "scholarly, reflective, and education-focused"
+      };
+
+      var lengthDescriptions = {
+        short: "concise and to the point (2-3 sentences per item)",
+        medium: "balanced with moderate detail (3-5 sentences per item)",
+        detailed: "comprehensive with rich detail (6+ sentences per item)"
+      };
+
+      var audienceDescriptions = {
+        "resume-reviewer": "resume reviewers and hiring managers",
+        "college-admissions": "college admissions officers",
+        "scholarship-committee": "scholarship selection committees",
+        "internship-recruiter": "internship recruiters and coordinators",
+        "employer": "potential employers"
+      };
+
+      var generatorDescriptions = {
+        resume: "resume bullet points or experience descriptions",
+        scholarship: "scholarship application responses or essays",
+        college: "college application materials or activity descriptions",
+        internship: "internship application materials or cover letter content",
+        linkedin: "LinkedIn profile summaries or experience descriptions",
+        essay: "essay ideas or writing prompts",
+        commonapp: "Common App activity descriptions or essay content"
+      };
+
+      return (
+        "You are an expert application writer helping a student create " + generatorDescriptions[generatorType] + ".\n\n" +
+        "CRITICAL RULES:\n" +
+        "1. ONLY use the volunteer experiences provided below. NEVER fabricate, invent, or hallucinate experiences, skills, achievements, or details.\n" +
+        "2. You may only use: organization names, opportunity titles, hours logged, descriptions, reflections, skills used, leadership demonstrated, challenges faced, community impact, personal growth, and achievement tags from the provided data.\n" +
+        "3. If the user asks for something that cannot be fulfilled with the provided experiences, politely explain what information is available and suggest alternatives.\n" +
+        "4. Generate ONLY the requested content. Do not include explanations, introductions, or meta-commentary.\n" +
+        "5. The tone should be " + toneDescriptions[tone] + ".\n" +
+        "6. The length should be " + lengthDescriptions[length] + ".\n" +
+        "7. The content is tailored for " + audienceDescriptions[audience] + ".\n\n" +
+        "The user will provide their specific request along with any existing document content. Generate content that fits seamlessly into their document."
+      );
+    }
+
+    function buildAIUserMessage(experiences, prompt, existingContent, tone, length, audience, generatorType) {
+      // Format experiences for AI
+      var experiencesText = experiences.map(function(s, idx) {
+        return (
+          "EXPERIENCE " + (idx + 1) + ":\n" +
+          "Organization: " + (s.org_name || "N/A") + "\n" +
+          "Opportunity: " + (s.opportunity_title || "N/A") + "\n" +
+          "Hours: " + (s.hours || 0) + "\n" +
+          "Date: " + (s.date || "N/A") + "\n" +
+          "Description: " + (s.description || "N/A") + "\n" +
+          "Reflection: " + (s.reflection || "N/A") + "\n" +
+          "Skills Used: " + ((s.skills_used || []).join(", ") || "N/A") + "\n" +
+          "Leadership Demonstrated: " + (s.leadership_demonstrated || "N/A") + "\n" +
+          "Challenge Faced: " + (s.challenge_faced || "N/A") + "\n" +
+          "Community Impact: " + (s.community_impact || "N/A") + "\n" +
+          "Personal Growth: " + (s.personal_growth || "N/A") + "\n" +
+          "Achievement Tags: " + ((s.achievement_tags || []).join(", ") || "N/A")
+        );
+      }).join("\n\n");
+
+      var message =
+        "VOLUNTEER EXPERIENCES:\n\n" + experiencesText + "\n\n" +
+        "GENERATOR TYPE: " + generatorType + "\n" +
+        "TONE: " + tone + "\n" +
+        "LENGTH: " + length + "\n" +
+        "AUDIENCE: " + audience + "\n\n";
+
+      if (existingContent) {
+        message += "EXISTING DOCUMENT CONTENT:\n" + existingContent + "\n\n";
+      }
+
+      message += "USER REQUEST:\n" + prompt + "\n\n" +
+        "Generate the requested content based ONLY on the volunteer experiences above.";
+
+      return message;
+    }
+
+    function callAI(systemPrompt, userMessage) {
+      return fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: systemPrompt,
+          messages: [{ role: "user", content: userMessage }]
+        })
+      })
+      .then(function(res) {
+        return res.json().then(function(data) {
+          if (!res.ok) {
+            throw new Error(data.error || ("API error " + res.status));
+          }
+          return data;
+        });
+      })
+      .then(function(data) {
+        var text = (data.content || [])
+          .filter(function(b) { return b.type === "text"; })
+          .map(function(b) { return b.text; })
+          .join("");
+        return text;
+      });
+    }
+
+    function insertAtCursor(text) {
+      var textarea = document.getElementById("document-editor");
+      var start = textarea.selectionStart;
+      var end = textarea.selectionEnd;
+      var value = textarea.value;
+
+      // Insert text at cursor position
+      var newValue = value.substring(0, start) + text + value.substring(end);
+      textarea.value = newValue;
+
+      // Move cursor after inserted text
+      var newCursorPos = start + text.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+      textarea.focus();
     }
   </script>
 
